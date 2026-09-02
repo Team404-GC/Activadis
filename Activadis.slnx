@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/ci-build-test.yml" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="Activadis.API/Activadis.API.csproj" Id="c04fc61a-8dd2-4513-8632-1b03f091bf39" />
     <Project Path="Activadis.Application/Activadis.Application.csproj" Id="032d6ef7-68e3-4621-a50c-1a379f0373e3" />
