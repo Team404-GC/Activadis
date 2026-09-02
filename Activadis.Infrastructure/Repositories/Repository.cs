@@ -21,7 +21,7 @@ namespace Activadis.Infrastructure.Repositories
                 .ToListAsync();
 
         public async Task<TEntity?> GetByIdAsync(Guid id)
-            => await Set.SingleOrDefaultAsync(x => x.DeletedAt == null);
+            => await Set.SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {
