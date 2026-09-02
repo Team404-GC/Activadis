@@ -20,9 +20,9 @@ namespace Activadis.Infrastructure
         {
             services.AddDbContext<ApplicationDBContext>(options =>
             {
-                options.UseSqlServer(connectionString, options =>
+                options.UseSqlServer(connectionString, sqlOptions =>
                 {
-                    options.MigrationsHistoryTable("Migrations");
+                    sqlOptions.MigrationsHistoryTable("Migrations");
                 });
             });
 
