@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="Activadis.API/Activadis.API.csproj" Id="c04fc61a-8dd2-4513-8632-1b03f091bf39" />
+    <Project Path="Activadis.Application/Activadis.Application.csproj" Id="032d6ef7-68e3-4621-a50c-1a379f0373e3" />
+    <Project Path="Activadis.Domain/Activadis.Domain.csproj" Id="261f85c5-bc47-423b-82fd-da5683a56aa7" />
+    <Project Path="Activadis.Infrastructure/Activadis.Infrastructure.csproj" Id="75886e1a-a73c-402e-8d87-be2adb723723" />
+    <Project Path="Activadis.UI/Activadis.UI.csproj" Id="c419aa07-a9a3-48ca-a748-8a14833222ae" />
+  </Folder>
+</Solution>
