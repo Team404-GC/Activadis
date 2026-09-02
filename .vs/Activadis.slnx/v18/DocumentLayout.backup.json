@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\daanw\\Documents\\activadis\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{75886E1A-A73C-402E-8D87-BE2ADB723723}|Activadis.Infrastructure\\Activadis.Infrastructure.csproj|c:\\users\\daanw\\documents\\activadis\\activadis.infrastructure\\dependencies.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75886E1A-A73C-402E-8D87-BE2ADB723723}|Activadis.Infrastructure\\Activadis.Infrastructure.csproj|solutionrelative:activadis.infrastructure\\dependencies.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,7 +14,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 7,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,6 +43,19 @@
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c64b9c2-e352-428e-a56d-0ace190b99a6}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Dependencies.cs",
+              "DocumentMoniker": "C:\\Users\\daanw\\Documents\\activadis\\Activadis.Infrastructure\\Dependencies.cs",
+              "RelativeDocumentMoniker": "Activadis.Infrastructure\\Dependencies.cs",
+              "ToolTip": "C:\\Users\\daanw\\Documents\\activadis\\Activadis.Infrastructure\\Dependencies.cs",
+              "RelativeToolTip": "Activadis.Infrastructure\\Dependencies.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAzwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-09-02T13:05:30.766Z",
+              "EditorCaption": ""
             }
           ]
         },

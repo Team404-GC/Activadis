@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "xC4IlWiuF0w=",
+  "dgSpecHash": "DOQLmWtlwgw=",
   "success": true,
   "projectFilePath": "C:\\Users\\daanw\\Documents\\activadis\\Activadis.Application\\Activadis.Application.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\daanw\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\10.0.11\\microsoft.extensions.dependencyinjection.abstractions.10.0.11.nupkg.sha512"
+  ],
   "logs": []
 }

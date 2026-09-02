@@ -1,0 +1,8 @@
+# Folders
+.vs/
+obj/
+bin/
+
+# Files
+*.slnLaunch.user
+*.csproj.user

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Activadis.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a2c237dd5b5f241bff47ccaf03ebeba2c9bfe0b7")]
 [assembly: System.Reflection.AssemblyProductAttribute("Activadis.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Activadis.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

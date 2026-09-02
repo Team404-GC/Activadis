@@ -1,3 +1,5 @@
+using Activadis.Infrastructure;
+
 namespace Activadis.API
 {
     public class Program
@@ -7,6 +9,8 @@ namespace Activadis.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.RegisterInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")
+                ?? throw new InvalidOperationException("The connectionString was not found!"));
 
             builder.Services.AddControllers();
             builder.Services.AddSwaggerGen(options =>
