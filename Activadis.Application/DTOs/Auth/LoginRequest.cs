@@ -1,13 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Activadis.Application.DTOs
+namespace Activadis.Application.DTOs.Auth
 {
     public class LoginRequest
     {
-        [Required(ErrorMessage = "email is required.")]
+        [Required(ErrorMessage = "De email moet ingevuld worden.")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Password is required.")]
+        [Required(ErrorMessage = "Het wachtwoord moet ingevuld worden.")]
         public string Password { get; set; } = string.Empty;
     }
 }

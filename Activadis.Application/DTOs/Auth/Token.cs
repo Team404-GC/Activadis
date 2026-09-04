@@ -1,4 +1,4 @@
-namespace Activadis.Application.DTOs
+namespace Activadis.Application.DTOs.Auth
 {
     public class Token
     {

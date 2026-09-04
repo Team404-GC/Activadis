@@ -15,7 +15,7 @@ namespace Activadis.UI.Authentication
                 .ToBytesOfJSON()
                 .ToDictionaryOfJSON();
 
-            if (dictionary == null)
+            if (dictionary is null)
                 return claims;
 
             foreach (KeyValuePair<string, JsonElement> pair in dictionary)
@@ -24,22 +24,22 @@ namespace Activadis.UI.Authentication
             return claims;
         }
 
-        private static string GetPayload(this string token)
+        private static string? GetPayload(this string token)
         {
-            if (token == null)
-                return null!;
+            if (token is null)
+                return null;
 
             List<string> jwt = token.Split('.').ToList();
             if (jwt.Count != 3)
-                return null!;
+                return null;
 
             return jwt[1];
         }
 
-        private static string ToValidPayload(this string payload)
+        private static string? ToValidPayload(this string? payload)
         {
-            if (payload == null)
-                return null!;
+            if (payload is null)
+                return null;
 
             if (payload.Length % 4 == 0)
                 return payload;
@@ -48,17 +48,17 @@ namespace Activadis.UI.Authentication
             return payload + new string('=', amount);
         }
 
-        private static string ToBase64(this string payload)
+        private static string? ToBase64(this string? payload)
         {
-            if (payload == null)
-                return null!;
+            if (payload is null)
+                return null;
 
             return payload.Replace('-', '+').Replace('_', '/');
         }
 
-        private static byte[] ToBytesOfJSON(this string base64)
+        private static byte[] ToBytesOfJSON(this string? base64)
         {
-            if (base64 == null)
+            if (base64 is null)
                 return [];
 
             try

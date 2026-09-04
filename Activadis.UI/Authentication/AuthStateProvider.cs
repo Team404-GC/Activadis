@@ -5,105 +5,77 @@ namespace Activadis.UI.Authentication
 {
     public class AuthStateProvider : AuthenticationStateProvider
     {
-        private const string TokenKey = "authToken";
+        private const string TokenKey = "AUTH_TOKEN";
+        private readonly AuthenticationState Anonymous = new AuthenticationState(
+            new ClaimsPrincipal(
+                new ClaimsIdentity()
+            )
+        );
 
-        private readonly SessionStorageService _sessionStorageService;
-
-        private readonly AuthenticationState _anonymous =
-            new(new ClaimsPrincipal(new ClaimsIdentity()));
-
-        private AuthenticationState? _currentState;
+        private readonly SessionStorageService SessionStorageService;
 
         public AuthStateProvider(SessionStorageService sessionStorageService)
         {
-            _sessionStorageService = sessionStorageService;
+            SessionStorageService = sessionStorageService;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            if (_currentState != null)
-                return _currentState;
+            string? token = await SessionStorageService.GetItemAsync(TokenKey);
+            if (string.IsNullOrWhiteSpace(token))
+                return Anonymous;
 
-            try
+            List<Claim> claims = ParseJWT.GetClaims(token);
+            if (IsExpired(claims))
             {
-                string? token = await _sessionStorageService.GetItemAsync(TokenKey);
-
-                if (string.IsNullOrWhiteSpace(token))
-                {
-                    _currentState = _anonymous;
-                    return _currentState;
-                }
-
-                List<Claim> claims = ParseJWT.GetClaims(token);
-
-                if (IsExpired(claims))
-                {
-                    await _sessionStorageService.RemoveItemAsync(TokenKey);
-
-                    _currentState = _anonymous;
-                    return _currentState;
-                }
-
-                _currentState = new AuthenticationState(BuildUser(claims));
-                return _currentState;
+                await SessionStorageService.RemoveItemAsync(TokenKey);
+                return Anonymous;
             }
-            catch
-            {
-                _currentState = _anonymous;
-                return _currentState;
-            }
-        }
 
-        private static bool IsExpired(List<Claim> claims)
-        {
-            Claim? exp = claims.FirstOrDefault(c => c.Type == "exp");
-
-            if (exp == null || !long.TryParse(exp.Value, out long seconds))
-                return true;
-
-            return DateTimeOffset.FromUnixTimeSeconds(seconds) <= DateTimeOffset.UtcNow;
-        }
-
-        private static ClaimsPrincipal BuildUser(List<Claim> claims)
-        {
-            string roleClaimType =
-                claims.Any(c => c.Type == ClaimTypes.Role)
-                    ? ClaimTypes.Role
-                    : "role";
-
-            return new ClaimsPrincipal(
-                new ClaimsIdentity(
-                    claims,
-                    "jwt",
-                    ClaimTypes.Name,
-                    roleClaimType));
+            return GetAuthenticationState(claims);
         }
 
         public async Task MarkUserAsAuthenticatedAsync(string token)
         {
-            await _sessionStorageService.SetItemAsync(TokenKey, token);
-
+            await SessionStorageService.SetItemAsync(TokenKey, token);
             List<Claim> claims = ParseJWT.GetClaims(token);
 
-            _currentState = new AuthenticationState(BuildUser(claims));
-
             NotifyAuthenticationStateChanged(
-                Task.FromResult(_currentState));
+                Task.FromResult(
+                    GetAuthenticationState(claims)
+                )
+            );
         }
 
         public async Task MarkUserAsLoggedOutAsync()
         {
-            await _sessionStorageService.RemoveItemAsync(TokenKey);
-
-            _currentState = _anonymous;
+            await SessionStorageService.RemoveItemAsync(TokenKey);
 
             NotifyAuthenticationStateChanged(
-                Task.FromResult(_anonymous));
+                Task.FromResult(Anonymous)
+            );
         }
 
         public async Task<string?> GetTokenAsync()
+            => await SessionStorageService.GetItemAsync(TokenKey);
+
+        private static AuthenticationState GetAuthenticationState(List<Claim> claims)
         {
-            return await _sessionStorageService.GetItemAsync(TokenKey);
+            return new AuthenticationState(
+                new ClaimsPrincipal(
+                    new ClaimsIdentity(claims, "JWT")
+                )
+            );
+        }
+
+        private static bool IsExpired(List<Claim> claims)
+        {
+            Claim? expires = claims.FirstOrDefault(x => x.Type == "exp");
+
+            if (expires is null || !long.TryParse(expires.Value, out long seconds))
+                return true;
+
+            return DateTimeOffset.FromUnixTimeSeconds(seconds) <= DateTimeOffset.UtcNow;
         }
     }
 }

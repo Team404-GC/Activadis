@@ -1,8 +1,7 @@
-using Activadis.Application;
-using Activadis.Infrastructure;
 using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
+using Activadis.Infrastructure;
+using Activadis.Application;
 
 namespace Activadis.API
 {
@@ -13,40 +12,29 @@ namespace Activadis.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.RegisterAPI(builder.Configuration);
+            builder.Services.RegisterApplication();
             builder.Services.RegisterInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("The connectionString was not found!"));
-            builder.Services.RegisterAPIServices(builder.Configuration);
-            builder.Services.RegisterApplication();
+
             builder.Services.AddControllers();
-            builder.Services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("api", new OpenApiInfo
-                {
-                    Title = "Activadis API",
-                    Version = "v1",
-                });
-
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    Description = "Enter your JWT token"
-                });
-
-                options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-                {
-                    [new OpenApiSecuritySchemeReference("Bearer", document)] = new List<string>()
-                });
-            });
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("frontend-dev", policy =>
+                options.AddDefaultPolicy(policy =>
+                {
                     policy.WithOrigins("https://localhost:4200")
                         .AllowAnyHeader()
-                        .AllowAnyMethod());
+                        .AllowAnyMethod();
+                });
             });
+
             var app = builder.Build();
+
+            using (var scope = app.Services.CreateScope())
+            {
+                ApplicationDBContext context = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+                context.Database.Migrate();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -59,22 +47,25 @@ namespace Activadis.API
                     options.RoutePrefix = "api";
                     options.SwaggerEndpoint("specifications.json", "API");
                 });
+
+                app.MapGet("/", context =>
+                {
+                    context.Response.Redirect("/api");
+                    return Task.CompletedTask;
+                });
             }
 
-            app.UseCors("frontend-dev");
+            app.UseCors();
 
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
+
             app.UseRateLimiter();
+            app.UseExceptionHandler("/Error");
             app.MapControllers();
 
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-                db.Database.Migrate();
-            }
             app.Run();
         }
     }

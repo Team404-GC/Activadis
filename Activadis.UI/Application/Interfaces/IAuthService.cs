@@ -1,7 +1,7 @@
-
+using Activadis.Application.DTOs.Auth;
 using Activadis.Application.DTOs;
 
-namespace Activadis.UI.Application
+namespace Activadis.UI.Application.Interfaces
 {
 	public interface IAuthService
 	{

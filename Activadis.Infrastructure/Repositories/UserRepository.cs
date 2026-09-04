@@ -1,25 +1,21 @@
-﻿using Activadis.Domain.Entities;
-using Activadis.Domain.Interfaces;
+﻿using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Activadis.Domain.Entities;
 
 namespace Activadis.Infrastructure.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        private readonly ApplicationDBContext _context;
+        private readonly ApplicationDBContext Context;
 
-        public UserRepository(ApplicationDBContext context) : base(context)
+        public UserRepository(ApplicationDBContext context)
+            : base(context)
         {
-            _context = context;
+            Context = context;
         }
-        public Task<User?> GetUserByEmail(string email)
-        {
-            return _context.Users.FirstOrDefaultAsync(e => e.Email == email);
 
-        }
+        public async Task<User?> GetByEmailAsync(string email)
+            => await Context.Users.FirstOrDefaultAsync(x => x.Email == email && x.DeletedAt == null);
     }
 }

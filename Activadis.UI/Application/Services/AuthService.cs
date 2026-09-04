@@ -1,33 +1,32 @@
-using Activadis.Application.DTOs;
-using Activadis.UI.Application;
+using Activadis.UI.Application.Interfaces;
+using Activadis.Application.DTOs.Auth;
 using Activadis.UI.Authentication;
+using Activadis.Application.DTOs;
 
 namespace Activadis.UI.Application.Services
 {
 	public class AuthService : IAuthService
 	{
-		private readonly AuthStateProvider _authStateProvider;
-		private readonly IHttpService _httpService;
+		private readonly AuthStateProvider AuthStateProvider;
+		private readonly IHttpService HttpService;
 
 		public AuthService(AuthStateProvider authStateProvider, IHttpService httpService)
 		{
-			_authStateProvider = authStateProvider;
-			_httpService = httpService;
+			AuthStateProvider = authStateProvider;
+			HttpService = httpService;
 		}
 
 		public async Task<ApiResponse<Token>> LoginAsync(LoginRequest request)
 		{
-			var response = await _httpService.PostAsync<Token, LoginRequest>("Auth/Login", request);
+			var response = await HttpService.PostAsync<Token, LoginRequest>("/Auth/Login", request);
 
 			if (response.Succeeded && response.Value is not null)
-				await _authStateProvider.MarkUserAsAuthenticatedAsync(response.Value.JWT);
+				await AuthStateProvider.MarkUserAsAuthenticatedAsync(response.Value.JWT);
 
 			return response;
 		}
 
 		public async Task LogoutAsync()
-		{
-			await _authStateProvider.MarkUserAsLoggedOutAsync();
-		}
+			=> await AuthStateProvider.MarkUserAsLoggedOutAsync();
 	}
 }

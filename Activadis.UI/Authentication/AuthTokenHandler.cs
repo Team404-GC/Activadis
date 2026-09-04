@@ -2,18 +2,18 @@ using System.Net.Http.Headers;
 
 namespace Activadis.UI.Authentication
 {
-	public class AuthHandler : DelegatingHandler
+	public class AuthTokenHandler : DelegatingHandler
 	{
-		private readonly AuthStateProvider _authStateProvider;
+		private readonly AuthStateProvider AuthStateProvider;
 
-		public AuthHandler(AuthStateProvider authStateProvider)
+		public AuthTokenHandler(AuthStateProvider authStateProvider)
 		{
-			_authStateProvider = authStateProvider;
+			AuthStateProvider = authStateProvider;
 		}
 
 		protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 		{
-			string? token = await _authStateProvider.GetTokenAsync();
+			string? token = await AuthStateProvider.GetTokenAsync();
 
 			if (!string.IsNullOrWhiteSpace(token))
 				request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

@@ -1,4 +1,5 @@
-﻿using Activadis.Infrastructure.Persistence;
+﻿using Activadis.Domain.Interfaces.Repositories;
+using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Interfaces;
 

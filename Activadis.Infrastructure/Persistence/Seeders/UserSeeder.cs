@@ -1,9 +1,6 @@
-﻿using Activadis.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Activadis.Domain.Entities;
 using Activadis.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Activadis.Infrastructure.Persistence.Seeders
 {
@@ -11,19 +8,22 @@ namespace Activadis.Infrastructure.Persistence.Seeders
     {
         public static void UseUserSeeder(this DbContext context)
         {
-            if (!context.Set<User>().Any())
+            DbSet<User> set = context.Set<User>();
+
+            if (!set.Any())
             {
-                IEnumerable<User> Users = new List<User>()
-                {
+                IEnumerable<User> Users = [
                     new User()
                     {
                         Email = "beheerder1@covadis.nl",
                         FullName = "Beheerder 1",
                         HashedPassword = "$2a$12$OaQw61Dqu1N8ufUzAcVYT.mnAur1KXHqwMm/9fOl4PXmGscAKKAMK", //StrongPassword1!
-                        UserRole = UserRoles.Admin
+                        Role = UserRole.Admin,
+                        CreatedAt = DateTime.UtcNow
                     }
-                };
-                context.Set<User>().AddRange(Users);
+                ];
+
+                set.AddRange(Users);
                 context.SaveChanges();
             }
         }
