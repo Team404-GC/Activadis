@@ -1,6 +1,41 @@
-﻿<Router AppAssembly="@typeof(App).Assembly" NotFoundPage="typeof(Pages.NotFound)">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-</Router>
+﻿<CascadingAuthenticationState>
+	<Router AppAssembly="@typeof(App).Assembly">
+		<Found Context="routeData">
+			<AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+				<NotAuthorized Context="authState">
+					@if (authState.User.Identity?.IsAuthenticated != true)
+					{
+						<RedirectToLogin />
+					}
+					else
+					{
+						<div class="access-denied">
+							<h3>No Access</h3>
+							<p>You dont have access to this page.</p>
+						</div>
+					}
+				</NotAuthorized>
+				<Authorizing>
+					<div class="d-flex justify-content-center align-items-center vh-100">
+						<div class="spinner-border" role="status">
+							<span class="visually-hidden">Loading...</span>
+						</div>
+					</div>
+				</Authorizing>
+			</AuthorizeRouteView>
+			<FocusOnNavigate RouteData="@routeData" Selector="h1" />
+		</Found>
+		<NotFound>
+			<AuthorizeView>
+				<Authorized>
+					<LayoutView Layout="@typeof(MainLayout)">
+						<PageNotFound />
+					</LayoutView>
+				</Authorized>
+				<NotAuthorized>
+					<RedirectToLogin />
+				</NotAuthorized>
+			</AuthorizeView>
+		</NotFound>
+	</Router>
+</CascadingAuthenticationState>

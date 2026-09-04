@@ -3,6 +3,8 @@ using Activadis.Infrastructure.Repositories;
 using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Interfaces;
+using Activadis.Domain.Interfaces.Helpers;
+using Activadis.Infrastructure.Helpers;
 
 namespace Activadis.Infrastructure
 {
@@ -12,7 +14,7 @@ namespace Activadis.Infrastructure
         {
             services.RegisterPersistence(connectionString);
             services.RegisterRepositories();
-
+            services.AddScoped<IPassword, Password>();
             return services;
         }
 
@@ -32,6 +34,7 @@ namespace Activadis.Infrastructure
         private static IServiceCollection RegisterRepositories(this IServiceCollection services)
         {
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IUserRepository, UserRepository>();
 
             return services;
         }
