@@ -1,0 +1,159 @@
+﻿.login-wrapper {
+    display: flex;
+    max-width: 600px;
+    margin: 64px auto;
+    border-radius: 16px;
+    border: 3px solid var(--BorderColor);
+    overflow: hidden;
+    background: var(--TaskbarColor);
+}
+
+.login-left {
+    flex: 1;
+    background: var(--ButtonColor);
+    padding: 48px 32px;
+    color: var(--TextColor);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    border-right: 1px solid var(--BorderColor);
+}
+
+.brand .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 29px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+    .brand .logo img {
+        width: 130px;
+        height: 130px;
+        border-radius: 8px;
+    }
+
+.login-left h2 {
+    font-size: 32px;
+    margin: 32px 0 8px 0;
+    color: var(--TextColor);
+}
+
+.login-left p {
+    font-size: 14px;
+    line-height: 150%;
+    color: var(--MutedText);
+}
+
+.login-right {
+    flex: 1;
+    padding: 48px;
+    background: var(--TaskbarColor);
+}
+
+    .login-right h2 {
+        font-size: 29px;
+        color: var(--TextColor);
+        margin-bottom: 24px;
+        font-weight: 600;
+    }
+
+.form-group {
+    margin-bottom: 19px;
+}
+
+label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: var(--TextColor);
+}
+
+.form-control {
+    width: 100%;
+    padding: 11px 16px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    font-size: 16px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+    .form-control:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--AccentColorSoft);
+    }
+
+.btn-login {
+    width: 100%;
+    background: var(--ButtonColor);
+    border: none;
+    padding: 13px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ButtonTextColor);
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 8px;
+}
+
+    .btn-login:hover {
+        background: var(--ButtonColorHover);
+    }
+
+    .btn-login:disabled {
+        background: var(--ButtonDisabledColor);
+        cursor: not-allowed;
+    }
+
+.register-link {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--MutedText);
+}
+
+    .register-link a {
+        color: var(--AccentColor);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+.alert {
+    padding: 8px 13px;
+    border-radius: 8px;
+    background: var(--DangerBg);
+    color: var(--DangerText);
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 700px) {
+    .login-wrapper {
+        flex-direction: column;
+        margin: 16px;
+    }
+
+    .login-left {
+        text-align: center;
+        align-items: center;
+        border-right: none;
+        border-bottom: 1px solid var(--BorderColor);
+    }
+
+    .brand .logo {
+        justify-content: center;
+    }
+
+    .accent-line {
+        margin-left: auto;
+        margin-right: auto;
+    }
+}

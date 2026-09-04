@@ -1,16 +1,42 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+<div class="ml-page">
+    <nav class="ml-sidebar">
+        <NavLink href="/" style="text-decoration: none;" Match="NavLinkMatch.Prefix">
+            <div class="ml-sidebar-brand">
+                <img class="ml-brand-icon" src="/icon-192.png" />
+                <span class="ml-brand-name">Activadis</span>
+            </div>
+        </NavLink>
 
-        <article class="content px-4">
-            @Body
-        </article>
+
+        <AuthorizeView Context="auth">
+            <Authorized>
+                <div class="ml-navbar-links">
+                    <h5>Hoofdmenu</h5>
+                    
+                </div>
+
+                <button class="ml-logout-btn" @onclick="HandleLogout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Uitloggen</span>
+                </button>
+            </Authorized>
+        </AuthorizeView>
+    </nav>
+
+    <main class="ml-main-content">
+        @Body
     </main>
 </div>
+
+
+@code {
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+}

@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Activadis.Application.Interfaces;
+using Activadis.Application.Services;
 
 namespace Activadis.Application
 {
@@ -13,6 +15,9 @@ namespace Activadis.Application
 
         private static IServiceCollection RegisterServices(this IServiceCollection services)
         {
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IAuthService, AuthService>();
+
             return services;
         }
     }

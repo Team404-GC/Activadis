@@ -1,4 +1,4 @@
-﻿namespace Activadis.Domain.Interfaces
+﻿namespace Activadis.Domain.Interfaces.Repositories
 {
     public interface IRepository<TEntity> where TEntity : class, IEntity
     {

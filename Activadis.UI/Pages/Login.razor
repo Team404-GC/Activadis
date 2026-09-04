@@ -1,0 +1,86 @@
+﻿@page "/login"
+@inject NavigationManager NavigationManager
+@inject IAuthService AuthService
+
+<div class="login-wrapper">
+    <div class="login-left">
+        <div class="brand">
+            <span class="logo">
+                <img src="/icon-192.png"
+                     alt="Logo Activadis" title="Logo Activadis">
+            </span>
+        </div>
+    </div>
+
+    <div class="login-right">
+        <h1>Activadis</h1>
+        <h2>Login</h2>
+        <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin" FormName="loginForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+
+            <div class="form-group">
+                <InputText id="email"
+                           class="form-control"
+                           @bind-Value="loginModel.Email"
+                           inputmode="email"
+                           placeholder="Email" />
+            </div>
+
+            <div class="form-group">
+                <InputText id="password"
+                           class="form-control"
+                           @bind-Value="loginModel.Password"
+                           type="password"
+                           placeholder="Password" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="alert alert-danger">@errorMessage</div>
+            }
+
+            <button type="submit" class="btn-login" disabled="@isLoading">
+                @if (isLoading)
+                {
+                    <span>Aan het laden...</span>
+                }
+                else
+                {
+                    <span>Login</span>
+                }
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private LoginRequest loginModel = new();
+    private string? errorMessage = null;
+    private bool isLoading = false;
+
+    private async Task HandleLogin()
+    {
+        errorMessage = "";
+        isLoading = true;
+
+        ApiResponse<Token> response = await AuthService.LoginAsync(
+            new LoginRequest
+            {
+                Email = loginModel.Email,
+                Password = loginModel.Password
+            }
+        );
+
+        if (response.Succeeded)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            errorMessage = response.Message;
+        }
+
+        isLoading = false;
+    }
+}

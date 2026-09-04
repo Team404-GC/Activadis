@@ -1,6 +1,6 @@
 ﻿using Activadis.Application.DTOs;
 
-namespace Activadis.UI.Application
+namespace Activadis.UI.Application.Interfaces
 {
     public interface IHttpService
     {

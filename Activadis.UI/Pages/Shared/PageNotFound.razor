@@ -1,0 +1,16 @@
+﻿@page "/notfound"
+@inject NavigationManager NavigationManager
+
+<h3>Page Not Found</h3>
+<p role="alert">This page doesn't exist.</p>
+
+@code {
+    [CascadingParameter] private Task<AuthenticationState> AuthState { get; set; } = null!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = (await AuthState).User;
+        if (user.Identity?.IsAuthenticated != true)
+            NavigationManager.NavigateTo("/login");
+    }
+}
