@@ -12,7 +12,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
 
             if (!set.Any())
             {
-                IEnumerable<User> Users = [
+                IEnumerable<User> users = [
                     new User()
                     {
                         Email = "beheerder1@covadis.nl",
@@ -23,7 +23,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                     }
                 ];
 
-                set.AddRange(Users);
+                set.AddRange(users);
                 context.SaveChanges();
             }
         }
