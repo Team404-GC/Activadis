@@ -20,11 +20,10 @@ namespace Activadis.API
             builder.Services.AddControllers();
             builder.Services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo
+                options.SwaggerDoc("api", new OpenApiInfo
                 {
-                    Title = "StockFlow API",
+                    Title = "Activadis API",
                     Version = "v1",
-                    Description = "API for the StockFlow inventory management system."
                 });
 
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
