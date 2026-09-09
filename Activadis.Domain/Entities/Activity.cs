@@ -33,7 +33,7 @@ namespace Activadis.Domain.Entities
         public DateTime SignOutDeadline { get; set; }
 
 
-        public IEnumerable<SignUp> SignUps { get; set; } = [];
-        public int TotalSignUps => SignUps.Count();
+        public ICollection<SignUp> SignUps { get; set; } = new List<SignUp>();
+        public int TotalSignUps => SignUps.Count;
     }
 }

@@ -16,6 +16,12 @@ namespace Activadis.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.Entity<SignUp>()
+                   .HasOne(x => x.Activity)
+                   .WithMany(p => p.SignUps)
+                   .HasForeignKey(p => p.ActivityId)
+                   .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(builder);
         }
 

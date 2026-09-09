@@ -9,6 +9,8 @@ namespace Activadis.Domain.Entities
     public class SignUp : IEntity
     {
         public Guid Id { get; set; }
+        public Guid? ActivityId { get; set; }
+        public Activity? Activity { get; set; }
         public Guid EmployeeId { get; set; }
         public required string FullName { get; set; }
         public required string Email { get; set; }
