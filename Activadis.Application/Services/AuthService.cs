@@ -1,7 +1,7 @@
 ﻿using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Domain.Interfaces.Helpers;
 using Activadis.Application.Interfaces;
-using Activadis.Application.DTOs.Auth;
+using Activadis.Shared.DTOs.Auth;
 using System.Security.Authentication;
 using Activadis.Domain.Entities;
 

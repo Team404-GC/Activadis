@@ -1,4 +1,4 @@
-﻿using Activadis.Application.DTOs;
+﻿using Activadis.Shared.DTOs;
 
 namespace Activadis.UI.Application.Interfaces
 {

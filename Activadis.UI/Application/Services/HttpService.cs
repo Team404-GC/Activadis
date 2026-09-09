@@ -1,5 +1,5 @@
 using Activadis.UI.Application.Interfaces;
-using Activadis.Application.DTOs;
+using Activadis.Shared.DTOs;
 using System.Net.Http.Json;
 
 namespace Activadis.UI.Application.Services

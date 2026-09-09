@@ -1,4 +1,4 @@
-﻿using Activadis.Application.DTOs.Auth;
+﻿using Activadis.Shared.DTOs.Auth;
 
 namespace Activadis.Application.Interfaces
 {

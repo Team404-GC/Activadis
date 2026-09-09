@@ -1,7 +1,7 @@
 using Activadis.UI.Application.Interfaces;
-using Activadis.Application.DTOs.Auth;
+using Activadis.Shared.DTOs.Auth;
 using Activadis.UI.Authentication;
-using Activadis.Application.DTOs;
+using Activadis.Shared.DTOs;
 
 namespace Activadis.UI.Application.Services
 {

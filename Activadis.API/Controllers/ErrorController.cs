@@ -1,4 +1,4 @@
-﻿using Activadis.Application.DTOs;
+﻿using Activadis.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Activadis.API.Controllers

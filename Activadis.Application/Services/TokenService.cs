@@ -1,7 +1,7 @@
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.Extensions.Configuration;
 using Activadis.Application.Interfaces;
-using Activadis.Application.DTOs.Auth;
+using Activadis.Shared.DTOs.Auth;
 using Microsoft.IdentityModel.Tokens;
 using Activadis.Domain.Entities;
 using System.Security.Claims;
