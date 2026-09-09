@@ -1,6 +1,7 @@
 ﻿using Activadis.Infrastructure.Persistence.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
+using Activadis.Infrastructure.Persistence.Configurations;
 
 namespace Activadis.Infrastructure.Persistence
 {
@@ -16,11 +17,9 @@ namespace Activadis.Infrastructure.Persistence
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<SignUp>()
-                   .HasOne(x => x.Activity)
-                   .WithMany(p => p.SignUps)
-                   .HasForeignKey(p => p.ActivityId)
-                   .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<Activity>(options => options.Configure());
+            builder.Entity<SignUp>(options => options.Configure());
+            builder.Entity<User>(options => options.Configure());
 
             base.OnModelCreating(builder);
         }

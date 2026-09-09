@@ -1,21 +1,15 @@
 ﻿using Activadis.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Activadis.Domain.Entities
 {
     public class Activity : IEntity
     {
         public Guid Id { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? DeletedAt { get; set; }
-
-        public required string Name { get; set; }
-        public required string Description { get; set; }
-        public required string Location { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public decimal CostPerPerson { get; set; }
+
+        public string Location { get; set; } = string.Empty;
         public byte[] Image { get; set; } = [];
 
         public int MinParticipants { get; set; }
@@ -31,7 +25,13 @@ namespace Activadis.Domain.Entities
         public DateTime SignUpDeadline { get; set; }
         public DateTime SignOutDeadline { get; set; }
 
-        public ICollection<SignUp> SignUps { get; set; } = new List<SignUp>();
         public int TotalSignUps => SignUps.Count;
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
+        
+        // Navigation Properties
+        public ICollection<SignUp> SignUps { get; set; } = [];
     }
 }

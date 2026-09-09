@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Activadis.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20260909082541_ChangedActivityAndSignUp")]
-    partial class ChangedActivityAndSignUp
+    [Migration("20260909113458_AddedActivityAndSignUp")]
+    partial class AddedActivityAndSignUp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -97,7 +97,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ActivityId")
+                    b.Property<Guid>("ActivityId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -109,9 +109,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("EmployeeId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -126,9 +123,14 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ActivityId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("SignUps");
                 });
@@ -175,10 +177,22 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .HasForeignKey("ActivityId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("Activadis.Domain.Entities.User", "User")
+                        .WithMany("SignUps")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Activity");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Activity", b =>
+                {
+                    b.Navigation("SignUps");
+                });
+
+            modelBuilder.Entity("Activadis.Domain.Entities.User", b =>
                 {
                     b.Navigation("SignUps");
                 });
