@@ -25,13 +25,11 @@ namespace Activadis.Domain.Entities
         public bool ExternalAllowed { get; set; }
         public bool PlusOneAllowed { get; set; }
 
-
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 
         public DateTime SignUpDeadline { get; set; }
         public DateTime SignOutDeadline { get; set; }
-
 
         public ICollection<SignUp> SignUps { get; set; } = new List<SignUp>();
         public int TotalSignUps => SignUps.Count;
