@@ -14,7 +14,7 @@ namespace Activadis.UI.Application.Services
 
         public async Task CreateAsync(CreateActivityRequest request)
         {
-            await HttpService.PostAsync<object, CreateActivityRequest>("/Activity", request);
+            await HttpService.PostIncludeFileAsync<object, CreateActivityRequest>("/Activity", request, x => x.Image);
         }
     }
 }

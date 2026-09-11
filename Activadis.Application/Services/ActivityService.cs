@@ -19,7 +19,7 @@ namespace Activadis.Application.Services
 
         public async Task CreateAsync(CreateActivityRequest request)
         {
-            if (request.Image.Length <= 0 || ValidImageTypes.Contains(request.Image.FileName.Split('.').Last()))
+            if (request.Image.Length <= 0 || !ValidImageTypes.Contains(request.Image.FileName.Split('.').Last()))
                 throw new ArgumentException("De foto is ongeldig.");
 
             MemoryStream image = new MemoryStream();

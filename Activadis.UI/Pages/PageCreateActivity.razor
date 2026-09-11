@@ -1,0 +1,116 @@
+﻿@inject IActivityService ActivityService
+@attribute [Authorize(Roles = "Admin")]
+@page "/activiteit/nieuw"
+
+<h3>Creeër activiteit</h3>
+
+<EditForm EditContext="context" OnValidSubmit="CreateAsync">
+    <DataAnnotationsValidator />
+    <section>
+        <label>Naam</label>
+        <InputText @bind-Value="request.Name" />
+        <ValidationMessage For="@(() => request.Name)" />
+    </section>
+    <section>
+        <label>Beschrijving</label>
+        <InputText @bind-Value="request.Description" />
+        <ValidationMessage For="@(() => request.Description)" />
+    </section>
+    <section>
+        <label>Kosten per persoon</label>
+        <InputNumber step="0.01" @bind-Value="request.CostPerPerson" />
+        <ValidationMessage For="@(() => request.CostPerPerson)" />
+    </section>
+    <br />
+    <section>
+        <label>Locatie</label>
+        <InputText @bind-Value="request.Location" />
+        <ValidationMessage For="@(() => request.Location)" />
+    </section>
+    <section>
+        <label>Foto</label>
+        <InputFile OnChange="OnFileChange" />
+        <ValidationMessage For="@(() => request.Image)" />
+    </section>
+    <br />
+    <section>
+        <label>Minimaal aantal deelnemers</label>
+        <InputNumber @bind-Value="request.MinParticipants" />
+        <ValidationMessage For="@(() => request.MinParticipants)" />
+    </section>
+    <section>
+        <label>Maximaal aantal deelnemers</label>
+        <InputNumber @bind-Value="request.MaxParticipants" />
+        <ValidationMessage For="@(() => request.MaxParticipants)" />
+    </section>
+    <br />
+    <section>
+        <label>Bevat eten & drinken?</label>
+        <InputCheckbox @bind-Value="request.FoodIncluded" />
+        <ValidationMessage For="@(() => request.FoodIncluded)" />
+    </section>
+    <section>
+        <label>Is een externe activiteit?</label>
+        <InputCheckbox @bind-Value="request.ExternalAllowed" />
+        <ValidationMessage For="@(() => request.ExternalAllowed)" />
+    </section>
+    <section>
+        <label>Mag +1 meenemen?</label>
+        <InputCheckbox @bind-Value="request.PlusOneAllowed" />
+        <ValidationMessage For="@(() => request.PlusOneAllowed)" />
+    </section>
+    <br />
+    <section>
+        <label>Startdatum</label>
+        <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.StartDate))" />
+        <ValidationMessage For="@(() => request.StartDate)" />
+    </section>
+    <section>
+        <label>Einddatum</label>
+        <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.EndDate))" />
+        <ValidationMessage For="@(() => request.EndDate)" />
+    </section>
+    <br />
+    <section>
+        <label>Inschrijfdeadline</label>
+        <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" />
+        <ValidationMessage For="@(() => request.SignUpDeadline)" />
+    </section>
+    <section>
+        <label>Uitschrijfdeadline</label>
+        <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" />
+        <ValidationMessage For="@(() => request.SignOutDeadline)" />
+    </section>
+    <br />
+    <section>
+        <button type="submit">Aanmaken</button>
+    </section>
+</EditForm>
+
+@code {
+    CreateActivityRequest request = new CreateActivityRequest();
+    EditContext context = null!;
+
+    protected override void OnInitialized()
+        => context = new EditContext(request);
+
+    public void OnFileChange(InputFileChangeEventArgs args)
+    {
+        request.Image = args.File;
+        context.NotifyFieldChanged(context.Field("Image"));
+    }
+
+    public void OnDateChange(ChangeEventArgs args, Expression<Func<CreateActivityRequest, DateTime>> selector)
+    {
+        if (args.Value is not string dateString || !DateTime.TryParse(dateString, out DateTime date))
+            return;
+
+        if (selector.Body is not MemberExpression expression || expression.Member is not PropertyInfo property)
+            return;
+
+        property.SetValue(request, date);
+    }
+
+    public async Task CreateAsync()
+        => await ActivityService.CreateAsync(request);
+}
