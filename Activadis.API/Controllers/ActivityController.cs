@@ -1,6 +1,8 @@
 ﻿using Activadis.Application.DTOs.Activity;
+using Microsoft.AspNetCore.Authorization;
 using Activadis.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Activadis.Shared.DTOs;
 
 namespace Activadis.API.Controllers
 {
@@ -15,16 +17,18 @@ namespace Activadis.API.Controllers
             ActivityService = activityService;
         }
 
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAsync(CreateActivityRequest request)
         {
             try
             {
                 await ActivityService.CreateAsync(request);
-                return NoContent();
+                return Ok(ApiResponse<object>.Ok());
             }
             catch (ArgumentException exception)
             {
-                return BadRequest(exception.Message);
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
             }
         }
     }

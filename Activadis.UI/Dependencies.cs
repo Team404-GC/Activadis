@@ -50,6 +50,7 @@ namespace Activadis.UI
         {
             services.AddScoped<IHttpService, HttpService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IActivityService, ActivityService>();
 
             return services;
         }
