@@ -1,4 +1,5 @@
 ﻿@inject IActivityService ActivityService
+@inject NavigationManager NavigationManager
 @attribute [Authorize(Roles = "Admin")]
 @page "/activiteit/nieuw"
 
@@ -112,5 +113,15 @@
     }
 
     public async Task CreateAsync()
-        => await ActivityService.CreateAsync(request);
+    {
+        ApiResponse<object> response = await ActivityService.CreateAsync(request);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            return;
+        }
+
+        Notifications.AddNotification("De activiteit is met success aangemaakt.", false);
+        NavigationManager.NavigateTo("/");
+    }
 }

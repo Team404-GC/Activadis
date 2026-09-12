@@ -1,0 +1,37 @@
+﻿.notifications {
+    --notification-color: #6638ad;
+    flex-direction: column;
+    justify-content: end;
+    pointer-events: none;
+    align-items: center;
+    position: fixed;
+    padding: 20px;
+    height: 100vh;
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    left: 0;
+    top: 0;
+
+    .notification {
+        background-color: color-mix(var(--notification-color) 10%, white 90%);
+        border: 1px solid var(--notification-color);
+        corner-shape: squircle;
+        pointer-events: auto;
+        place-items: center;
+        border-radius: 30px;
+        cursor: pointer;
+        display: grid;
+        height: 80px;
+        width: 400px;
+
+        &.notification-error {
+            --notification-color: #ff0000;
+        }
+
+        p {
+            color: var(--notification-color);
+            margin: 0;
+        }
+    }
+}

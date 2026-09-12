@@ -1,4 +1,5 @@
-﻿using Activadis.UI.Application.DTOs.Activity;
+﻿using Activadis.Shared.DTOs;
+using Activadis.UI.Application.DTOs.Activity;
 using Activadis.UI.Application.Interfaces;
 
 namespace Activadis.UI.Application.Services
@@ -12,9 +13,7 @@ namespace Activadis.UI.Application.Services
             HttpService = httpService;
         }
 
-        public async Task CreateAsync(CreateActivityRequest request)
-        {
-            await HttpService.PostIncludeFileAsync<object, CreateActivityRequest>("/Activity", request, x => x.Image);
-        }
+        public async Task<ApiResponse<object>> CreateAsync(CreateActivityRequest request)
+            => await HttpService.PostIncludeFileAsync<object, CreateActivityRequest>("/Activity", request, x => x.Image);
     }
 }

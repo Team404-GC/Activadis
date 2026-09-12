@@ -62,6 +62,9 @@ namespace Activadis.UI.Application.Services
                 {
                     Stream stream = file.OpenReadStream();
                     StreamContent streamContent = new StreamContent(stream);
+                    if (file.ContentType.Trim().Length <= 0)
+                        return ApiResponse<TResponse>.Fail("De foto heeft een ongeldig bestandstype.");
+
                     streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
                     string parameterName = filePropertyInfo.Name ?? "file";
