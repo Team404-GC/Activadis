@@ -1,4 +1,6 @@
-﻿<div class="notifications">
+﻿@implements IDisposable
+
+<div class="notifications">
     @foreach (Notification notification in notifications.Where(x => !x.IsDeleted).OrderByDescending(x => x.SendOn))
     {
         <div @key="notification.Id" class="notification @(notification.HasErrored ? "notification-error" : "")" @onclick="@(() => notification.IsDeleted = true)">
@@ -12,6 +14,9 @@
 
     protected override void OnInitialized()
         => Notifications.OnNotification += OnNotification;
+
+    public void Dispose()
+        => Notifications.OnNotification -= OnNotification;
 
     public void OnNotification(Notification notification)
     {

@@ -3,7 +3,7 @@
 @attribute [Authorize(Roles = "Admin")]
 @page "/activiteit/nieuw"
 
-<h3>Creeër activiteit</h3>
+<h3>Creëer activiteit</h3>
 
 <EditForm EditContext="context" OnValidSubmit="CreateAsync">
     <DataAnnotationsValidator />
@@ -106,11 +106,12 @@
 
     public void OnDateChange(ChangeEventArgs args, Expression<Func<CreateActivityRequest, DateTime>> selector)
     {
-        if (args.Value is not string dateString || !DateTime.TryParse(dateString, out DateTime date))
-            return;
-
         if (selector.Body is not MemberExpression expression || expression.Member is not PropertyInfo property)
             return;
+
+        DateTime date;
+        if (args.Value is not string dateString || !DateTime.TryParse(dateString, out date))
+            date = DateTime.MinValue;
 
         property.SetValue(request, date);
     }
@@ -126,7 +127,7 @@
             return;
         }
 
-        Notifications.AddNotification("De activiteit is met success aangemaakt.", false);
+        Notifications.AddNotification("De activiteit is met succes aangemaakt.", false);
         NavigationManager.NavigateTo("/");
         isLoading = false;
     }

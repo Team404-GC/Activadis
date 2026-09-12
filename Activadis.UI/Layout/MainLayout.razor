@@ -22,7 +22,9 @@
 
                 <div class="ml-navbar-links">
                     <h5>Activiteiten</h5>
-                    <NavLink href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
+                    <AuthorizeView Roles="Admin">
+                        <NavLink href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
+                    </AuthorizeView>
                 </div>
 
                 <button class="ml-logout-btn" @onclick="HandleLogout">

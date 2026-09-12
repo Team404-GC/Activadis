@@ -19,7 +19,7 @@ namespace Activadis.API.Controllers
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> CreateAsync(CreateActivityRequest request)
+        public async Task<IActionResult> CreateAsync([FromForm] CreateActivityRequest request)
         {
             try
             {
