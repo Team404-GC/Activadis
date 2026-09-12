@@ -4,9 +4,9 @@
     justify-content: end;
     pointer-events: none;
     align-items: center;
+    min-height: 100vh;
     position: fixed;
     padding: 20px;
-    height: 100vh;
     display: flex;
     width: 100%;
     gap: 10px;

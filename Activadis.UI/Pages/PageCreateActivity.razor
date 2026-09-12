@@ -84,13 +84,14 @@
     </section>
     <br />
     <section>
-        <button type="submit">Aanmaken</button>
+        <button type="submit" disabled="@isLoading">Aanmaken</button>
     </section>
 </EditForm>
 
 @code {
     CreateActivityRequest request = new CreateActivityRequest();
     EditContext context = null!;
+    bool isLoading = false;
 
     protected override void OnInitialized()
         => context = new EditContext(request);
@@ -98,7 +99,9 @@
     public void OnFileChange(InputFileChangeEventArgs args)
     {
         request.Image = args.File;
-        context.NotifyFieldChanged(context.Field("Image"));
+        context.NotifyFieldChanged(
+            context.Field("Image")
+        );
     }
 
     public void OnDateChange(ChangeEventArgs args, Expression<Func<CreateActivityRequest, DateTime>> selector)
@@ -114,14 +117,17 @@
 
     public async Task CreateAsync()
     {
+        isLoading = true;
         ApiResponse<object> response = await ActivityService.CreateAsync(request);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
+            isLoading = false;
             return;
         }
 
         Notifications.AddNotification("De activiteit is met success aangemaakt.", false);
         NavigationManager.NavigateTo("/");
+        isLoading = false;
     }
 }

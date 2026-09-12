@@ -1,15 +1,14 @@
-﻿using Activadis.Application.DTOs.Activity;
+﻿using Activadis.Application.Validations.Activity;
+using Activadis.Domain.Interfaces.Repositories;
+using Activadis.Application.DTOs.Activity;
 using Activadis.Application.Extensions;
 using Activadis.Application.Interfaces;
 using Activadis.Domain.Entities;
-using Activadis.Domain.Interfaces.Repositories;
 
 namespace Activadis.Application.Services
 {
     public class ActivityService : IActivityService
     {
-        private readonly List<string> ValidImageTypes = new List<string>() { "png", "jpg", "jpeg", "webp" };
-
         private readonly IActivityRepository ActivityRepository;
 
         public ActivityService(IActivityRepository activityRepository)
@@ -19,8 +18,7 @@ namespace Activadis.Application.Services
 
         public async Task CreateAsync(CreateActivityRequest request)
         {
-            if (request.Image.Length <= 0 || !ValidImageTypes.Contains(request.Image.FileName.Split('.').Last()))
-                throw new ArgumentException("De foto is ongeldig.");
+            request.Validate();
 
             MemoryStream image = new MemoryStream();
             await request.Image.CopyToAsync(image);

@@ -2,6 +2,8 @@ using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Infrastructure;
 using Activadis.Application;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 namespace Activadis.API
 {
@@ -54,6 +56,11 @@ namespace Activadis.API
                     return Task.CompletedTask;
                 });
             }
+
+            app.UseRequestLocalization(new RequestLocalizationOptions()
+            {
+                DefaultRequestCulture = new RequestCulture(CultureInfo.InvariantCulture)
+            });
 
             app.UseCors();
 
