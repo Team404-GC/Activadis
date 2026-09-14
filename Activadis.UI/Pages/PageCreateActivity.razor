@@ -119,7 +119,21 @@
     public async Task CreateAsync()
     {
         isLoading = true;
-        ApiResponse<object> response = await ActivityService.CreateAsync(request);
+
+        CreateActivityRequest realRequest = new CreateActivityRequest();
+        foreach (PropertyInfo property in typeof(CreateActivityRequest).GetProperties())
+        {
+            object? value = property.GetValue(request);
+            if (property.PropertyType == typeof(decimal?))
+                value = value == null ? 0.0m : value;
+
+            if (property.PropertyType == typeof(int?))
+                value = value == null ? 0 : value;
+
+            property.SetValue(realRequest, value);
+        }
+
+        ApiResponse<object> response = await ActivityService.CreateAsync(realRequest);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
