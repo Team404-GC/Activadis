@@ -16,6 +16,10 @@
     --DangerText: #b91c1c;
 }
 
+.validation-message {
+    color: var(--DangerText);
+}
+
 .loading-progress {
     position: relative;
     display: block;

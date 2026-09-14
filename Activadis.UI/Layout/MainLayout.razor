@@ -11,12 +11,20 @@
             </div>
         </NavLink>
 
+        <NotificationsComponent />
 
         <AuthorizeView Context="auth">
             <Authorized>
                 <div class="ml-navbar-links">
                     <h5>Hoofdmenu</h5>
                     
+                </div>
+
+                <div class="ml-navbar-links">
+                    <h5>Activiteiten</h5>
+                    <AuthorizeView Roles="Admin">
+                        <NavLink href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
+                    </AuthorizeView>
                 </div>
 
                 <button class="ml-logout-btn" @onclick="HandleLogout">

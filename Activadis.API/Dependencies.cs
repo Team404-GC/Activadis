@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Activadis.Shared.DTOs;
+using Azure;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Threading.RateLimiting;
-using System.Security.Claims;
 using Microsoft.OpenApi;
+using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace Activadis.API
 {
@@ -44,6 +46,29 @@ namespace Activadis.API
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
 
                     ClockSkew = TimeSpan.Zero
+                };
+
+                options.Events = new JwtBearerEvents()
+                {
+                    OnForbidden = async (context) =>
+                    {
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        context.Response.ContentType = "application/json";
+
+                        ApiResponse<object> response = ApiResponse<object>.Fail("Je hebt geen toegang tot deze functie.");
+                        await context.Response.WriteAsJsonAsync(response);
+                    },
+
+                    OnChallenge = async (context) =>
+                    {
+                        context.HandleResponse();
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+
+                        ApiResponse<object> response = ApiResponse<object>.Fail("Je bent niet ingelogd.");
+                        await context.Response.WriteAsJsonAsync(response);
+                    }
                 };
             });
 

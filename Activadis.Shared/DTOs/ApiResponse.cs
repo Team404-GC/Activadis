@@ -1,4 +1,4 @@
-﻿namespace Activadis.Application.DTOs
+﻿namespace Activadis.Shared.DTOs
 {
     public class ApiResponse<T>
     {

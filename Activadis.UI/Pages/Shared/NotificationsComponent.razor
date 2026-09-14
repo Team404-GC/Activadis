@@ -1,0 +1,33 @@
+﻿@implements IDisposable
+
+<div class="notifications">
+    @foreach (Notification notification in notifications.Where(x => !x.IsDeleted).OrderByDescending(x => x.SendOn))
+    {
+        <div @key="notification.Id" class="notification @(notification.HasErrored ? "notification-error" : "")" @onclick="@(() => notification.IsDeleted = true)">
+            <p>@notification.Message</p>
+        </div>
+    }
+</div>
+
+@code {
+    public List<Notification> notifications { get; private set; } = new List<Notification>();
+
+    protected override void OnInitialized()
+        => Notifications.OnNotification += OnNotification;
+
+    public void Dispose()
+        => Notifications.OnNotification -= OnNotification;
+
+    public void OnNotification(Notification notification)
+    {
+        InvokeAsync(async () =>
+        {
+            notifications.Add(notification);
+            StateHasChanged();
+
+            await Task.Delay(2500);
+            notifications.Remove(notification);
+            StateHasChanged();
+        });
+    }
+}

@@ -1,8 +1,8 @@
 ﻿using Activadis.Application.Interfaces;
 using System.Security.Authentication;
-using Activadis.Application.DTOs;
+using Activadis.Shared.DTOs.Auth;
 using Microsoft.AspNetCore.Mvc;
-using Activadis.Application.DTOs.Auth;
+using Activadis.Shared.DTOs;
 
 namespace Activadis.API.Controllers
 {
