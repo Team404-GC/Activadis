@@ -1,4 +1,5 @@
 ﻿using Activadis.Application.DTOs.Activity;
+using Activadis.Shared.DTOs.Activity;
 using Activadis.Domain.Entities;
 
 namespace Activadis.Application.Extensions
@@ -28,6 +29,20 @@ namespace Activadis.Application.Extensions
 
                 SignUpDeadline = request.SignUpDeadline,
                 SignOutDeadline = request.SignOutDeadline
+            };
+        }
+
+        public static ActivityOverviewResponse ToOverviewResponse(this Activity activity)
+        {
+            return new ActivityOverviewResponse()
+            {
+                Id = activity.Id,
+                Name = activity.Name,
+
+                Location = activity.Location,
+
+                StartDate = activity.StartDate,
+                EndDate = activity.EndDate
             };
         }
     }
