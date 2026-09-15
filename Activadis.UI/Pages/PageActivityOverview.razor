@@ -24,7 +24,7 @@ else
     <div class="ao-list">
         @foreach (ActivityOverviewResponse activity in activities)
         {
-            <a class="ao-card" href="/activiteit/@activity.Id">
+            <NavLink class="ao-card" href="@($"/activiteit/{activity.Id}")">
                 <span class="ao-card-name">@activity.Name</span>
 
                 <span class="ao-card-meta">
@@ -36,7 +36,7 @@ else
                     <i class="bi bi-geo-alt"></i>
                     <span>@activity.Location</span>
                 </span>
-            </a>
+            </NavLink>
         }
     </div>
 }

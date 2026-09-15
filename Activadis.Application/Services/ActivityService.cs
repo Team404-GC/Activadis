@@ -31,10 +31,7 @@ namespace Activadis.Application.Services
         public async Task<IEnumerable<ActivityOverviewResponse>> GetUpcomingAsync()
         {
             IEnumerable<Activity> activities = await ActivityRepository.GetUpcomingAsync();
-
-            return activities
-                .Select(activity => activity.ToOverviewResponse())
-                .ToList();
+            return activities.Select(activity => activity.ToOverviewResponse());
         }
     }
 }

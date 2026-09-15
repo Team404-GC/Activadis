@@ -5,7 +5,7 @@
     margin-top: 24px;
 }
 
-.ao-card {
+::deep .ao-card {
     display: flex;
     flex-direction: column;
     gap: 8px;
