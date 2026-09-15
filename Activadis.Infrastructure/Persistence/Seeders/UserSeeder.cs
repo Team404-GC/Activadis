@@ -19,6 +19,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         FullName = "Beheerder 1",
                         HashedPassword = "$2a$12$OaQw61Dqu1N8ufUzAcVYT.mnAur1KXHqwMm/9fOl4PXmGscAKKAMK", //StrongPassword1!
                         Role = UserRole.Admin,
+                        JobTitle = "CEO",
                         CreatedAt = DateTime.UtcNow
                     }
                 ];

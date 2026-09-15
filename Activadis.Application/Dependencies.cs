@@ -19,6 +19,10 @@ namespace Activadis.Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IActivityService, ActivityService>();
 
+            services.AddScoped<IEloService, EloService>();
+            services.AddScoped<EloCalculationService>();
+            services.AddScoped<LeaderboardService>();
+
             return services;
         }
     }

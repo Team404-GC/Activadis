@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".github/workflows/ci-build-test.yml" />
+    <File Path="ELO_README.md" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="Activadis.API/Activadis.API.csproj" Id="c04fc61a-8dd2-4513-8632-1b03f091bf39" />
@@ -8,6 +9,7 @@
     <Project Path="Activadis.Domain/Activadis.Domain.csproj" Id="261f85c5-bc47-423b-82fd-da5683a56aa7" />
     <Project Path="Activadis.Infrastructure/Activadis.Infrastructure.csproj" Id="75886e1a-a73c-402e-8d87-be2adb723723" />
     <Project Path="Activadis.Shared/Activadis.Shared.csproj" Id="75d08901-28fd-4d55-9e63-ec66fa4fbc3a" />
+    <Project Path="Activadis.UnitTests/Activadis.UnitTests.csproj" />
     <Project Path="Activadis.UI/Activadis.UI.csproj" Id="c419aa07-a9a3-48ca-a748-8a14833222ae" />
   </Folder>
 </Solution>
