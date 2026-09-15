@@ -4,6 +4,6 @@ namespace Activadis.Domain.Interfaces.Repositories
 {
     public interface IActivityRepository : IRepository<Activity>
     {
-
+        Task<IEnumerable<Activity>> GetUpcomingAsync();
     }
 }

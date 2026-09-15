@@ -1,0 +1,67 @@
+﻿@inject IActivityService ActivityService
+@attribute [Authorize]
+@page "/"
+@page "/activiteiten"
+
+<PageTitle>Activiteiten</PageTitle>
+
+<h1>Activiteiten</h1>
+
+@if (isLoading)
+{
+    <div class="ao-state">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Aan het laden..</span>
+        </div>
+    </div>
+}
+else if (!activities.Any())
+{
+    <p class="ao-state">Er zijn op dit moment geen activiteiten.</p>
+}
+else
+{
+    <div class="ao-list">
+        @foreach (ActivityOverviewResponse activity in activities)
+        {
+            <NavLink class="ao-card" href="@($"/activiteit/{activity.Id}")">
+                <span class="ao-card-name">@activity.Name</span>
+
+                <span class="ao-card-meta">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>@FormatPeriod(activity)</span>
+                </span>
+
+                <span class="ao-card-meta">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>@activity.Location</span>
+                </span>
+            </NavLink>
+        }
+    </div>
+}
+
+@code {
+    private IEnumerable<ActivityOverviewResponse> activities = [];
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = await ActivityService.GetUpcomingAsync();
+
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        activities = response.Value ?? [];
+        isLoading = false;
+    }
+
+    private static string FormatPeriod(ActivityOverviewResponse activity)
+        => activity.StartDate.Date == activity.EndDate.Date
+            ? $"{activity.StartDate:dd-MM-yyyy HH:mm} - {activity.EndDate:HH:mm}"
+            : $"{activity.StartDate:dd-MM-yyyy HH:mm} - {activity.EndDate:dd-MM-yyyy HH:mm}";
+}
