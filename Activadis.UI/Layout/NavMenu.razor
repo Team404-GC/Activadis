@@ -2,9 +2,11 @@
 @inject NavigationManager NavigationManager
 
 <nav class="nm-navbar">
-    <a class="nm-brand" href="/" @onclick="CloseMenu">
-        <span><LogoAnimation/></span>
-    </a>
+    <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
+        <span>
+            <LogoAnimation/>
+        </span>
+    </NavLink>
 
     <button class="nm-toggle" @onclick="ToggleMenu">
         <i class="bi bi-list"></i>
@@ -14,9 +16,9 @@
         <AuthorizeView Context="auth">
             <Authorized>
                 <div class="nm-links">
-                    <NavLink class="nm-link" href="/activiteiten">Activiteiten</NavLink>
+                    <NavLink class="nm-link" href="/" Match="NavLinkMatch.Prefix">Activiteiten</NavLink>
                     <NavLink class="nm-link" href="/mijn-inschrijvingen">Mijn inschrijvingen</NavLink>
-                    <AuthorizeView Roles="Admin" Context="admin">
+                    <AuthorizeView Roles="Admin">
                         <NavLink class="nm-link" href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
                     </AuthorizeView>
                 </div>
@@ -26,9 +28,6 @@
                     <span>Uitloggen</span>
                 </button>
             </Authorized>
-            <NotAuthorized>
-                <NavLink class="nm-button" href="/login">Inloggen</NavLink>
-            </NotAuthorized>
         </AuthorizeView>
     </div>
 </nav>

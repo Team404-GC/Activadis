@@ -18,30 +18,26 @@
         <div class="login-right">
             <h1>Activadis</h1>
             <h2>Login</h2>
-            <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin" FormName="loginForm">
+            <EditForm Model="request" OnValidSubmit="HandleLogin">
                 <DataAnnotationsValidator />
-                <ValidationSummary class="text-danger" />
 
                 <div class="form-group">
                     <InputText id="email"
                                class="form-control"
-                               @bind-Value="loginModel.Email"
+                               @bind-Value="request.Email"
                                inputmode="email"
                                placeholder="Email" />
+                    <ValidationMessage For="@(() => request.Email)" />
                 </div>
 
                 <div class="form-group">
                     <InputText id="password"
                                class="form-control"
-                               @bind-Value="loginModel.Password"
+                               @bind-Value="request.Password"
                                type="password"
                                placeholder="Password" />
+                    <ValidationMessage For="@(() => request.Password)" />
                 </div>
-
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <div class="alert alert-danger">@errorMessage</div>
-                }
 
                 <button type="submit" class="btn-login" disabled="@isLoading">
                     @if (isLoading)
@@ -59,32 +55,22 @@
 </div>
 
 @code {
-    private LoginRequest loginModel = new();
-    private string? errorMessage = null;
+    private LoginRequest request = new LoginRequest();
     private bool isLoading = false;
 
     private async Task HandleLogin()
     {
-        errorMessage = "";
         isLoading = true;
 
-        ApiResponse<Token> response = await AuthService.LoginAsync(
-            new LoginRequest
-            {
-                Email = loginModel.Email,
-                Password = loginModel.Password
-            }
-        );
-
-        if (response.Succeeded)
+        ApiResponse<Token> response = await AuthService.LoginAsync(request);
+        if (!response.Succeeded)
         {
-            NavigationManager.NavigateTo("/");
-        }
-        else
-        {
-            errorMessage = response.Message;
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
         }
 
+        NavigationManager.NavigateTo("/");
         isLoading = false;
     }
 }
