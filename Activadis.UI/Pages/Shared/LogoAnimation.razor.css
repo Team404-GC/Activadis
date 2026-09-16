@@ -1,0 +1,92 @@
+.logo-animation {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.logo-circle,
+.logo-bracket,
+.logo-dot {
+    transform-box: fill-box;
+    transform-origin: center;
+}
+
+.logo-circle {
+    fill: #faa21b;
+    animation: logo-circle-in 0.6s ease-out both;
+}
+
+.logo-bracket {
+    fill: #ffffff;
+    animation: logo-bracket-in 0.6s ease-out 0.4s both, logo-bracket-move 3s ease-in-out 1.5s infinite;
+}
+
+.logo-dot {
+    fill: #0e1e3b;
+    animation: logo-dot-in 0.4s ease-out 0.9s both, logo-dot-move 3s ease-in-out 1.5s infinite;
+}
+
+@keyframes logo-circle-in {
+    0% {
+        transform: scale(0);
+    }
+
+    70% {
+        transform: scale(1.08);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes logo-bracket-in {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes logo-dot-in {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes logo-bracket-move {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(4px);
+    }
+}
+
+@keyframes logo-dot-move {
+    0%, 100% {
+        transform: translateX(0);
+    }
+
+    50% {
+        transform: translateX(-5px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .logo-circle,
+    .logo-bracket,
+    .logo-dot {
+        animation: none;
+    }
+}
