@@ -2,10 +2,6 @@
 
 namespace Activadis.Application.Extensions
 {
-    /// <summary>
-    /// The rules that decide whether an employee can still sign up for an activity.
-    /// The sign-ups of the activity have to be loaded for the spots to be correct.
-    /// </summary>
     public static class ActivitySignUpExtensions
     {
         public static int? AvailableSpots(this Activity activity)
