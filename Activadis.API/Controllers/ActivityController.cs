@@ -26,6 +26,21 @@ namespace Activadis.API.Controllers
             return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
         }
 
+        [HttpGet("{id:guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetDetailAsync(Guid id)
+        {
+            try
+            {
+                ActivityDetailResponse activity = await ActivityService.GetDetailAsync(id);
+                return Ok(ApiResponse<ActivityDetailResponse>.Ok(activity));
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAsync([FromForm] CreateActivityRequest request)

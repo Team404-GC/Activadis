@@ -7,5 +7,6 @@ namespace Activadis.Application.Interfaces
     {
         Task CreateAsync(CreateActivityRequest request);
         Task<IEnumerable<ActivityOverviewResponse>> GetUpcomingAsync();
+        Task<ActivityDetailResponse> GetDetailAsync(Guid id);
     }
 }
