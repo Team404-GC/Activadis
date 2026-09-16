@@ -16,6 +16,7 @@ namespace Activadis.Application.Extensions
 
                 Location = request.Location,
                 Image = image,
+                ImageContentType = request.Image.ContentType,
 
                 MinParticipants = request.MinParticipants,
                 MaxParticipants = request.MaxParticipants,
@@ -57,7 +58,7 @@ namespace Activadis.Application.Extensions
 
                 Location = activity.Location,
                 Image = activity.Image,
-                ImageContentType = activity.Image.ToContentType(),
+                ImageContentType = activity.ImageContentType,
 
                 MinParticipants = activity.MinParticipants,
                 MaxParticipants = activity.MaxParticipants,

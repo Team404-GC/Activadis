@@ -30,7 +30,7 @@
     </section>
     <section>
         <label>Foto</label>
-        <InputFile OnChange="OnFileChange" />
+        <InputFile OnChange="OnFileChange" accept="image/png,image/jpeg,image/webp" />
         <ValidationMessage For="@(() => request.Image)" />
     </section>
     <br />
