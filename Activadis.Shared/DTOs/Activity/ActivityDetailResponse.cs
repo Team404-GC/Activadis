@@ -13,8 +13,9 @@
 
         public int MinParticipants { get; set; }
         public int MaxParticipants { get; set; }
+        public bool HasParticipantLimit { get; set; }
         public int TotalSignUps { get; set; }
-        public int? AvailableSpots { get; set; }
+        public int AvailableSpots { get; set; }
 
         public bool FoodIncluded { get; set; }
         public bool ExternalAllowed { get; set; }

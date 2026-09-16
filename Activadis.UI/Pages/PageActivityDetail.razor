@@ -137,9 +137,9 @@ else
             : cost.ToString("C", CultureInfo.GetCultureInfo("nl-NL"));
 
     private static string ToSpots(ActivityDetailResponse activity)
-        => activity.AvailableSpots is null
-            ? $"{activity.TotalSignUps} aanmeldingen"
-            : $"{activity.TotalSignUps} van {activity.MaxParticipants} plekken bezet, nog {activity.AvailableSpots} beschikbaar";
+        => activity.HasParticipantLimit
+            ? $"{activity.TotalSignUps} van {activity.MaxParticipants} plekken bezet, nog {activity.AvailableSpots} beschikbaar"
+            : $"{activity.TotalSignUps} aanmeldingen";
 
     private static string ToAnswer(bool value)
         => value ? "Ja" : "Nee";
