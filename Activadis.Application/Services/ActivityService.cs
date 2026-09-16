@@ -3,6 +3,7 @@ using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Application.DTOs.Activity;
 using Activadis.Application.Extensions;
 using Activadis.Application.Interfaces;
+using Activadis.Shared.DTOs.Activity;
 using Activadis.Domain.Entities;
 
 namespace Activadis.Application.Services
@@ -25,6 +26,12 @@ namespace Activadis.Application.Services
 
             Activity activity = request.ToActivity(image.ToArray());
             activity = await ActivityRepository.AddAsync(activity);
+        }
+
+        public async Task<IEnumerable<ActivityOverviewResponse>> GetUpcomingAsync()
+        {
+            IEnumerable<Activity> activities = await ActivityRepository.GetUpcomingAsync();
+            return activities.Select(activity => activity.ToOverviewResponse());
         }
     }
 }

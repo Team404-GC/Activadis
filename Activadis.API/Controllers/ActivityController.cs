@@ -1,6 +1,7 @@
 ﻿using Activadis.Application.DTOs.Activity;
 using Microsoft.AspNetCore.Authorization;
 using Activadis.Application.Interfaces;
+using Activadis.Shared.DTOs.Activity;
 using Microsoft.AspNetCore.Mvc;
 using Activadis.Shared.DTOs;
 
@@ -15,6 +16,14 @@ namespace Activadis.API.Controllers
         public ActivityController(IActivityService activityService)
         {
             ActivityService = activityService;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUpcomingAsync()
+        {
+            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetUpcomingAsync();
+            return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
         }
 
         [HttpPost]

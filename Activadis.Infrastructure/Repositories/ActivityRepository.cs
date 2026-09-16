@@ -1,5 +1,6 @@
 ﻿using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
 
 namespace Activadis.Infrastructure.Repositories
@@ -13,5 +14,11 @@ namespace Activadis.Infrastructure.Repositories
         {
             Context = context;
         }
+
+        public async Task<IEnumerable<Activity>> GetUpcomingAsync()
+            => await Context.Activities
+                .Where(x => x.DeletedAt == null && x.EndDate >= DateTime.UtcNow)
+                .OrderBy(x => x.StartDate)
+                .ToListAsync();
     }
 }
