@@ -1,23 +1,28 @@
 :root {
-    --TaskbarColor: rgba(255, 255, 255, 1);
-    --DashboardColor: rgba(247, 247, 248, 1);
-    --SurfaceColor: rgba(17, 17, 17, 0.04);
-    --BorderColor: rgba(17, 17, 17, 0.08);
-    --TextColor: #111111;
-    --MutedText: #8a8a90;
-    --AccentColor: #5b8def;
-    --AccentColorHover: #4373d9;
-    --AccentColorSoft: rgba(91, 141, 239, 0.15);
-    --ButtonColor: #111111;
-    --ButtonColorHover: #2a2a2a;
-    --ButtonTextColor: #ffffff;
+    --TaskbarColor: #ffffff;
+    --DashboardColor: #0e1e3b;
+    --SurfaceColor: #ebf5f7;
+    --BorderColor: rgba(14, 30, 59, 0.1);
+    --TextColor: #0e1e3b;
+    --MutedText: #6b7280;
+    --AccentColor: #faa21b;
+    --AccentColorHover: #e8920f;
+    --ButtonColor: #faa21b;
+    --ButtonColorHover: #e8920f;
+    --ButtonTextColor: #0e1e3b;
     --ButtonDisabledColor: #c3c8d1;
     --DangerBg: #fdecec;
     --DangerText: #b91c1c;
 }
 
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--DashboardColor);
+    color: #ffffff;
+}
+
 .validation-message {
-    color: var(--DangerText);
+    color: #ff6b6b;
 }
 
 .loading-progress {
@@ -37,7 +42,7 @@
     }
 
         .loading-progress circle:last-child {
-            stroke: #5b8def;
+            stroke: #faa21b;
             stroke-dasharray: calc(3.1416 * var(--blazor-load-percentage, 0%) * .8), 500%;
             transition: stroke-dasharray 0.05s ease-in-out;
         }
@@ -58,122 +63,134 @@
 }
 
 .ml-page {
-    display: flex;
     min-height: 100vh;
-    background: var(--DashboardColor);
+    padding: 20px;
+    overflow-x: hidden;
 }
 
-.ml-sidebar {
-    width: 240px;
-    flex-shrink: 0;
+.ml-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 0;
+}
+
+.nm-navbar {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 16px 12px 24px;
     background: var(--TaskbarColor);
-    border-right: 1px solid var(--BorderColor);
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
+    border-radius: 40px;
 }
 
-    .ml-sidebar h5 {
-        color: var(--MutedText);
-        font-size: 16px;
-    }
-
-.ml-sidebar-brand {
+.nm-brand {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 4px 8px 24px 8px;
-}
-
-.ml-brand-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    object-fit: contain;
-}
-
-.ml-brand-name {
-    font-size: 20px;
-    font-weight: 600;
     color: var(--TextColor);
+    font-size: 24px;
+    font-weight: 700;
+    width: 50px
 }
 
-.ml-navbar-links {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex-grow: 1;
-}
-
-.ml-nav-section-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    color: var(--MutedText);
-    padding: 16px 8px 6px 8px;
-}
-
-    .ml-nav-section-label:first-child {
-        padding-top: 4px;
-    }
-
-.ml-nav-link {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    color: var(--MutedText);
-    font-size: 14px;
-    text-decoration: none;
-}
-
-    .ml-nav-link i {
-        font-size: 15px;
-        width: 16px;
-        text-align: center;
-    }
-
-    .ml-nav-link:hover {
-        background: var(--SurfaceColor);
+    .nm-brand:hover {
         color: var(--TextColor);
+        text-decoration: none;
     }
 
-    .ml-nav-link.active {
-        background: var(--ButtonColor);
-        color: var(--ButtonTextColor);
+    .nm-brand img {
+        width: 40px;
+        height: 40px;
     }
 
-.ml-logout-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    margin-top: 12px;
-    border-top: 1px solid var(--BorderColor);
-    padding-top: 16px;
+.nm-toggle {
+    display: none;
+    margin-left: auto;
     background: none;
-    border-left: none;
-    border-right: none;
-    border-bottom: none;
-    color: var(--MutedText);
-    font-size: 14px;
-    cursor: pointer;
-    text-align: left;
+    border: none;
+    color: var(--TextColor);
+    font-size: 28px;
 }
 
-    .ml-logout-btn:hover {
-        color: var(--TextColor);
+.nm-menu {
+    display: flex;
+    flex: 1;
+    align-items: center;
+}
+
+.nm-links {
+    display: flex;
+    gap: 32px;
+    margin: 0 auto;
+}
+
+.nm-link {
+    color: var(--TextColor);
+    font-weight: 500;
+}
+
+    .nm-link:hover,
+    .nm-link.active {
+        color: var(--AccentColor);
+        text-decoration: none;
     }
 
-    .ml-logout-btn i {
-        font-size: 15px;
-        width: 16px;
-        text-align: center;
+    .nm-link.active {
+        font-weight: 600;
     }
 
-.ml-main-content {
-    flex-grow: 1;
-    padding: 24px;
+.nm-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    padding: 8px 20px;
+    background: var(--ButtonColor);
+    border: none;
+    border-radius: 20px;
+    color: var(--ButtonTextColor);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .nm-button:hover {
+        background: var(--ButtonColorHover);
+        color: var(--ButtonTextColor);
+        text-decoration: none;
+    }
+
+@media (max-width: 992px) {
+    .nm-navbar {
+        flex-wrap: wrap;
+        border-radius: 24px;
+    }
+
+    .nm-toggle {
+        display: block;
+    }
+
+    .nm-menu {
+        display: none;
+        flex-basis: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 8px 0;
+    }
+
+        .nm-menu.open {
+            display: flex;
+        }
+
+    .nm-links {
+        flex-direction: column;
+        gap: 12px;
+        margin: 0;
+    }
+
+    .nm-button {
+        margin-left: 0;
+    }
 }
