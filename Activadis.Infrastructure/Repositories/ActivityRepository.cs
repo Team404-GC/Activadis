@@ -20,5 +20,10 @@ namespace Activadis.Infrastructure.Repositories
                 .Where(x => x.DeletedAt == null && x.EndDate >= DateTime.UtcNow)
                 .OrderBy(x => x.StartDate)
                 .ToListAsync();
+
+        public async Task<Activity?> GetDetailAsync(Guid id)
+            => await Context.Activities
+                .Include(x => x.SignUps.Where(signUp => signUp.DeletedAt == null))
+                .SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
     }
 }

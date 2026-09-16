@@ -33,5 +33,13 @@ namespace Activadis.Application.Services
             IEnumerable<Activity> activities = await ActivityRepository.GetUpcomingAsync();
             return activities.Select(activity => activity.ToOverviewResponse());
         }
+
+        public async Task<ActivityDetailResponse> GetDetailAsync(Guid id)
+        {
+            Activity activity = await ActivityRepository.GetDetailAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            return activity.ToDetailResponse();
+        }
     }
 }

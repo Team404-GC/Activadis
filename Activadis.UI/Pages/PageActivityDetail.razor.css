@@ -1,0 +1,140 @@
+﻿::deep .ad-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--MutedText);
+    text-decoration: none;
+}
+
+    ::deep .ad-back:hover {
+        color: var(--TextColor);
+    }
+
+.ad-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    align-items: start;
+    gap: 32px;
+    margin-top: 16px;
+}
+
+.ad-content {
+    min-width: 0;
+}
+
+.ad-image {
+    width: 100%;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    object-fit: cover;
+    aspect-ratio: 4 / 3;
+}
+
+.ad-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 13px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.ad-status-open {
+    background: var(--AccentColorSoft);
+    color: var(--AccentColorHover);
+}
+
+.ad-status-closed {
+    background: var(--DangerBg);
+    color: var(--DangerText);
+}
+
+.ad-facts {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 8px 16px;
+    margin: 16px 0 0 0;
+    font-size: 14px;
+}
+
+    .ad-facts dt {
+        color: var(--MutedText);
+        font-weight: 500;
+    }
+
+    .ad-facts dd {
+        margin: 0;
+        color: var(--TextColor);
+    }
+
+.ad-section {
+    margin-top: 32px;
+}
+
+    .ad-section h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--TextColor);
+    }
+
+.ad-description {
+    font-size: 14px;
+    line-height: 150%;
+    color: var(--TextColor);
+    white-space: pre-line;
+}
+
+.ad-actions {
+    margin-top: 32px;
+}
+
+::deep .ad-register {
+    display: inline-block;
+    padding: 13px 32px;
+    border: none;
+    border-radius: 8px;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+    ::deep .ad-register:hover {
+        background: var(--ButtonColorHover);
+    }
+
+    ::deep .ad-register:disabled {
+        background: var(--ButtonDisabledColor);
+        cursor: not-allowed;
+    }
+
+.ad-state {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    color: var(--MutedText);
+}
+
+@media (max-width: 900px) {
+    .ad-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ad-aside {
+        order: -1;
+    }
+
+    .ad-facts {
+        grid-template-columns: 1fr;
+        gap: 2px 0;
+    }
+
+        .ad-facts dd {
+            margin-bottom: 8px;
+        }
+}

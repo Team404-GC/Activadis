@@ -1,8 +1,6 @@
-﻿using Activadis.Domain.Interfaces;
-
-namespace Activadis.Domain.Entities
+﻿namespace Activadis.Shared.DTOs.Activity
 {
-    public class Activity : IEntity
+    public class ActivityDetailResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -15,6 +13,9 @@ namespace Activadis.Domain.Entities
 
         public int MinParticipants { get; set; }
         public int MaxParticipants { get; set; }
+        public bool HasParticipantLimit { get; set; }
+        public int TotalSignUps { get; set; }
+        public int AvailableSpots { get; set; }
 
         public bool FoodIncluded { get; set; }
         public bool ExternalAllowed { get; set; }
@@ -26,13 +27,9 @@ namespace Activadis.Domain.Entities
         public DateTime SignUpDeadline { get; set; }
         public DateTime SignOutDeadline { get; set; }
 
-        public int TotalSignUps => SignUps.Count;
-
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
-        public DateTime? DeletedAt { get; set; }
-        
-        // Navigation Properties
-        public ICollection<SignUp> SignUps { get; set; } = [];
+        public bool HasTakenPlace { get; set; }
+        public bool IsFull { get; set; }
+        public bool SignUpDeadlinePassed { get; set; }
+        public bool IsOpenForSignUp { get; set; }
     }
 }
