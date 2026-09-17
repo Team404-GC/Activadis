@@ -1,10 +1,11 @@
-﻿using Activadis.Application.DTOs.Activity;
-using Activadis.Application.Interfaces;
-using Activadis.Shared.DTOs;
-using Activadis.Shared.DTOs.Activity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Activadis.Application.DTOs.Activity;
 using Microsoft.AspNetCore.Authorization;
+using Activadis.Application.Interfaces;
+using Activadis.Shared.DTOs.Activity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Activadis.Shared.DTOs;
 
 namespace Activadis.API.Controllers
 {
@@ -33,7 +34,7 @@ namespace Activadis.API.Controllers
         {
             string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(nameIdentifier, out Guid userId))
-                userId = Guid.Empty;
+                return Challenge(JwtBearerDefaults.AuthenticationScheme);
 
             try
             {
