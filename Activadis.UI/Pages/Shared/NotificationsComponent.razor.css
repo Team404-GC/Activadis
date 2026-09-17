@@ -20,6 +20,9 @@
         pointer-events: auto;
         place-items: center;
         border-radius: 30px;
+        padding: 10px 20px;
+        text-align: center;
+        user-select: none;
         cursor: pointer;
         display: grid;
         height: 80px;

@@ -4,6 +4,7 @@ using Activadis.Infrastructure;
 using Activadis.Application;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
+using Activadis.API.Converters;
 
 namespace Activadis.API
 {
@@ -19,7 +20,11 @@ namespace Activadis.API
             builder.Services.RegisterInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("The connectionString was not found!"));
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
+            });
+
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policy =>

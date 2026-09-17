@@ -25,7 +25,7 @@
             notifications.Add(notification);
             StateHasChanged();
 
-            await Task.Delay(2500);
+            await Task.Delay(notification.DurationInMs);
             notifications.Remove(notification);
             StateHasChanged();
         });
