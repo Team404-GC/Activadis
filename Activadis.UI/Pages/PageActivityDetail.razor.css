@@ -67,7 +67,7 @@
 
     .ad-facts dd {
         margin: 0;
-        color: var(--TextColor);
+        color: var(--MutedText);
     }
 
 .ad-section {
