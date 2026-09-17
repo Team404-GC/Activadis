@@ -1,13 +1,11 @@
-using Activadis.Shared.DTOs;
-using Activadis.UI.Application.Interfaces;
 using Microsoft.AspNetCore.Components.Forms;
+using Activadis.UI.Application.Interfaces;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
+using Activadis.Shared.DTOs;
 using System.Net.Http.Json;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Timers;
 
 namespace Activadis.UI.Application.Services
 {
@@ -104,6 +102,20 @@ namespace Activadis.UI.Application.Services
             try
             {
                 using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(url, request);
+                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>();
+                return result ?? throw new ArgumentException();
+            }
+            catch
+            {
+                return Error<TResponse>();
+            }
+        }
+
+        public async Task<ApiResponse<TResponse>> DeleteAsync<TResponse>(string url)
+        {
+            try
+            {
+                using HttpResponseMessage response = await HttpClient.DeleteAsync(url);
                 ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>();
                 return result ?? throw new ArgumentException();
             }
