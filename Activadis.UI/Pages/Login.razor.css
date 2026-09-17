@@ -172,7 +172,8 @@
     }
 }
 
-.form-control:autofill {
+::deep .form-control:autofill {
     transition: background-color 99999s ease-in-out 0s;
     -webkit-text-fill-color: #ffffff !important;
+    color: #ffffff !important;
 }

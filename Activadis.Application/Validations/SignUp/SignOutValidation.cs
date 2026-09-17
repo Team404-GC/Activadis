@@ -9,7 +9,7 @@ namespace Activadis.Application.Validations.SignUp
             if (activity is null)
                 throw new ArgumentException("Er is geen activiteit gevonden.");
 
-            if (activity.SignOutDeadline <= DateTime.UtcNow)
+            if (DateTime.UtcNow >= activity.SignOutDeadline)
                 throw new ArgumentException("De uitschrijfdatum is al geweest.");
         }
     }
