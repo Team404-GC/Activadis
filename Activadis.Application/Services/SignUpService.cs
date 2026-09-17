@@ -21,7 +21,8 @@ namespace Activadis.Application.Services
         public async Task SignUpAsync(SignUpRequest request, Guid userId)
         {
             Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
-            request.Validate(activity, userId);
+            int totalSignUps = await SignUpRepository.CountByActivityIdAsync(request.ActivityId);
+            request.Validate(activity, userId, totalSignUps);
 
             SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
             if (signUp is null)
@@ -38,6 +39,17 @@ namespace Activadis.Application.Services
             signUp.HasPlusOne = request.HasPlusOne;
             signUp.DeletedAt = null;
             await SignUpRepository.UpdateAsync(signUp);
+        }
+
+        public async Task SignOutAsync(Guid activityId, Guid userId)
+        {
+            Activity? activity = await ActivityRepository.GetByIdAsync(activityId);
+            SignOutValidation.Validate(activity);
+
+            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, activityId)
+                ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
+
+            await SignUpRepository.DeleteAsync(signUp);
         }
     }
 }

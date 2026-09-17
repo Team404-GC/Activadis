@@ -1,8 +1,9 @@
-﻿using Activadis.Application.Interfaces;
-using Activadis.Shared.DTOs;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.SignUp;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Activadis.Shared.DTOs;
 
 namespace Activadis.API.Controllers
 {
@@ -35,6 +36,24 @@ namespace Activadis.API.Controllers
             try
             {
                 await SignUpService.SignUpAsync(request, userId);
+                return Ok(ApiResponse<object>.Ok());
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpDelete("{activityId}")]
+        public async Task<IActionResult> SignOutAsync(Guid activityId)
+        {
+            string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(id, out Guid userId))
+                return Challenge(JwtBearerDefaults.AuthenticationScheme);
+
+            try
+            {
+                await SignUpService.SignOutAsync(activityId, userId);
                 return Ok(ApiResponse<object>.Ok());
             }
             catch (ArgumentException exception)
