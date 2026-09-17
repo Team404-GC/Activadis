@@ -28,7 +28,9 @@
 			<FocusOnNavigate RouteData="@routeData" Selector="h1" />
 		</Found>
 		<NotFound>
-			<PageNotFound/>
+			<LayoutView Layout="@typeof(MainLayout)">
+				<PageNotFound/>
+			</LayoutView>
 		</NotFound>
 	</Router>
 </CascadingAuthenticationState>
