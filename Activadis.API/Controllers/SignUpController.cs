@@ -35,7 +35,7 @@ namespace Activadis.API.Controllers
             try
             {
                 await SignUpService.SignUpAsync(request, userId);
-                return Ok(ApiResponse<object>.Ok(new { FullName = fullName, Email = email }));
+                return Ok(ApiResponse<object>.Ok());
             }
             catch (ArgumentException exception)
             {
