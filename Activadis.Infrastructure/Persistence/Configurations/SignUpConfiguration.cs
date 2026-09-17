@@ -9,10 +9,13 @@ namespace Activadis.Infrastructure.Persistence.Configurations
         public static void Configure(this EntityTypeBuilder<SignUp> builder)
         {
             builder.Property(su => su.FullName)
-                    .IsRequired(true);
+                .IsRequired(true);
 
             builder.Property(su => su.Email)
                 .IsRequired(true);
+
+            builder.HasIndex(su => new { su.ActivityId, su.UserId })
+                .IsUnique();
 
             builder.HasOne(su => su.Activity)
                .WithMany(a => a.SignUps)

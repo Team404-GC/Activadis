@@ -11,10 +11,12 @@ namespace Activadis.Application.Services
     public class ActivityService : IActivityService
     {
         private readonly IActivityRepository ActivityRepository;
+        private readonly ISignUpRepository SignUpRepository;
 
-        public ActivityService(IActivityRepository activityRepository)
+        public ActivityService(IActivityRepository activityRepository, ISignUpRepository signUpRepository)
         {
             ActivityRepository = activityRepository;
+            SignUpRepository = signUpRepository;
         }
 
         public async Task CreateAsync(CreateActivityRequest request)
@@ -34,12 +36,13 @@ namespace Activadis.Application.Services
             return activities.Select(activity => activity.ToOverviewResponse());
         }
 
-        public async Task<ActivityDetailResponse> GetDetailAsync(Guid id)
+        public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId)
         {
             Activity activity = await ActivityRepository.GetDetailAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
-            return activity.ToDetailResponse();
+            bool hasSignedUp = await SignUpRepository.HasSignedUpAsync(userId, id);
+            return activity.ToDetailResponse(hasSignedUp);
         }
     }
 }

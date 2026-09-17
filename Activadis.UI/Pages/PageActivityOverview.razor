@@ -59,6 +59,6 @@ else
 
     private static string FormatPeriod(ActivityOverviewResponse activity)
         => activity.StartDate.Date == activity.EndDate.Date
-            ? $"{activity.StartDate:dd-MM-yyyy HH:mm} - {activity.EndDate:HH:mm}"
-            : $"{activity.StartDate:dd-MM-yyyy HH:mm} - {activity.EndDate:dd-MM-yyyy HH:mm}";
+            ? $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():HH:mm}"
+            : $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():dd-MM-yyyy HH:mm}";
 }

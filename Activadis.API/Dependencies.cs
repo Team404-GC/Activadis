@@ -94,6 +94,15 @@ namespace Activadis.API
                         }
                     );
                 });
+
+                options.OnRejected = async (context, cancellationToken) =>
+                {
+                    context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    context.HttpContext.Response.ContentType = "application/json";
+
+                    ApiResponse<object> response = ApiResponse<object>.Fail("De limiet voor het aantal verzoeken is overschreden. Probeer het later opnieuw.");
+                    await context.HttpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+                };
             });
 
             return services;

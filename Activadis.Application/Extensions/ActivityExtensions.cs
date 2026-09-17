@@ -47,7 +47,7 @@ namespace Activadis.Application.Extensions
             };
         }
 
-        public static ActivityDetailResponse ToDetailResponse(this Activity activity)
+        public static ActivityDetailResponse ToDetailResponse(this Activity activity, bool hasSignedUp)
         {
             return new ActivityDetailResponse()
             {
@@ -79,7 +79,8 @@ namespace Activadis.Application.Extensions
                 HasTakenPlace = activity.HasTakenPlace(),
                 IsFull = activity.IsFull(),
                 SignUpDeadlinePassed = activity.SignUpDeadlinePassed(),
-                IsOpenForSignUp = activity.IsOpenForSignUp()
+                IsOpenForSignUp = activity.IsOpenForSignUp(),
+                HasSignedUp = hasSignedUp
             };
         }
     }

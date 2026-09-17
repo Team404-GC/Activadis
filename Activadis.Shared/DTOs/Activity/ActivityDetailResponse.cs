@@ -31,5 +31,6 @@
         public bool IsFull { get; set; }
         public bool SignUpDeadlinePassed { get; set; }
         public bool IsOpenForSignUp { get; set; }
+        public bool HasSignedUp { get; set; }
     }
 }

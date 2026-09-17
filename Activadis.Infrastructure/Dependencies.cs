@@ -37,6 +37,7 @@ namespace Activadis.Infrastructure
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IActivityRepository, ActivityRepository>();
+            services.AddScoped<ISignUpRepository, SignUpRepository>();
 
             return services;
         }
