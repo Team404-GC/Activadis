@@ -9,10 +9,10 @@ namespace Activadis.Application.Services
 {
     public class SignUpService : ISignUpService
     {
-        private readonly IRepository<SignUp> SignUpRepository;
         private readonly IActivityRepository ActivityRepository;
+        private readonly ISignUpRepository SignUpRepository;
 
-        public SignUpService(IActivityRepository activityRepository, IRepository<SignUp> signUpRepository)
+        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository)
         {
             ActivityRepository = activityRepository;
             SignUpRepository = signUpRepository;
@@ -23,9 +23,21 @@ namespace Activadis.Application.Services
             Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
             request.Validate(activity, userId);
 
-            await SignUpRepository.AddAsync(
-                request.ToSignUp(userId)
-            );
+            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
+            if (signUp is null)
+            {
+                await SignUpRepository.AddAsync(
+                    request.ToSignUp(userId)
+                );
+                return;
+            }
+
+            if (signUp.DeletedAt is null)
+                throw new ArgumentException("Je kan niet 2x inschrijven bij dezelfde activiteit.");
+
+            signUp.HasPlusOne = request.HasPlusOne;
+            signUp.DeletedAt = null;
+            await SignUpRepository.UpdateAsync(signUp);
         }
     }
 }
