@@ -266,10 +266,10 @@ else
             if (activity is null || isSigningUp)
                 return true;
 
-            bool canSignIn = !activity.IsOpenForSignUp || activity.SignUpDeadlinePassed || activity.HasTakenPlace;
-            bool canSignOut = DateTime.UtcNow >= activity.SignOutDeadline || activity.HasTakenPlace;
+            bool canSignIn = !activity.IsOpenForSignUp;
+            bool canSignOut = DateTime.UtcNow < activity.SignOutDeadline;
 
-            return !activity.HasSignedUp ? canSignIn : canSignOut;
+            return !activity.HasSignedUp ? !canSignIn : !canSignOut;
         }
     }
 }

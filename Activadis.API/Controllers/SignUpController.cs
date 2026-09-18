@@ -4,6 +4,7 @@ using Activadis.Shared.DTOs.SignUp;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Activadis.Shared.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Activadis.API.Controllers
 {
@@ -19,6 +20,7 @@ namespace Activadis.API.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> SignUpAsync(SignUpRequest request)
         {
             string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -45,6 +47,7 @@ namespace Activadis.API.Controllers
         }
 
         [HttpDelete("{activityId}")]
+        [Authorize]
         public async Task<IActionResult> SignOutAsync(Guid activityId)
         {
             string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
