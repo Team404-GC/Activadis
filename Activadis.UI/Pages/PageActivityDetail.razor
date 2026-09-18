@@ -79,23 +79,25 @@ else
             </section>
 
             <div class="ad-actions">
-                @if (activity.IsOpenForSignUp && !activity.HasSignedUp)
-                {
-                    <button class="ad-register" type="button" @onclick="OpenSignUpAsync" disabled="@isSigningUp">
-                        @if (!isSigningUp)
+                <button class="ad-register" type="button"
+                        @onclick="@(() => !activity.HasSignedUp ? OpenSignUpAsync() : SignOutAsync())"
+                        disabled="@IsSignUpDisabled">
+                    @if (!isSigningUp)
+                    {
+                        @if (!activity.HasSignedUp)
                         {
                             <span>Inschrijven</span>
                         }
                         else
                         {
-                            <span>Aan het laden..</span>
+                            <span>Uitschrijven</span>
                         }
-                    </button>
-                }
-                else
-                {
-                    <button class="ad-register" type="button" disabled>Inschrijven</button>
-                }
+                    }
+                    else
+                    {
+                        <span>Aan het laden..</span>
+                    }
+                </button>
             </div>
         </div>
 
@@ -178,7 +180,6 @@ else
         isSigningUp = true;
 
         ApiResponse<object> response = await SignUpService.SignUpAsync(request);
-
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
@@ -191,6 +192,29 @@ else
         activity.HasSignedUp = true;
 
         Notifications.AddNotification("Je bent succesvol aangemeld bij deze activiteit.", false);
+        isSigningUp = false;
+    }
+
+    public async Task SignOutAsync()
+    {
+        if (activity is null)
+            return;
+
+        isSigningUp = true;
+
+        ApiResponse<object> response = await SignUpService.SignOutAsync(Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSigningUp = false;
+            return;
+        }
+
+        activity.AvailableSpots++;
+        activity.TotalSignUps--;
+        activity.HasSignedUp = false;
+
+        Notifications.AddNotification("Je bent succesvol afgemeld bij deze activiteit.", false);
         isSigningUp = false;
     }
 
@@ -226,9 +250,26 @@ else
         if (activity.IsFull)
             return "Deze activiteit is volgeboekt.";
 
-        if (activity.SignUpDeadlinePassed)
+        if (!activity.HasSignedUp && activity.SignUpDeadlinePassed)
             return "De inschrijftermijn is verstreken.";
+            
+        if (activity.HasSignedUp && DateTime.UtcNow >= activity.SignOutDeadline)
+            return "De uitschrijftermijn is verstreken.";
 
         return "Inschrijving gesloten.";
+    }
+
+    private bool IsSignUpDisabled
+    {
+        get
+        {
+            if (activity is null || isSigningUp)
+                return true;
+
+            bool canSignIn = !activity.IsOpenForSignUp;
+            bool canSignOut = DateTime.UtcNow < activity.SignOutDeadline;
+
+            return !activity.HasSignedUp ? !canSignIn : !canSignOut;
+        }
     }
 }

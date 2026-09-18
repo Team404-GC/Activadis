@@ -6,5 +6,6 @@ namespace Activadis.UI.Application.Interfaces
     public interface ISignUpService
     {
         Task<ApiResponse<object>> SignUpAsync(SignUpRequest request);
+        Task<ApiResponse<object>> SignOutAsync(Guid activityId);
     }
 }

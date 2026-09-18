@@ -5,7 +5,7 @@ namespace Activadis.Application.Validations.SignUp
 {
     public static class SignUpRequestValidation
     {
-        public static void Validate(this SignUpRequest request, Entities.Activity? activity, Guid userId)
+        public static void Validate(this SignUpRequest request, Entities.Activity? activity, Guid userId, int totalSignUps)
         {
             if (string.IsNullOrWhiteSpace(request.FullName))
                 throw new ArgumentException("De naam moet ingevuld worden.");
@@ -19,10 +19,13 @@ namespace Activadis.Application.Validations.SignUp
             if (!activity.ExternalAllowed && userId == Guid.Empty)
                 throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
 
+            if (totalSignUps >= activity.MaxParticipants)
+                throw new ArgumentException("Deze activiteit heeft al het maximum aantal deelnemers.");
+
             if (!activity.PlusOneAllowed && request.HasPlusOne)
                 throw new ArgumentException("Deze activiteit accepteert geen +1.");
 
-            if (activity.SignUpDeadline <= DateTime.UtcNow)
+            if (DateTime.UtcNow >= activity.SignUpDeadline)
                 throw new ArgumentException("De inschrijfdatum is al geweest.");
         }
     }

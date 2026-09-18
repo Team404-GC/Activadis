@@ -5,6 +5,8 @@ namespace Activadis.Domain.Interfaces.Repositories
     public interface ISignUpRepository : IRepository<SignUp>
     {
         Task<SignUp?> GetByUserIdAndActivityIdIncludingDeletedAsync(Guid userId, Guid activityId);
+        Task<SignUp?> GetByUserIdAndActivityIdAsync(Guid userId, Guid activityId);
         Task<bool> HasSignedUpAsync(Guid userId, Guid activityId);
+        Task<int> CountByActivityIdAsync(Guid activityId);
     }
 }
