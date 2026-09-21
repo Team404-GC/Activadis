@@ -266,7 +266,7 @@ else
             if (activity is null || isSigningUp)
                 return true;
 
-            bool canSignIn = !activity.IsOpenForSignUp;
+            bool canSignIn = activity.IsOpenForSignUp;
             bool canSignOut = DateTime.UtcNow < activity.SignOutDeadline;
 
             return !activity.HasSignedUp ? !canSignIn : !canSignOut;

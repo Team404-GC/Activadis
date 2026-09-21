@@ -22,5 +22,8 @@ namespace Activadis.UI.Application.Services
 
         public async Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id)
             => await HttpService.GetAsync<ActivityDetailResponse>($"/Activity/{id}");
+
+        public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync()
+            => await HttpService.GetAsync<IEnumerable<ActivityOverviewResponse>>("/Activity/SignedUp");
     }
 }

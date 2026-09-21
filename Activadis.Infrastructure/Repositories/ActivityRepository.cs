@@ -25,5 +25,13 @@ namespace Activadis.Infrastructure.Repositories
             => await Context.Activities
                 .Include(x => x.SignUps.Where(signUp => signUp.DeletedAt == null))
                 .SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+
+        public async Task<IEnumerable<Activity>> GetSignedUpByUserIdAsync(Guid userId)
+            => await Context.Activities
+                .Where(x => x.DeletedAt == null
+                    && x.EndDate >= DateTime.UtcNow
+                    && x.SignUps.Any(signUp => signUp.UserId == userId && signUp.DeletedAt == null))
+                .OrderBy(x => x.StartDate)
+                .ToListAsync();
     }
 }
