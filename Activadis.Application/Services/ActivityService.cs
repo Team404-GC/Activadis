@@ -44,5 +44,11 @@ namespace Activadis.Application.Services
             bool hasSignedUp = await SignUpRepository.HasSignedUpAsync(userId, id);
             return activity.ToDetailResponse(hasSignedUp);
         }
+
+        public async Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId)
+        {
+            IEnumerable<Activity> activities = await ActivityRepository.GetSignedUpByUserIdAsync(userId);
+            return activities.Select(activity => activity.ToOverviewResponse());
+        }
     }
 }

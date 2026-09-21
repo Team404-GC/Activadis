@@ -6,6 +6,11 @@
 
 <h1>Activiteiten</h1>
 
+<nav class="ao-tabs">
+    <a class="ao-tab @(IsMyActivities ? "" : "active")" href="/">Alle activiteiten</a>
+    <a class="ao-tab @(IsMyActivities ? "active" : "")" href="@($"/?tab={MyActivitiesTab}")">Mijn activiteiten</a>
+</nav>
+
 @if (isLoading)
 {
     <div class="ao-state">
@@ -14,7 +19,7 @@
 }
 else if (!activities.Any())
 {
-    <p class="ao-state">Er zijn op dit moment geen activiteiten.</p>
+    <p class="ao-state">@(IsMyActivities ? "Je bent nog niet ingeschreven voor een activiteit." : "Er zijn op dit moment geen activiteiten.")</p>
 }
 else
 {
@@ -39,12 +44,25 @@ else
 }
 
 @code {
+    private const string MyActivitiesTab = "mijn";
+
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? Tab { get; set; }
+
     private IEnumerable<ActivityOverviewResponse> activities = [];
     private bool isLoading = true;
 
-    protected override async Task OnInitializedAsync()
+    private bool IsMyActivities => Tab == MyActivitiesTab;
+
+    // Runs on the first load and again whenever the tab in the URL changes.
+    protected override async Task OnParametersSetAsync()
     {
-        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = await ActivityService.GetUpcomingAsync();
+        isLoading = true;
+        activities = [];
+
+        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = IsMyActivities
+            ? await ActivityService.GetSignedUpAsync()
+            : await ActivityService.GetUpcomingAsync();
 
         if (!response.Succeeded)
         {

@@ -9,5 +9,6 @@ namespace Activadis.UI.Application.Interfaces
         Task<ApiResponse<object>> CreateAsync(CreateActivityRequest request);
         Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetUpcomingAsync();
         Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id);
+        Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync();
     }
 }

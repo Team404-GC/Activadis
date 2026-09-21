@@ -28,6 +28,18 @@ namespace Activadis.API.Controllers
             return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
         }
 
+        [HttpGet("SignedUp")]
+        [Authorize]
+        public async Task<IActionResult> GetSignedUpAsync()
+        {
+            string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(nameIdentifier, out Guid userId))
+                return Challenge(JwtBearerDefaults.AuthenticationScheme);
+
+            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetSignedUpAsync(userId);
+            return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
+        }
+
         [HttpGet("{id:guid}")]
         [Authorize]
         public async Task<IActionResult> GetDetailAsync(Guid id)
