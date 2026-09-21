@@ -1,6 +1,6 @@
 ﻿@inject IActivityService ActivityService
 @attribute [Authorize]
-@page "/"
+@page "/activiteiten"
 
 <PageTitle>Activiteiten</PageTitle>
 
@@ -23,6 +23,7 @@ else if (!activities.Any())
 }
 else
 {
+<ListOverviewComponent Activities="activities" />
     <div class="ao-list">
         @foreach (ActivityOverviewResponse activity in activities)
         {

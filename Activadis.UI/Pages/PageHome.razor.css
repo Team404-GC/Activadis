@@ -1,0 +1,132 @@
+.hm-hero {
+    display: flex;
+    align-items: center;
+    gap: 64px;
+    padding: 48px 0;
+}
+
+.hm-intro {
+    flex: 1;
+}
+
+    .hm-intro h1 {
+        margin: 0;
+        font-size: 48px;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+.hm-lead {
+    margin: 16px 0 32px 0;
+    max-width: 480px;
+    font-size: 18px;
+    line-height: 160%;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.hm-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 24px;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .hm-button:hover {
+        background: var(--ButtonColorHover);
+        color: var(--ButtonTextColor);
+        text-decoration: none;
+    }
+
+.hm-note {
+    margin-top: 16px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.hm-logo {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+    .hm-logo ::deep .logo-animation {
+        width: 260px;
+        height: 260px;
+    }
+
+.hm-blocks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding-bottom: 48px;
+}
+
+.hm-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 220px;
+    padding: 32px;
+    border: 2px dashed;
+    border-radius: 24px;
+    text-align: center;
+}
+
+    .hm-block:hover {
+        border-color: var(--AccentColor);
+        text-decoration: none;
+    }
+
+    .hm-block video {
+        width: 100%;
+        max-width: 520px;
+        border-radius: 16px;
+    }
+
+    .hm-block h2 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .hm-block p {
+        margin: 0;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+@media (max-width: 900px) {
+    .hm-hero {
+        flex-direction: column-reverse;
+        gap: 32px;
+        padding: 32px 0;
+        text-align: center;
+    }
+
+    .hm-lead {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hm-logo ::deep .logo-animation {
+        width: 180px;
+        height: 180px;
+    }
+
+    .hm-blocks {
+        grid-template-columns: 1fr;
+    }
+
+    .hm-intro h1 {
+        font-size: 36px;
+    }
+}

@@ -18,4 +18,8 @@
 	  <ProjectReference Include="..\Activadis.Shared\Activadis.Shared.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\videos\" />
+	</ItemGroup>
+
 </Project>
