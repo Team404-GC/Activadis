@@ -46,12 +46,9 @@
     {
         AuthenticationState state = await AuthState;
 
-        if (state.User.Identity?.IsAuthenticated == true)
-        {
-            if (state.User.Identity?.IsAuthenticated == true)
-            {
-                Navigation.NavigateTo("/activiteiten", replace: true);
-            }
-        }
+        if (state.User.Identity?.IsAuthenticated != true)
+            return;
+
+        Navigation.NavigateTo("/activiteiten");
     }
 }
