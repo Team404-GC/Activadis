@@ -68,27 +68,27 @@
 }
 
 .hm-block {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    min-height: 220px;
-    padding: 32px;
-    border: 2px dashed;
-    border-radius: 24px;
-    text-align: center;
+    /* Schermbreed: buiten de marges van de pagina om, van rand tot rand. */
+    display: block;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    overflow: hidden;
+    background: #000000;
+    line-height: 0;
 }
 
     .hm-block:hover {
-        border-color: var(--AccentColor);
+        opacity: 0.9;
         text-decoration: none;
     }
 
     .hm-block video {
+        display: block;
         width: 100%;
-        max-width: 520px;
-        border-radius: 16px;
+        height: 500px;
+        /* Bijsnijden in plaats van uitrekken, zodat het vuur in beeld blijft. */
+        object-fit: cover;
     }
 
     .hm-block h2 {
@@ -126,7 +126,37 @@
         grid-template-columns: 1fr;
     }
 
+    .hm-block video {
+        height: 220px;
+    }
+
     .hm-intro h1 {
         font-size: 36px;
     }
 }
+
+.hm-placeholder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 220px;
+    margin-top: 24px;
+    padding: 32px;
+    border: 2px dashed rgba(255, 255, 255, 0.25);
+    border-radius: 24px;
+    text-align: center;
+}
+
+    .hm-placeholder h2 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .hm-placeholder p {
+        margin: 0;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+    }

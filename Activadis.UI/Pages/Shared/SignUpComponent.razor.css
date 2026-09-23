@@ -13,6 +13,10 @@
         border-radius: 15px;
         padding: 20px;
 
+        p {
+            color: var(--TextColor);
+        }
+
         button {
             background: var(--ButtonColor);
             color: var(--ButtonTextColor);
@@ -27,8 +31,8 @@
             width: 49%;
         }
 
-        button:hover {
-            background: var(--ButtonColorHover);
-        }
+            button:hover {
+                background: var(--ButtonColorHover);
+            }
     }
 }

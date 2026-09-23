@@ -7,8 +7,8 @@
 <h1>Activiteiten</h1>
 
 <nav class="ao-tabs">
-    <a class="ao-tab @(IsMyActivities ? "" : "active")" href="/">Alle activiteiten</a>
-    <a class="ao-tab @(IsMyActivities ? "active" : "")" href="@($"/?tab={MyActivitiesTab}")">Mijn activiteiten</a>
+    <a class="ao-tab @(IsMyActivities ? "" : "active")" href="/activiteiten">Alle activiteiten</a>
+    <a class="ao-tab @(IsMyActivities ? "active" : "")" href="@($"/activiteiten/?tab={MyActivitiesTab}")">Mijn activiteiten</a>
 </nav>
 
 @if (isLoading)
@@ -23,7 +23,7 @@ else if (!activities.Any())
 }
 else
 {
-    @* <ListOverviewComponent Activities="activities" /> *@
+@* <ListOverviewComponent Activities="activities" /> *@
     <div class="ao-list">
         @foreach (ActivityOverviewResponse activity in activities)
         {
@@ -43,6 +43,7 @@ else
         }
     </div>
 }
+
 
 @code {
     private const string MyActivitiesTab = "mijn";
