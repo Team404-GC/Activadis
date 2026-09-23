@@ -1,0 +1,275 @@
+﻿@using System.Globalization
+@inject IActivityService ActivityService
+@inject ISignUpService SignUpService
+@attribute [Authorize]
+@page "/activiteit/{Id:guid}"
+
+<PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>
+
+<NavLink class="ad-back" href="/activiteiten" Match="NavLinkMatch.Prefix">
+    <i class="bi bi-arrow-left"></i>
+    <span>Terug naar activiteiten</span>
+</NavLink>
+
+@if (isLoading)
+{
+    <div class="ad-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (activity is null)
+{
+    <p class="ad-state">Deze activiteit is niet gevonden.</p>
+}
+else
+{
+    <h1>@activity.Name</h1>
+
+    <div class="ad-layout">
+        <div class="ad-content">
+            <div class="ad-status @(activity.IsOpenForSignUp ? "ad-status-open" : "ad-status-closed")">
+                <i class="bi @(activity.IsOpenForSignUp ? "bi-check-circle" : "bi-x-circle")"></i>
+                <span>@ToSignUpState(activity)</span>
+            </div>
+
+            <dl class="ad-facts">
+                <dt>Datum en tijd</dt>
+                <dd>@ToPeriod(activity)</dd>
+
+                <dt>Locatie</dt>
+                <dd>@activity.Location</dd>
+
+                <dt>Kosten per persoon</dt>
+                <dd>@ToCost(activity.CostPerPerson)</dd>
+
+                <dt>Eten inbegrepen</dt>
+                <dd>@ToAnswer(activity.FoodIncluded)</dd>
+
+                <dt>Deelnemers</dt>
+                <dd>@ToSpots(activity)</dd>
+            </dl>
+
+            <section class="ad-section">
+                <h2>Beschrijving</h2>
+                <p class="ad-description">@activity.Description</p>
+            </section>
+
+            <section class="ad-section">
+                <h2>Voorwaarden</h2>
+
+                <dl class="ad-facts">
+                    <dt>Minimaal aantal deelnemers</dt>
+                    <dd>@(activity.MinParticipants > 0 ? activity.MinParticipants.ToString() : "Geen minimum")</dd>
+
+                    <dt>Maximaal aantal deelnemers</dt>
+                    <dd>@(activity.MaxParticipants > 0 ? activity.MaxParticipants.ToString() : "Geen maximum")</dd>
+
+                    <dt>Externen toegestaan</dt>
+                    <dd>@ToAnswer(activity.ExternalAllowed)</dd>
+
+                    <dt>Introducé toegestaan</dt>
+                    <dd>@ToAnswer(activity.PlusOneAllowed)</dd>
+
+                    <dt>Inschrijven kan tot</dt>
+                    <dd>@activity.SignUpDeadline.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</dd>
+
+                    <dt>Uitschrijven kan tot</dt>
+                    <dd>@activity.SignOutDeadline.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</dd>
+                </dl>
+            </section>
+
+            <div class="ad-actions">
+                <button class="ad-register" type="button"
+                        @onclick="@(() => !activity.HasSignedUp ? OpenSignUpAsync() : SignOutAsync())"
+                        disabled="@IsSignUpDisabled">
+                    @if (!isSigningUp)
+                    {
+                        @if (!activity.HasSignedUp)
+                        {
+                            <span>Inschrijven</span>
+                        }
+                        else
+                        {
+                            <span>Uitschrijven</span>
+                        }
+                    }
+                    else
+                    {
+                        <span>Aan het laden..</span>
+                    }
+                </button>
+            </div>
+        </div>
+
+        @if (activity.Image is { Length: > 0 })
+        {
+            <aside class="ad-aside">
+                <img class="ad-image" src="@ToImageSource(activity)" alt="@activity.Name" />
+            </aside>
+        }
+    </div>
+
+    @if (isSignUpOpen)
+    {
+        <SignUpComponent OnSubmit="SubmitSignUpAsync"/>
+    }
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private ActivityDetailResponse? activity;
+    private bool isLoading = true;
+
+    private bool isSignUpOpen;
+    private bool isSigningUp;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        activity = null;
+
+        ApiResponse<ActivityDetailResponse> response = await ActivityService.GetDetailAsync(Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        activity = response.Value;
+
+        isLoading = false;
+    }
+
+    public async Task OpenSignUpAsync()
+    {
+        if (activity is null)
+            return;
+
+        if (activity.PlusOneAllowed)
+        {
+            isSignUpOpen = true;
+            return;
+        }
+
+        await SignUpAsync(new SignUpRequest()
+        {
+            HasPlusOne = false,
+            ActivityId = Id
+        });
+    }
+
+    public async Task SubmitSignUpAsync(bool hasPlusOne)
+    {
+        isSignUpOpen = false;
+
+        await SignUpAsync(new SignUpRequest()
+        {
+            HasPlusOne = hasPlusOne,
+            ActivityId = Id
+        });
+    }
+
+    public async Task SignUpAsync(SignUpRequest request)
+    {
+        if (activity is null)
+            return;
+
+        isSigningUp = true;
+
+        ApiResponse<object> response = await SignUpService.SignUpAsync(request);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSigningUp = false;
+            return;
+        }
+
+        activity.AvailableSpots--;
+        activity.TotalSignUps++;
+        activity.HasSignedUp = true;
+
+        Notifications.AddNotification("Je bent succesvol aangemeld bij deze activiteit.", false);
+        isSigningUp = false;
+    }
+
+    public async Task SignOutAsync()
+    {
+        if (activity is null)
+            return;
+
+        isSigningUp = true;
+
+        ApiResponse<object> response = await SignUpService.SignOutAsync(Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSigningUp = false;
+            return;
+        }
+
+        activity.AvailableSpots++;
+        activity.TotalSignUps--;
+        activity.HasSignedUp = false;
+
+        Notifications.AddNotification("Je bent succesvol afgemeld bij deze activiteit.", false);
+        isSigningUp = false;
+    }
+
+    private static string ToImageSource(ActivityDetailResponse activity)
+        => $"data:{activity.ImageContentType};base64,{Convert.ToBase64String(activity.Image)}";
+
+    private static string ToPeriod(ActivityDetailResponse activity)
+        => activity.StartDate.Date == activity.EndDate.Date
+            ? $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():HH:mm}"
+            : $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():dd-MM-yyyy HH:mm}";
+
+    private static string ToCost(decimal cost)
+        => cost <= 0
+            ? "Gratis"
+            : cost.ToString("C", CultureInfo.GetCultureInfo("nl-NL"));
+
+    private static string ToSpots(ActivityDetailResponse activity)
+        => activity.HasParticipantLimit
+            ? $"{activity.TotalSignUps} van {activity.MaxParticipants} plekken bezet, nog {activity.AvailableSpots} beschikbaar"
+            : $"{activity.TotalSignUps} aanmeldingen";
+
+    private static string ToAnswer(bool value)
+        => value ? "Ja" : "Nee";
+
+    private static string ToSignUpState(ActivityDetailResponse activity)
+    {
+        if (activity.IsOpenForSignUp)
+            return "Inschrijving geopend";
+
+        if (activity.HasTakenPlace)
+            return "Deze activiteit heeft al plaatsgevonden.";
+
+        if (activity.IsFull)
+            return "Deze activiteit is volgeboekt.";
+
+        if (!activity.HasSignedUp && activity.SignUpDeadlinePassed)
+            return "De inschrijftermijn is verstreken.";
+            
+        if (activity.HasSignedUp && DateTime.UtcNow >= activity.SignOutDeadline)
+            return "De uitschrijftermijn is verstreken.";
+
+        return "Inschrijving gesloten.";
+    }
+
+    private bool IsSignUpDisabled
+    {
+        get
+        {
+            if (activity is null || isSigningUp)
+                return true;
+
+            bool canSignIn = activity.IsOpenForSignUp;
+            bool canSignOut = DateTime.UtcNow < activity.SignOutDeadline;
+
+            return !activity.HasSignedUp ? !canSignIn : !canSignOut;
+        }
+    }
+}

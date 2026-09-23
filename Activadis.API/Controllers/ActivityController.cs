@@ -1,7 +1,10 @@
-﻿using Activadis.Application.DTOs.Activity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Activadis.Application.DTOs.Activity;
 using Microsoft.AspNetCore.Authorization;
 using Activadis.Application.Interfaces;
+using Activadis.Shared.DTOs.Activity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Activadis.Shared.DTOs;
 
 namespace Activadis.API.Controllers
@@ -15,6 +18,45 @@ namespace Activadis.API.Controllers
         public ActivityController(IActivityService activityService)
         {
             ActivityService = activityService;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> GetUpcomingAsync()
+        {
+            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetUpcomingAsync();
+            return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
+        }
+
+        [HttpGet("SignedUp")]
+        [Authorize]
+        public async Task<IActionResult> GetSignedUpAsync()
+        {
+            string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(nameIdentifier, out Guid userId))
+                return Challenge(JwtBearerDefaults.AuthenticationScheme);
+
+            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetSignedUpAsync(userId);
+            return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
+        }
+
+        [HttpGet("{id:guid}")]
+        [Authorize]
+        public async Task<IActionResult> GetDetailAsync(Guid id)
+        {
+            string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(nameIdentifier, out Guid userId))
+                return Challenge(JwtBearerDefaults.AuthenticationScheme);
+
+            try
+            {
+                ActivityDetailResponse activity = await ActivityService.GetDetailAsync(id, userId);
+                return Ok(ApiResponse<ActivityDetailResponse>.Ok(activity));
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
+            }
         }
 
         [HttpPost]

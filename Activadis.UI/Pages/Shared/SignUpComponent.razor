@@ -1,0 +1,11 @@
+﻿<div class="signup-container">
+    <div class="form">
+        <p>Zou je een +1 willen meenemen?</p>
+        <button type="submit" @onclick="@(() => OnSubmit.InvokeAsync(true))">Ja</button>
+        <button type="submit" @onclick="@(() => OnSubmit.InvokeAsync(false))">Nee</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback<bool> OnSubmit { get; set; }
+}

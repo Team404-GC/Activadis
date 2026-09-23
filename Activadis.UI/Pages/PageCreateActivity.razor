@@ -30,7 +30,7 @@
     </section>
     <section>
         <label>Foto</label>
-        <InputFile OnChange="OnFileChange" />
+        <InputFile OnChange="OnFileChange" accept="image/png,image/jpeg,image/webp" />
         <ValidationMessage For="@(() => request.Image)" />
     </section>
     <br />
@@ -109,11 +109,10 @@
         if (selector.Body is not MemberExpression expression || expression.Member is not PropertyInfo property)
             return;
 
-        DateTime date;
-        if (args.Value is not string dateString || !DateTime.TryParse(dateString, out date))
-            date = DateTime.MinValue;
+        if (args.Value is not string dateString || !DateTimeOffset.TryParse(dateString, out DateTimeOffset date))
+            date = DateTimeOffset.MinValue;
 
-        property.SetValue(request, date);
+        property.SetValue(request, date.UtcDateTime);
     }
 
     public async Task CreateAsync()

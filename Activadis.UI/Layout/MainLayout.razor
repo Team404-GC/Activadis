@@ -1,50 +1,11 @@
-﻿@inherits LayoutComponentBase
-@inject IAuthService AuthService
-@inject NavigationManager NavigationManager
+@inherits LayoutComponentBase
 
 <div class="ml-page">
-    <nav class="ml-sidebar">
-        <NavLink href="/" style="text-decoration: none;" Match="NavLinkMatch.Prefix">
-            <div class="ml-sidebar-brand">
-                <img class="ml-brand-icon" src="/icon-192.png" />
-                <span class="ml-brand-name">Activadis</span>
-            </div>
-        </NavLink>
+    <NavMenu />
 
-        <NotificationsComponent />
-
-        <AuthorizeView Context="auth">
-            <Authorized>
-                <div class="ml-navbar-links">
-                    <h5>Hoofdmenu</h5>
-                    
-                </div>
-
-                <div class="ml-navbar-links">
-                    <h5>Activiteiten</h5>
-                    <AuthorizeView Roles="Admin">
-                        <NavLink href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
-                    </AuthorizeView>
-                </div>
-
-                <button class="ml-logout-btn" @onclick="HandleLogout">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Uitloggen</span>
-                </button>
-            </Authorized>
-        </AuthorizeView>
-    </nav>
-
-    <main class="ml-main-content">
+    <main class="ml-content">
         @Body
     </main>
 </div>
 
-
-@code {
-    private async Task HandleLogout()
-    {
-        await AuthService.LogoutAsync();
-        NavigationManager.NavigateTo("/login");
-    }
-}
+<NotificationsComponent />

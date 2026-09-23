@@ -1,0 +1,84 @@
+﻿@inject IActivityService ActivityService
+@attribute [Authorize]
+@page "/activiteiten"
+
+<PageTitle>Activiteiten</PageTitle>
+
+<h1>Activiteiten</h1>
+
+<nav class="ao-tabs">
+    <a class="ao-tab @(IsMyActivities ? "" : "active")" href="/activiteiten">Alle activiteiten</a>
+    <a class="ao-tab @(IsMyActivities ? "active" : "")" href="@($"/activiteiten/?tab={MyActivitiesTab}")">Mijn activiteiten</a>
+</nav>
+
+@if (isLoading)
+{
+    <div class="ao-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (!activities.Any())
+{
+    <p class="ao-state">@(IsMyActivities ? "Je bent nog niet ingeschreven voor een activiteit." : "Er zijn op dit moment geen activiteiten.")</p>
+}
+else
+{
+@* <ListOverviewComponent Activities="activities" /> *@
+    <div class="ao-list">
+        @foreach (ActivityOverviewResponse activity in activities)
+        {
+            <NavLink class="ao-card" href="@($"/activiteit/{activity.Id}")">
+                <span class="ao-card-name">@activity.Name</span>
+
+                <span class="ao-card-meta">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>@FormatPeriod(activity)</span>
+                </span>
+
+                <span class="ao-card-meta">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>@activity.Location</span>
+                </span>
+            </NavLink>
+        }
+    </div>
+}
+
+
+@code {
+    private const string MyActivitiesTab = "mijn";
+
+    [SupplyParameterFromQuery(Name = "tab")]
+    public string? Tab { get; set; }
+
+    private IEnumerable<ActivityOverviewResponse> activities = [];
+    private bool isLoading = true;
+
+    private bool IsMyActivities => Tab == MyActivitiesTab;
+
+    // Runs on the first load and again whenever the tab in the URL changes.
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        activities = [];
+
+        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = IsMyActivities
+            ? await ActivityService.GetSignedUpAsync()
+            : await ActivityService.GetUpcomingAsync();
+
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        activities = response.Value ?? [];
+        isLoading = false;
+    }
+
+    private static string FormatPeriod(ActivityOverviewResponse activity)
+        => activity.StartDate.Date == activity.EndDate.Date
+            ? $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():HH:mm}"
+            : $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():dd-MM-yyyy HH:mm}";
+}

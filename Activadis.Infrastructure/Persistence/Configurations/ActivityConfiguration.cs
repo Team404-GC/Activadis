@@ -15,6 +15,9 @@ namespace Activadis.Infrastructure.Persistence.Configurations
 
             builder.Property(a => a.Location)
                 .IsRequired(true);
+
+            builder.Property(a => a.ImageContentType)
+                .IsRequired(true);
         }
     }
 }

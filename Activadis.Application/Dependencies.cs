@@ -18,6 +18,7 @@ namespace Activadis.Application
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IActivityService, ActivityService>();
+            services.AddScoped<ISignUpService, SignUpService>();
 
             services.AddScoped<IEloService, EloService>();
             services.AddScoped<EloCalculationService>();

@@ -8,6 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="BlazorCalendar" Version="3.2.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.11" PrivateAssets="all" />
@@ -16,6 +17,10 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Activadis.Shared\Activadis.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\videos\" />
 	</ItemGroup>
 
 </Project>

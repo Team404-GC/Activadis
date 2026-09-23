@@ -11,6 +11,7 @@ namespace Activadis.Domain.Entities
 
         public string Location { get; set; } = string.Empty;
         public byte[] Image { get; set; } = [];
+        public string ImageContentType { get; set; } = string.Empty;
 
         public int MinParticipants { get; set; }
         public int MaxParticipants { get; set; }

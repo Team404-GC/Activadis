@@ -1,0 +1,139 @@
+﻿@using System.Globalization
+@using BlazorCalendar
+@using BlazorCalendar.Models
+@inject NavigationManager Navigation
+
+<div class="cal-toolbar">
+    <div class="cal-views">
+        @foreach (CalendarView option in views)
+        {
+            <button type="button" class="cal-view @(view == option ? "active" : "")" @onclick="@(() => view = option)">
+                @ToViewLabel(option)
+            </button>
+        }
+    </div>
+
+    <div class="cal-navigation">
+        <button type="button" class="cal-nav" title="Vorige" @onclick="@(() => Move(-1))">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="cal-period">@ToPeriodLabel()</span>
+        <button type="button" class="cal-nav" title="Volgende" @onclick="@(() => Move(1))">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+        <button type="button" class="cal-today" @onclick="GoToday">Vandaag</button>
+    </div>
+</div>
+
+
+<div class="cal-calendar @(view == CalendarView.WorkWeek ? "cal-workweek" : "")">
+    <CalendarContainer DisplayedView="ToDisplayedView()" TasksList="tasks" FirstDate="GetFirstDate()">
+        <MonthlyView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
+                     WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
+        <WeekView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
+                  WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
+    </CalendarContainer>
+</div>
+
+@code {
+    [Parameter]
+    public IEnumerable<ActivityOverviewResponse> Activities { get; set; } = new List<ActivityOverviewResponse>();
+
+    private enum CalendarView
+    {
+        WorkWeek,
+        Week,
+        Month
+    }
+
+    private static readonly CalendarView[] views = Enum.GetValues<CalendarView>();
+    private static readonly CultureInfo Dutch = CultureInfo.GetCultureInfo("nl-NL");
+
+    private CalendarView view = CalendarView.Month;
+    private DateTime current = DateTime.Today;
+    private Tasks[] tasks = [];
+    private readonly Dictionary<int, Guid> identifiers = new Dictionary<int, Guid>();
+
+    protected override void OnParametersSet()
+    {
+        identifiers.Clear();
+
+        List<Tasks> list = new List<Tasks>();
+        int identifier = 1;
+
+        foreach (ActivityOverviewResponse activity in Activities)
+        {
+            identifiers[identifier] = activity.Id;
+
+            list.Add(new Tasks()
+            {
+                ID = identifier,
+                DateStart = activity.StartDate.ToLocalTime(),
+                DateEnd = activity.EndDate.ToLocalTime(),
+                Code = activity.Name,
+                Caption = activity.Name,
+                Color = "#faa21b",
+                ForeColor = "#0e1e3b",
+                NotBeDraggable = true
+            });
+
+            identifier++;
+        }
+
+        tasks = list.ToArray();
+    }
+
+    private void OnTaskClick(ClickTaskParameter args)
+    {
+        foreach (int identifier in args.IDList ?? new List<int>())
+        {
+            if (identifiers.TryGetValue(identifier, out Guid id))
+            {
+                Navigation.NavigateTo($"/activiteit/{id}");
+                return;
+            }
+        }
+    }
+
+    private void Move(int step)
+    {
+        current = view == CalendarView.Month
+               ? current.AddMonths(step)
+               : current.AddDays(step * 7); 
+    }
+    private void GoToday()
+            => current = DateTime.Today;
+
+    private DisplayedView ToDisplayedView()
+        => view == CalendarView.Month
+            ? DisplayedView.Monthly
+            : DisplayedView.Weekly;
+
+    private DateTime GetFirstDate()
+        => view == CalendarView.Month
+            ? new DateTime(current.Year, current.Month, 1)
+            : GetStartOfWeek(current);
+
+    private static DateTime GetStartOfWeek(DateTime date)
+        => date.Date.AddDays(-(((int)date.DayOfWeek + 6) % 7));
+
+    private static string ToViewLabel(CalendarView option)
+        => option switch
+        {
+            CalendarView.WorkWeek => "Werkweek",
+            CalendarView.Week => "Week",
+            _ => "Maand"
+        };
+
+    private string ToPeriodLabel()
+    {
+        DateTime monday = GetStartOfWeek(current);
+
+        return view switch
+        {
+            CalendarView.WorkWeek => $"{monday.ToString("dd MMM", Dutch)} - {monday.AddDays(4).ToString("dd MMM yyyy", Dutch)}",
+            CalendarView.Week => $"{monday.ToString("dd MMM", Dutch)} - {monday.AddDays(6).ToString("dd MMM yyyy", Dutch)}",
+            _ => current.ToString("MMMM yyyy", Dutch)
+        };
+    }
+}

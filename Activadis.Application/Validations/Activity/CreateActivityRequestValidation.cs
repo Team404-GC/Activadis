@@ -4,7 +4,7 @@ namespace Activadis.Application.Validations.Activity
 {
     public static class CreateActivityRequestValidation
     {
-        private static readonly List<string> ValidImageTypes = ["png", "jpg", "jpeg", "webp"];
+        private static readonly List<string> ValidImageTypes = ["image/png", "image/jpeg", "image/webp"];
 
         public static void Validate(this CreateActivityRequest request)
         {
@@ -20,7 +20,7 @@ namespace Activadis.Application.Validations.Activity
             if (request.Image.Length <= 0)
                 throw new ArgumentException("De foto heeft een ongeldige bestandsgrootte.");
 
-            if (!ValidImageTypes.Contains(request.Image.FileName.Split('.').Last(), StringComparer.OrdinalIgnoreCase))
+            if (!ValidImageTypes.Contains(request.Image.ContentType, StringComparer.OrdinalIgnoreCase))
                 throw new ArgumentException("De foto heeft een ongeldig bestandstype.");
 
             if (request.CostPerPerson < 0)

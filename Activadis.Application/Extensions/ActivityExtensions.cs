@@ -1,4 +1,5 @@
 ﻿using Activadis.Application.DTOs.Activity;
+using Activadis.Shared.DTOs.Activity;
 using Activadis.Domain.Entities;
 
 namespace Activadis.Application.Extensions
@@ -15,6 +16,7 @@ namespace Activadis.Application.Extensions
 
                 Location = request.Location,
                 Image = image,
+                ImageContentType = request.Image.ContentType,
 
                 MinParticipants = request.MinParticipants,
                 MaxParticipants = request.MaxParticipants,
@@ -28,6 +30,57 @@ namespace Activadis.Application.Extensions
 
                 SignUpDeadline = request.SignUpDeadline,
                 SignOutDeadline = request.SignOutDeadline
+            };
+        }
+
+        public static ActivityOverviewResponse ToOverviewResponse(this Activity activity)
+        {
+            return new ActivityOverviewResponse()
+            {
+                Id = activity.Id,
+                Name = activity.Name,
+
+                Location = activity.Location,
+
+                StartDate = activity.StartDate,
+                EndDate = activity.EndDate
+            };
+        }
+
+        public static ActivityDetailResponse ToDetailResponse(this Activity activity, bool hasSignedUp)
+        {
+            return new ActivityDetailResponse()
+            {
+                Id = activity.Id,
+                Name = activity.Name,
+                Description = activity.Description,
+                CostPerPerson = activity.CostPerPerson,
+
+                Location = activity.Location,
+                Image = activity.Image,
+                ImageContentType = activity.ImageContentType,
+
+                MinParticipants = activity.MinParticipants,
+                MaxParticipants = activity.MaxParticipants,
+                HasParticipantLimit = activity.HasParticipantLimit(),
+                TotalSignUps = activity.TotalSignUps,
+                AvailableSpots = activity.AvailableSpots(),
+
+                FoodIncluded = activity.FoodIncluded,
+                ExternalAllowed = activity.ExternalAllowed,
+                PlusOneAllowed = activity.PlusOneAllowed,
+
+                StartDate = activity.StartDate,
+                EndDate = activity.EndDate,
+
+                SignUpDeadline = activity.SignUpDeadline,
+                SignOutDeadline = activity.SignOutDeadline,
+
+                HasTakenPlace = activity.HasTakenPlace(),
+                IsFull = activity.IsFull(),
+                SignUpDeadlinePassed = activity.SignUpDeadlinePassed(),
+                IsOpenForSignUp = activity.IsOpenForSignUp(),
+                HasSignedUp = hasSignedUp
             };
         }
     }

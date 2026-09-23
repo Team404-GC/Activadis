@@ -1,0 +1,49 @@
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+<nav class="nm-navbar">
+    <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
+        <span>
+            <LogoAnimation/>
+        </span>
+    </NavLink>
+
+    <button class="nm-toggle" @onclick="ToggleMenu">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <div class="nm-menu @(isOpen ? "open" : "")" @onclick="CloseMenu">
+        <AuthorizeView Context="auth">
+            <Authorized>
+                <div class="nm-links">
+                    <NavLink class="nm-link" href="/activiteiten" Match="NavLinkMatch.Prefix">Activiteiten</NavLink>
+                    <NavLink class="nm-link" href="/kalender">Kalender</NavLink>
+                    <AuthorizeView Roles="Admin">
+                        <NavLink class="nm-link" href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
+                    </AuthorizeView>
+                </div>
+
+                <button class="nm-button" @onclick="HandleLogout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Uitloggen</span>
+                </button>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+</nav>
+
+@code {
+    private bool isOpen = false;
+
+    private void ToggleMenu()
+        => isOpen = !isOpen;
+
+    private void CloseMenu()
+        => isOpen = false;
+
+    private async Task HandleLogout()
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
+}

@@ -1,0 +1,38 @@
+﻿@page "/kalender"
+@attribute [Authorize]
+@inject IActivityService ActivityService
+
+<PageTitle>Kalender</PageTitle>
+
+<h1>Kalender</h1>
+
+@if (isLoading)
+{
+    <div class="cl-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    <CalanderComponent Activities="activities" />
+}
+
+@code {
+    private IEnumerable<ActivityOverviewResponse> activities = [];
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = await ActivityService.GetUpcomingAsync();
+
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        activities = response.Value ?? [];
+        isLoading = false;
+    }
+}
