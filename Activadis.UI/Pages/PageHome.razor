@@ -14,22 +14,22 @@
                     schrijf je in en houd bij waar je bij bent.
                 </p>
 
-        <a class="hm-button" href="/login">
-            <i class="bi bi-box-arrow-in-right"></i>
-            <span>Inloggen</span>
-        </a>
+                <a class="hm-button" href="/login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Inloggen</span>
+                </a>
 
-        <p class="hm-note">Log in om alle activiteiten te zien en je in te schrijven.</p>
-    </div>
-</section>
+                <p class="hm-note">Log in om alle activiteiten te zien en je in te schrijven.</p>
+            </div>
+        </section>
 
-<section class="hm-blocks">
-    <a class="hm-block" href="/open-haard">
-        @* <h2>De haard</h2> *@
-        <video autoplay muted loop>
-            <source src="videos/OPEN_HAARD.mp4" type="video/mp4" />
-        </video>
-    </a>
+        <section class="hm-blocks">
+            <a class="hm-block" href="/open-haard">
+                @* <h2>De haard</h2> *@
+                <video autoplay muted loop>
+                    <source src="videos/OPEN_HAARD.mp4" type="video/mp4" />
+                </video>
+            </a>
 
             <div class="hm-placeholder">
                 <h2>Animatie</h2>
@@ -38,7 +38,7 @@
         </section>
 
 
-@code {
+@code{
     [CascadingParameter]
     private Task<AuthenticationState> AuthState { get; set; } = null!;
 
@@ -46,9 +46,12 @@
     {
         AuthenticationState state = await AuthState;
 
-        if (state.User.Identity?.IsAuthenticated != true)
-            return;
-
-        Navigation.NavigateTo("/activiteiten");
+        if (state.User.Identity?.IsAuthenticated == true)
+        {
+            if (state.User.Identity?.IsAuthenticated == true)
+            {
+                Navigation.NavigateTo("/activiteiten", replace: true);
+            }
+        }
     }
 }
