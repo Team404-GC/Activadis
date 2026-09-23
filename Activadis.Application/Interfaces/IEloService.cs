@@ -17,7 +17,7 @@ namespace Activadis.Application.Interfaces
 
         Task<List<CategoryDto>> GetCategoriesAsync();
 
-        Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request);
+        Task CreateCategoryAsync(CreateCategoryRequest request);
 
         Task<CategoryDto?> UpdateCategoryAsync(UpdateCategoryRequest request);
     }

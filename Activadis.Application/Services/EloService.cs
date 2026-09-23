@@ -449,7 +449,7 @@ namespace Activadis.Application.Services
             }).ToList();
         }
 
-        public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request)
+        public async Task CreateCategoryAsync(CreateCategoryRequest request)
         {
             var category = new Category
             {
@@ -462,15 +462,6 @@ namespace Activadis.Application.Services
             };
 
             await _categoryRepository.AddAsync(category);
-
-            return new CategoryDto
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                DisplayOrder = category.DisplayOrder,
-                IsActive = category.IsActive
-            };
         }
 
         public async Task<CategoryDto?> UpdateCategoryAsync(UpdateCategoryRequest request)
