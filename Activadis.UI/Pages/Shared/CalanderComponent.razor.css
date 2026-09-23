@@ -1,0 +1,144 @@
+﻿.cal-toolbar {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.cal-views {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cal-view {
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    background: none;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+    .cal-view:hover {
+        border-color: var(--AccentColor);
+    }
+
+    .cal-view.active {
+        border-color: var(--AccentColor);
+        background: var(--AccentColor);
+        color: var(--ButtonTextColor);
+        font-weight: 600;
+    }
+
+.cal-navigation {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    background: none;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+    .cal-nav:hover {
+        border-color: var(--AccentColor);
+        color: var(--AccentColor);
+    }
+
+.cal-period {
+    min-width: 200px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.cal-today {
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 20px;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .cal-today:hover {
+        background: var(--ButtonColorHover);
+    }
+
+.cal-calendar {
+    padding: 16px;
+    border-radius: 16px;
+    background: #ffffff;
+    color: var(--TextColor);
+    overflow-x: auto;
+}
+
+/* De maandweergave kapt namen af en maakt de balkjes erg laag; hier maken we ze leesbaar. */
+.cal-calendar ::deep .monthly-calendar {
+    min-width: 900px;
+    grid-auto-rows: 110px;
+}
+
+.cal-calendar ::deep .monthly-task {
+    height: auto;
+    min-height: 22px;
+    margin: 3px 6px 0 6px;
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+/* Werkweek: de component toont altijd zeven dagen, dus verbergen we zaterdag en zondag. */
+.cal-workweek ::deep .day-column[style*="grid-column-start: 6"],
+.cal-workweek ::deep .day-column[style*="grid-column-start: 7"] {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .cal-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cal-navigation {
+        justify-content: space-between;
+    }
+
+    .cal-period {
+        min-width: 0;
+    }
+}
+
+/* Het rode kader van de component om vandaag past niet bij de huisstijl. */
+.cal-calendar ::deep .monthly-today {
+    border: 2px solid var(--AccentColor);
+}
+
+.cal-calendar ::deep .header-name {
+    font-weight: 600;
+    color: var(--TextColor);
+}
