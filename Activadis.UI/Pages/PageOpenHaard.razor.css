@@ -1,0 +1,37 @@
+﻿.oh-hero {
+    overflow: hidden;
+    border-radius: 24px;
+    background: #000000;
+    line-height: 0;
+}
+
+.oh-video {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.oh-actions {
+    display: flex;
+    justify-content: center;
+    padding: 24px 0 48px 0;
+}
+
+.oh-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    border-radius: 24px;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .oh-back:hover {
+        background: var(--ButtonColorHover);
+        color: var(--ButtonTextColor);
+        text-decoration: none;
+    }
