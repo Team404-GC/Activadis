@@ -112,8 +112,8 @@ namespace Activadis.API.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ApiResponse<CategoryDto>.Fail("Invalid category data"));
 
-                var category = await _eloService.CreateCategoryAsync(request);
-                return CreatedAtAction(nameof(GetCategories), category);
+                await _eloService.CreateCategoryAsync(request);
+                return Ok(ApiResponse<object>.Ok());
             }
             catch (Exception ex)
             {
