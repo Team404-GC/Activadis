@@ -6,6 +6,7 @@ using Activadis.Shared.DTOs.Activity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Activadis.Shared.DTOs;
+using Activadis.Domain.Enums;
 
 namespace Activadis.API.Controllers
 {
@@ -21,10 +22,14 @@ namespace Activadis.API.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<IActionResult> GetUpcomingAsync()
         {
-            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetUpcomingAsync();
+            if (!Guid.TryParse(Request.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId))
+                userId = Guid.Empty;
+            if (!Enum.TryParse(Request.HttpContext.User.FindFirstValue(ClaimTypes.Role), out UserRole role))
+                role = UserRole.User;
+
+            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetUpcomingAsync(userId, role);
             return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
         }
 

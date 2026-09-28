@@ -15,9 +15,12 @@ namespace Activadis.Infrastructure.Repositories
             Context = context;
         }
 
-        public async Task<IEnumerable<Activity>> GetUpcomingAsync()
+        public async Task<IEnumerable<Activity>> GetListAsync(bool isAdmin)
             => await Context.Activities
-                .Where(x => x.DeletedAt == null && x.EndDate >= DateTime.UtcNow)
+                .Where(x => isAdmin
+                    || (x.DeletedAt == null
+                    && x.EndDate >= DateTime.UtcNow
+                    && x.PublishedOn != null))
                 .OrderBy(x => x.StartDate)
                 .ToListAsync();
 
