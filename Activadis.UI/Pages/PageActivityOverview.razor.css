@@ -15,12 +15,33 @@
     background: var(--TaskbarColor);
     color: var(--TextColor);
     text-decoration: none;
+    position: relative;
 }
 
     .ao-card:hover {
         border-color: var(--AccentColor);
         box-shadow: 0 0 0 3px var(--AccentColorSoft);
     }
+
+    ::deep .ao-card-draft {
+        opacity: 0.6;
+    }
+
+::deep .ao-card-deleted {
+    --BorderColor: color-mix(red 40%, white 60%);
+    --TaskbarColor: color-mix(red 10%, white 90%);
+}
+
+::deep .ao-card-taken-place {
+    --BorderColor: color-mix(yellow 40%, white 60%);
+    --TaskbarColor: color-mix(yellow 10%, white 90%);
+}
+
+.ao-card-signed-up {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+}
 
 .ao-card-name {
     font-size: 16px;

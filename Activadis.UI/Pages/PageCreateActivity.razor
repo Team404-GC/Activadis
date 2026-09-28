@@ -47,17 +47,26 @@
     <br />
     <section>
         <label>Bevat eten & drinken?</label>
-        <InputCheckbox @bind-Value="request.FoodIncluded" />
+        <label class="switch">
+            <InputCheckbox @bind-Value="request.FoodIncluded" />
+            <span class="slider round"></span>
+        </label>
         <ValidationMessage For="@(() => request.FoodIncluded)" />
     </section>
     <section>
         <label>Is een externe activiteit?</label>
-        <InputCheckbox @bind-Value="request.ExternalAllowed" />
+        <label class="switch">
+            <InputCheckbox @bind-Value="request.ExternalAllowed" />
+            <span class="slider round"></span>
+        </label>
         <ValidationMessage For="@(() => request.ExternalAllowed)" />
     </section>
     <section>
         <label>Mag +1 meenemen?</label>
-        <InputCheckbox @bind-Value="request.PlusOneAllowed" />
+        <label class="switch">
+            <InputCheckbox @bind-Value="request.PlusOneAllowed" />
+            <span class="slider round"></span>
+        </label>
         <ValidationMessage For="@(() => request.PlusOneAllowed)" />
     </section>
     <br />
@@ -84,6 +93,12 @@
     </section>
     <br />
     <section>
+        <label>Is draft?</label>
+        <label class="switch">
+            <InputCheckbox @bind-Value="request.IsDraft" />
+            <span class="slider round"></span>
+        </label>
+        <ValidationMessage For="@(() => request.IsDraft)" />
         <button type="submit" disabled="@isLoading">Aanmaken</button>
     </section>
 </EditForm>
