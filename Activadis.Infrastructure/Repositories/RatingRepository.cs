@@ -57,5 +57,10 @@ namespace Activadis.Infrastructure.Repositories
 
             return await AddAsync(newRating);
         }
+        public async Task<IEnumerable<Rating>> GetAllWithUsersAsync()
+            => await _context.Ratings
+                .Include(r => r.User)
+                .Where(r => r.DeletedAt == null)
+                .ToListAsync();
     }
 }

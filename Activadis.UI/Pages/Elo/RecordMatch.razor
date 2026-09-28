@@ -1,0 +1,244 @@
+﻿@using System.Globalization
+@inject IEloService EloService
+@page "/wedstrijd/nieuw"
+
+<PageTitle>Wedstrijd registreren</PageTitle>
+
+<h1>Wedstrijd registreren</h1>
+
+@if (isLoading)
+{
+    <div>
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    <section>
+        <label>Categorie</label>
+        <select @bind="categoryId">
+            <option value="@Guid.Empty">Kies een categorie</option>
+            @foreach (CategoryDto category in categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+        <InfoBubbleComponent Text="Kies de categorie waarin de wedstrijd is gespeeld. De ratings veranderen alleen in deze categorie." />
+    </section>
+    <section>
+        <label>Datum en tijd</label>
+        <input type="datetime-local" @bind="matchDate" />
+        <InfoBubbleComponent Text="Het moment waarop de wedstrijd is gespeeld. Standaard is dit het huidige moment." />
+    </section>
+    <section>
+        <label>Notities</label>
+        <input type="text" @bind="notes" />
+        <InfoBubbleComponent Text="Optioneel. Bijvoorbeeld de naam van het toernooi of een opmerking over de wedstrijd." />
+    </section>
+    <section>
+        <label>Type wedstrijd</label>
+        <select @bind="matchType">
+            <option value="Individual">Individueel</option>
+            <option value="team">Team</option>
+        </select>
+        <InfoBubbleComponent Text="Individueel: iedere deelnemer speelt voor zichzelf (1 tegen 1 of met meer personen). Team: deelnemers spelen in teams. Alleen de twee best geplaatste teams worden meegeteld." />
+    </section>
+    <br />
+
+    <h2>Deelnemers</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    Speler-ID
+                    <InfoBubbleComponent Text="Het ID van de speler, bijvoorbeeld 3fa85f64-5717-4562-b3fc-2c963f66afa6. Je vindt het in de URL van de spelerspagina (/speler/...)." />
+                </th>
+                <th>
+                    Plaats
+                    <InfoBubbleComponent Text="De eindpositie van de speler. 1 is de winnaar, 2 de tweede, enzovoort. Bij een teamwedstrijd vullen teamgenoten dezelfde plaats in." />
+                </th>
+                <th>
+                    Gelijkspel?
+                    <InfoBubbleComponent Text="Vink dit aan bij een gelijkspel. Vink het bij beide spelers aan en geef ze dezelfde plaats." />
+                </th>
+                @if (IsTeamMatch)
+                {
+                    <th>
+                        Team
+                        <InfoBubbleComponent Text="Geef teamgenoten hetzelfde nummer (1, 2, ...). Er zijn minimaal twee teams nodig." />
+                    </th>
+                }
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ParticipantRow participant in participants)
+            {
+                <tr>
+                    <td><input type="text" @bind="participant.UserId" /></td>
+                    <td><input type="number" min="1" @bind="participant.Placement" /></td>
+                    <td><input type="checkbox" @bind="participant.IsTie" /></td>
+                    @if (IsTeamMatch)
+                    {
+                        <td><input type="number" min="1" @bind="participant.TeamNumber" /></td>
+                    }
+                    <td>
+                        <button type="button" @onclick="@(() => RemoveParticipant(participant))"
+                                disabled="@(participants.Count <= 2)">
+                            Verwijderen
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="button" @onclick="AddParticipant">Deelnemer toevoegen</button>
+    <br />
+    <br />
+
+    <button type="button" @onclick="SubmitAsync" disabled="@isSubmitting">
+        @(isSubmitting ? "Aan het laden.." : "Registreren")
+    </button>
+}
+
+@if (result is not null)
+{
+    <section>
+        <h2>Resultaat</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Speler</th>
+                    <th>Plaats</th>
+                    <th>Verwacht</th>
+                    <th>Werkelijk</th>
+                    <th>Oude rating</th>
+                    <th>Nieuwe rating</th>
+                    <th>Verschil</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ParticipantResultDto participant in result.Results)
+                {
+                    <tr>
+                        <td><NavLink href="@($"/speler/{participant.UserId}")">@participant.FullName</NavLink></td>
+                        <td>@participant.Placement</td>
+                        <td>@participant.ExpectedScore.ToString("0.00")</td>
+                        <td>@participant.ActualScore.ToString("0.00")</td>
+                        <td>@participant.OldRating</td>
+                        <td>@participant.NewRating</td>
+                        <td>@ToChange(participant.RatingChange)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </section>
+}
+
+@code {
+    private List<CategoryDto> categories = [];
+    private List<ParticipantRow> participants = [new(), new()];
+    private MatchResultDto? result;
+
+    private Guid categoryId = Guid.Empty;
+    private DateTime matchDate = DateTime.Now;
+    private string? notes;
+    private string matchType = "Individual";
+
+    private bool isLoading = true;
+    private bool isSubmitting;
+
+    private bool IsTeamMatch => matchType == "team";
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApiResponse<List<CategoryDto>> response = await EloService.GetCategoriesAsync();
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        categories = response.Value ?? [];
+        isLoading = false;
+    }
+
+    private void AddParticipant()
+        => participants.Add(new ParticipantRow());
+
+    private void RemoveParticipant(ParticipantRow participant)
+        => participants.Remove(participant);
+
+    private async Task SubmitAsync()
+    {
+        if (categoryId == Guid.Empty)
+        {
+            Notifications.AddNotification("Kies eerst een categorie.", true);
+            return;
+        }
+
+        if (participants.Any(x => !Guid.TryParse(x.UserId, out _)))
+        {
+            Notifications.AddNotification("Een of meer speler-ID's zijn ongeldig.", true);
+            return;
+        }
+
+        isSubmitting = true;
+        result = null;
+
+        // Participants with the same team number share one generated team id.
+        Dictionary<int, Guid> teams = participants
+            .Select(x => x.TeamNumber)
+            .Distinct()
+            .ToDictionary(x => x, _ => Guid.NewGuid());
+
+        RecordMatchRequest request = new RecordMatchRequest()
+        {
+            CategoryId = categoryId,
+            MatchDate = matchDate.ToUniversalTime(),
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes,
+            MatchType = matchType,
+            Participants = participants
+                .Select(x => new MatchParticipantInput()
+                {
+                    UserId = Guid.Parse(x.UserId),
+                    Placement = x.Placement,
+                    IsTie = x.IsTie,
+                    TeamId = IsTeamMatch ? teams[x.TeamNumber] : null
+                })
+                .ToList()
+        };
+
+        ApiResponse<MatchResultDto> response = await EloService.RecordMatchAsync(request);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSubmitting = false;
+            return;
+        }
+
+        result = response.Value;
+        participants = [new(), new()];
+        notes = null;
+
+        Notifications.AddNotification("De wedstrijd is met succes geregistreerd.", false);
+        isSubmitting = false;
+    }
+
+    private static string ToChange(double change)
+        => change > 0
+            ? $"+{change.ToString("0.##", CultureInfo.InvariantCulture)}"
+            : change.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private class ParticipantRow
+    {
+        public string UserId { get; set; } = string.Empty;
+        public int Placement { get; set; } = 1;
+        public bool IsTie { get; set; }
+        public int TeamNumber { get; set; } = 1;
+    }
+}

@@ -1,0 +1,47 @@
+﻿<h3>@(Model.Name.Length == 0 ? "Creëer categorie" : "Bewerk categorie")</h3>
+
+<EditForm Model="Model" OnValidSubmit="() => OnSubmit.InvokeAsync(Model)">
+    <DataAnnotationsValidator />
+    <section>
+        <label>Naam</label>
+        <InputText @bind-Value="Model.Name" />
+        <InfoBubbleComponent Text="De naam van de categorie, bijvoorbeeld Tafeltennis. Verplicht." />
+        <ValidationMessage For="@(() => Model.Name)" />
+    </section>
+    <section>
+        <label>Beschrijving</label>
+        <InputText @bind-Value="Model.Description" />
+        <InfoBubbleComponent Text="Optioneel. Een korte uitleg waar de categorie over gaat." />
+        <ValidationMessage For="@(() => Model.Description)" />
+    </section>
+    <section>
+        <label>Volgorde</label>
+        <InputNumber @bind-Value="Model.DisplayOrder" />
+        <InfoBubbleComponent Text="Bepaalt in welke volgorde categorieën worden getoond. Een lager nummer komt eerder in de lijst." />
+        <ValidationMessage For="@(() => Model.DisplayOrder)" />
+    </section>
+    <section>
+        <label>Actief?</label>
+        <InputCheckbox @bind-Value="Model.IsActive" />
+        <InfoBubbleComponent Text="Alleen actieve categorieën worden getoond en kunnen worden gekozen bij het registreren van een wedstrijd." />
+    </section>
+    <br />
+    <section>
+        <button type="submit" disabled="@IsSaving">Opslaan</button>
+        <button type="button" @onclick="OnCancel">Annuleren</button>
+    </section>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public CreateCategoryRequest Model { get; set; } = new();
+
+    [Parameter]
+    public bool IsSaving { get; set; }
+
+    [Parameter]
+    public EventCallback<CreateCategoryRequest> OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+}

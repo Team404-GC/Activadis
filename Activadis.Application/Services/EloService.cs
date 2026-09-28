@@ -418,7 +418,7 @@ namespace Activadis.Application.Services
 
         public async Task<List<LeaderboardEntryDto>> GetOverallLeaderboardAsync()
         {
-            var allRatings = await _ratingRepository.GetAllAsync();
+            var allRatings = await _ratingRepository.GetAllWithUsersAsync();
             var entries = _leaderboardService.GetOverallLeaderboard(
                 allRatings.ToList(),
                 cacheDurationMinutes: 5);

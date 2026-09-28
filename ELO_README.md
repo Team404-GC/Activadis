@@ -16,7 +16,7 @@ EloController              →  HTTP endpoints
 A static, framework-free class (no EF Core / ASP.NET / Blazor references) so it can be unit tested in isolation. It holds all the ELO formulas.
 
 **Key constants**
-- `InitialRating = 1200` — starting rating for new players
+- `InitialRating = 800` — starting rating for new players
 - `MinRatingFloor = 100` / `DefaultMaxRating = 2000` (or `2500` for league tier) — ratings are clamped between these
 - K-factor scales with experience via `GetKFactor(matchCount)`:
   - `< 10` matches → K = 40 (volatile, new players)

@@ -37,6 +37,9 @@ namespace Activadis.Infrastructure.Persistence
             builder.UseSeeding((context, _) =>
             {
                 context.UseUserSeeder();
+                context.UseCategorySeeder();
+                context.UseMatchSeeder();
+                context.UseRatingSeeder();
             });
 
             base.OnConfiguring(builder);
