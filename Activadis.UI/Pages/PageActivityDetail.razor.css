@@ -77,13 +77,13 @@
     .ad-section h2 {
         font-size: 20px;
         font-weight: 600;
-        color: var(--TextColor);
+        color: var(--MutedText);
     }
 
 .ad-description {
     font-size: 14px;
     line-height: 150%;
-    color: var(--TextColor);
+    color: var(--MutedText);
     white-space: pre-line;
 }
 

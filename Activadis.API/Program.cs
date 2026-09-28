@@ -1,4 +1,5 @@
 using Activadis.Infrastructure.Persistence;
+using Activadis.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Infrastructure;
 using Activadis.Application;
@@ -17,8 +18,11 @@ namespace Activadis.API
             // Add services to the container.
             builder.Services.RegisterAPI(builder.Configuration);
             builder.Services.RegisterApplication();
-            builder.Services.RegisterInfrastructure(builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("The connectionString was not found!"));
+            builder.Services.RegisterInfrastructure(
+                builder.Configuration.GetConnectionString("DefaultConnection")
+                    ?? throw new InvalidOperationException("The connectionString was not found!"),
+                builder.Configuration.GetSection("Email").Get<EmailSettings>()
+                    ?? throw new InvalidOperationException("The email settings were not found!"));
 
             builder.Services.AddControllers().AddJsonOptions(options =>
             {
