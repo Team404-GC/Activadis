@@ -20,4 +20,11 @@
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Remove="Templates\Email\*.html" />
+		<None Remove="Templates\Email\*.txt" />
+		<EmbeddedResource Include="Templates\Email\*.html" />
+		<EmbeddedResource Include="Templates\Email\*.txt" />
+	</ItemGroup>
+
 </Project>
