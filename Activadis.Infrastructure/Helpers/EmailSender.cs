@@ -1,9 +1,9 @@
-﻿using Activadis.Domain.Interfaces.Helpers;
+﻿using Activadis.Infrastructure.Extensions;
+using Activadis.Domain.Interfaces.Helpers;
 using Microsoft.Extensions.Logging;
 using Activadis.Domain.Models;
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using MimeKit;
 
 namespace Activadis.Infrastructure.Helpers
 {
@@ -32,7 +32,7 @@ namespace Activadis.Infrastructure.Helpers
                 if (!string.IsNullOrWhiteSpace(Settings.Username))
                     await client.AuthenticateAsync(Settings.Username, Settings.Password);
 
-                await client.SendAsync(ToMimeMessage(message));
+                await client.SendAsync(message.ToMimeMessage(Settings));
                 await client.DisconnectAsync(true);
 
                 return true;
@@ -42,23 +42,6 @@ namespace Activadis.Infrastructure.Helpers
                 Logger.LogError(exception, "Sending the email \"{Subject}\" to {Recipient} failed.", message.Subject, message.ToEmail);
                 return false;
             }
-        }
-
-        private MimeMessage ToMimeMessage(EmailMessage message)
-        {
-            MimeMessage mimeMessage = new MimeMessage();
-            mimeMessage.From.Add(new MailboxAddress(Settings.SenderName, Settings.SenderEmail));
-            mimeMessage.To.Add(new MailboxAddress(message.ToName, message.ToEmail));
-            mimeMessage.Subject = message.Subject;
-
-            BodyBuilder body = new BodyBuilder()
-            {
-                HtmlBody = message.HtmlBody,
-                TextBody = message.TextBody
-            };
-
-            mimeMessage.Body = body.ToMessageBody();
-            return mimeMessage;
         }
     }
 }

@@ -18,10 +18,6 @@ namespace Activadis.API.Controllers
             EmailService = emailService;
         }
 
-        /// <summary>
-        /// Sends a test email to the logged-in administrator's own address. Only ever to
-        /// their own address, so this endpoint cannot be used to email other people.
-        /// </summary>
         [HttpPost("Test")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> SendTestAsync()
