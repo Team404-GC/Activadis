@@ -27,6 +27,7 @@ namespace Activadis.Application.Extensions
 
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
+                PublishedOn = request.IsDraft ? null : DateTime.UtcNow,
 
                 SignUpDeadline = request.SignUpDeadline,
                 SignOutDeadline = request.SignOutDeadline
