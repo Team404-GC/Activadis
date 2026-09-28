@@ -22,14 +22,14 @@ namespace Activadis.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUpcomingAsync()
+        public async Task<IActionResult> GetActivitiesAsync()
         {
             if (!Guid.TryParse(Request.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId))
                 userId = Guid.Empty;
             if (!Enum.TryParse(Request.HttpContext.User.FindFirstValue(ClaimTypes.Role), out UserRole role))
                 role = UserRole.User;
 
-            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetUpcomingAsync(userId, role);
+            IEnumerable<ActivityOverviewResponse> activities = await ActivityService.GetActivitiesAsync(userId, role);
             return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
         }
 
