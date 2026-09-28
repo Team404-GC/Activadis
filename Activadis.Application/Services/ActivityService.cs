@@ -5,6 +5,7 @@ using Activadis.Application.Extensions;
 using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.Activity;
 using Activadis.Domain.Entities;
+using Activadis.Domain.Enums;
 
 namespace Activadis.Application.Services
 {
@@ -30,10 +31,19 @@ namespace Activadis.Application.Services
             activity = await ActivityRepository.AddAsync(activity);
         }
 
-        public async Task<IEnumerable<ActivityOverviewResponse>> GetUpcomingAsync()
+        public async Task<IEnumerable<ActivityOverviewResponse>> GetUpcomingAsync(Guid userId, UserRole role)
         {
-            IEnumerable<Activity> activities = await ActivityRepository.GetUpcomingAsync();
-            return activities.Select(activity => activity.ToOverviewResponse());
+            bool isAdmin = role == UserRole.Admin;
+            IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin);
+
+            Dictionary<Guid, bool> activitiesSignedIn = activities.ToDictionary(x => x.Id, x => false);
+            foreach (Activity activity in activities)
+            {
+                bool hasSignedIn = await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
+                activitiesSignedIn[activity.Id] = hasSignedIn;
+            }
+
+            return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
         }
 
         public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId)
@@ -48,7 +58,15 @@ namespace Activadis.Application.Services
         public async Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId)
         {
             IEnumerable<Activity> activities = await ActivityRepository.GetSignedUpByUserIdAsync(userId);
-            return activities.Select(activity => activity.ToOverviewResponse());
+
+            Dictionary<Guid, bool> activitiesSignedIn = activities.ToDictionary(x => x.Id, x => false);
+            foreach (Activity activity in activities)
+            {
+                bool hasSignedIn = await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
+                activitiesSignedIn[activity.Id] = hasSignedIn;
+            }
+
+            return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
         }
     }
 }
