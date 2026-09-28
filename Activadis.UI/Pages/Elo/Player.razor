@@ -1,5 +1,135 @@
-﻿<h3>Player</h3>
+﻿@inject IEloService EloService
+@page "/speler/{Id:guid}"
+
+<PageTitle>@(profile?.FullName ?? "Speler")</PageTitle>
+
+<NavLink href="/ranglijst">Terug naar ranglijst</NavLink>
+
+@if (isLoading)
+{
+    <div>
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (profile is null)
+{
+    <p>Deze speler is niet gevonden.</p>
+}
+else
+{
+    <h1>@profile.FullName</h1>
+
+    <dl>
+        <dt>Functie</dt>
+        <dd>@profile.JobTitle</dd>
+
+        <dt>E-mail</dt>
+        <dd>@profile.Email</dd>
+
+        <dt>Overall rating</dt>
+        <dd>@profile.OverallRating</dd>
+
+        <dt>Totaal aantal wedstrijden</dt>
+        <dd>@profile.TotalMatches</dd>
+    </dl>
+
+    <section>
+        <h2>Ratings per categorie</h2>
+
+        @if (!profile.CategoryRatings.Any())
+        {
+            <p>Deze speler heeft nog geen wedstrijden gespeeld.</p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Categorie</th>
+                        <th>Rating</th>
+                        <th>Piekrating</th>
+                        <th>Wedstrijden</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (RatingDto rating in profile.CategoryRatings)
+                    {
+                        <tr>
+                            <td><NavLink href="@($"/ranglijst?categorie={rating.CategoryId}")">@rating.CategoryName</NavLink></td>
+                            <td>@rating.CurrentRating</td>
+                            <td>@rating.PeakRating</td>
+                            <td>@rating.MatchCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+
+    <section>
+        <h2>Laatste wedstrijden</h2>
+
+        @if (!profile.RecentMatches.Any())
+        {
+            <p>Geen wedstrijden gevonden.</p>
+        }
+        else
+        {
+            <table>
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Categorie</th>
+                        <th>Plaats</th>
+                        <th>Rating voor</th>
+                        <th>Rating na</th>
+                        <th>Verschil</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (MatchHistoryDto match in profile.RecentMatches)
+                    {
+                        <tr>
+                            <td>@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
+                            <td>@match.CategoryName</td>
+                            <td>@match.Placement</td>
+                            <td>@match.RatingBefore</td>
+                            <td>@match.RatingAfter</td>
+                            <td>@ToChange(match.RatingChange)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
+}
 
 @code {
+    [Parameter]
+    public Guid Id { get; set; }
 
+    private PlayerProfileDto? profile;
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        profile = null;
+
+        ApiResponse<PlayerProfileDto> response = await EloService.GetPlayerProfileAsync(Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        profile = response.Value;
+        isLoading = false;
+    }
+
+    private static string ToChange(double change)
+        => change > 0
+            ? $"+{change.ToString("0.##", CultureInfo.InvariantCulture)}"
+            : change.ToString("0.##", CultureInfo.InvariantCulture);
 }

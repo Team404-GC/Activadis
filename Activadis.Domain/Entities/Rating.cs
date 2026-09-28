@@ -8,11 +8,11 @@ namespace Activadis.Domain.Entities
         public Guid UserId { get; set; }
         public Guid CategoryId { get; set; }
 
-        public double CurrentRating { get; set; } = 1200;
+        public double CurrentRating { get; set; } = 800;
 
         public int MatchCount { get; set; } = 0;
 
-        public double PeakRating { get; set; } = 1200;
+        public double PeakRating { get; set; } = 800;
 
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

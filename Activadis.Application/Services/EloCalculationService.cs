@@ -8,7 +8,7 @@ namespace Activadis.Application.Services
 
         public const double MinRatingFloor = 100;
 
-        public const double InitialRating = 1200;
+        public const double InitialRating = 800;
 
         public static double GetKFactor(int matchCount)
         {
