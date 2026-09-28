@@ -31,7 +31,7 @@ namespace Activadis.Application.Services
             activity = await ActivityRepository.AddAsync(activity);
         }
 
-        public async Task<IEnumerable<ActivityOverviewResponse>> GetUpcomingAsync(Guid userId, UserRole role)
+        public async Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role)
         {
             bool isAdmin = role == UserRole.Admin;
             IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin);
