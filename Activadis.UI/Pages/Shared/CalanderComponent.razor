@@ -25,16 +25,47 @@
     </div>
 </div>
 
+@if (view == CalendarView.Month)
+{
+    <div class="cal-calendar">
+        <CalendarContainer DisplayedView="DisplayedView.Monthly" TasksList="tasks" FirstDate="GetFirstDate()">
+            <MonthlyView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
+                         WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
+        </CalendarContainer>
+    </div>
+}
+else
+{
+    <div class="cal-week">
+        <div class="cal-week-head" style="--cal-days: @DayCount">
+            <div class="cal-week-corner"></div>
 
-<div class="cal-calendar @(view == CalendarView.WorkWeek ? "cal-workweek" : "")">
-    <CalendarContainer DisplayedView="ToDisplayedView()" TasksList="tasks" FirstDate="GetFirstDate()">
-        <MonthlyView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
-                     WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
-        <WeekView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
-                  WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
-    </CalendarContainer>
-</div>
+            @foreach (DateTime day in WeekDays())
+            {
+                <div class="cal-day-head @(day.Date == DateTime.Today ? "today" : "")">
+                    <span class="cal-day-number">@day.Day</span>
+                    <span class="cal-day-name">@day.ToString("ddd", Dutch)</span>
+                </div>
+            }
+        </div>
 
+        <div class="cal-week-body">
+            <div class="cal-hours">
+                @for (int hour = 0; hour < 24; hour++)
+                {
+                    <div class="cal-hour"><span>@hour</span></div>
+                }
+            </div>
+
+            <div class="cal-week-grid @(view == CalendarView.WorkWeek ? "cal-workweek" : "")">
+                <CalendarContainer DisplayedView="DisplayedView.Weekly" TasksList="tasks" FirstDate="GetFirstDate()">
+                    <WeekView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
+                              WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
+                </CalendarContainer>
+            </div>
+        </div>
+    </div>
+}
 @code {
     [Parameter]
     public IEnumerable<ActivityOverviewResponse> Activities { get; set; } = new List<ActivityOverviewResponse>();
@@ -99,15 +130,11 @@
     {
         current = view == CalendarView.Month
                ? current.AddMonths(step)
-               : current.AddDays(step * 7); 
+               : current.AddDays(step * 7);
     }
-    private void GoToday()
-            => current = DateTime.Today;
 
-    private DisplayedView ToDisplayedView()
-        => view == CalendarView.Month
-            ? DisplayedView.Monthly
-            : DisplayedView.Weekly;
+    private void GoToday()
+        => current = DateTime.Today;
 
     private DateTime GetFirstDate()
         => view == CalendarView.Month
@@ -116,6 +143,14 @@
 
     private static DateTime GetStartOfWeek(DateTime date)
         => date.Date.AddDays(-(((int)date.DayOfWeek + 6) % 7));
+
+    private int DayCount => view == CalendarView.WorkWeek ? 5 : 7;
+
+    private IEnumerable<DateTime> WeekDays()
+    {
+        DateTime monday = GetStartOfWeek(current);
+        return Enumerable.Range(0, DayCount).Select(day => monday.AddDays(day));
+    }
 
     private static string ToViewLabel(CalendarView option)
         => option switch

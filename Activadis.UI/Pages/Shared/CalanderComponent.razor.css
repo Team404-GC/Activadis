@@ -97,22 +97,110 @@
     overflow-x: auto;
 }
 
-/* De maandweergave kapt namen af en maakt de balkjes erg laag; hier maken we ze leesbaar. */
-.cal-calendar ::deep .monthly-calendar {
-    min-width: 900px;
-    grid-auto-rows: 110px;
+    .cal-calendar ::deep .monthly-calendar {
+        min-width: 900px;
+        grid-auto-rows: 110px;
+    }
+
+    .cal-calendar ::deep .monthly-task {
+        height: auto;
+        min-height: 22px;
+        margin: 3px 6px 0 6px;
+        padding: 4px 8px;
+        font-size: 12px;
+        line-height: 1.2;
+    }
+
+.cal-week {
+    border-radius: 16px;
+    background: #ffffff;
+    color: var(--TextColor);
+    overflow: hidden;
 }
 
-.cal-calendar ::deep .monthly-task {
-    height: auto;
-    min-height: 22px;
-    margin: 3px 6px 0 6px;
-    padding: 4px 8px;
+.cal-week-head {
+    display: grid;
+    grid-template-columns: 56px repeat(var(--cal-days), 1fr);
+    border-bottom: 1px solid #e3e6ea;
+}
+
+.cal-day-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 10px 0;
+    border-left: 1px solid #e3e6ea;
+}
+
+.cal-day-number {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.cal-day-name {
     font-size: 12px;
-    line-height: 1.2;
+    color: #6b7280;
+    text-transform: capitalize;
 }
 
-/* Werkweek: de component toont altijd zeven dagen, dus verbergen we zaterdag en zondag. */
+.cal-day-head.today {
+    box-shadow: inset 0 -3px 0 var(--AccentColor);
+}
+
+    .cal-day-head.today .cal-day-number {
+        color: var(--AccentColor);
+    }
+
+.cal-week-body {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.cal-hours {
+    display: grid;
+    grid-template-rows: repeat(24, 48px);
+}
+
+.cal-hour {
+    position: relative;
+    border-top: 1px solid #eef0f3;
+}
+
+    .cal-hour span {
+        position: absolute;
+        top: 4px;
+        right: 8px;
+        font-size: 12px;
+        line-height: 1;
+        color: #6b7280;
+    }
+
+.cal-week-grid ::deep .day-header {
+    display: none;
+}
+
+.cal-week-grid ::deep .hours {
+    grid-template-columns: 0 1fr;
+    grid-template-rows: repeat(24, 48px);
+    border: none;
+    border-left: 1px solid #e3e6ea;
+}
+
+.cal-week-grid ::deep .weekly-calendar {
+    overflow: visible;
+}
+
+.cal-week-grid ::deep .hour {
+    display: none;
+}
+
+.cal-week-grid ::deep .hour-dropzone {
+    border-top: 1px solid #eef0f3;
+}
+
 .cal-workweek ::deep .day-column[style*="grid-column-start: 6"],
 .cal-workweek ::deep .day-column[style*="grid-column-start: 7"] {
     display: none;
@@ -131,9 +219,20 @@
     .cal-period {
         min-width: 0;
     }
+
+    .cal-week-head {
+        grid-template-columns: 40px repeat(var(--cal-days), 1fr);
+    }
+
+    .cal-week-body {
+        grid-template-columns: 40px 1fr;
+    }
+
+    .cal-day-number {
+        font-size: 18px;
+    }
 }
 
-/* Het rode kader van de component om vandaag past niet bij de huisstijl. */
 .cal-calendar ::deep .monthly-today {
     border: 2px solid var(--AccentColor);
 }
