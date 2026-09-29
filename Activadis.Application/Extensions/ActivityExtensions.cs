@@ -27,13 +27,14 @@ namespace Activadis.Application.Extensions
 
                 StartDate = request.StartDate,
                 EndDate = request.EndDate,
+                PublishedOn = request.IsDraft ? null : DateTime.UtcNow,
 
                 SignUpDeadline = request.SignUpDeadline,
                 SignOutDeadline = request.SignOutDeadline
             };
         }
 
-        public static ActivityOverviewResponse ToOverviewResponse(this Activity activity)
+        public static ActivityOverviewResponse ToOverviewResponse(this Activity activity, bool hasSignedIn)
         {
             return new ActivityOverviewResponse()
             {
@@ -41,6 +42,10 @@ namespace Activadis.Application.Extensions
                 Name = activity.Name,
 
                 Location = activity.Location,
+                IsDraft = activity.PublishedOn is null,
+                IsDeleted = activity.DeletedAt is not null,
+                HasTakenPlace = DateTime.UtcNow >= activity.StartDate,
+                HasSignedIn = hasSignedIn,
 
                 StartDate = activity.StartDate,
                 EndDate = activity.EndDate

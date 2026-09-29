@@ -10,11 +10,11 @@ namespace Activadis.Infrastructure
 {
     public static class Dependencies
     {
-        public static IServiceCollection RegisterInfrastructure(this IServiceCollection services, string connectionString)
+        public static IServiceCollection RegisterInfrastructure(this IServiceCollection services, string connectionString, EmailSettings emailSettings)
         {
             services.RegisterPersistence(connectionString);
             services.RegisterRepositories();
-            services.RegisterHelpers();
+            services.RegisterHelpers(emailSettings);
 
             return services;
         }
@@ -42,9 +42,12 @@ namespace Activadis.Infrastructure
             return services;
         }
 
-        private static IServiceCollection RegisterHelpers(this IServiceCollection services)
+        private static IServiceCollection RegisterHelpers(this IServiceCollection services, EmailSettings emailSettings)
         {
             services.AddScoped<IPassword, Password>();
+
+            services.AddSingleton(emailSettings);
+            services.AddScoped<IEmailSender, EmailSender>();
 
             return services;
         }

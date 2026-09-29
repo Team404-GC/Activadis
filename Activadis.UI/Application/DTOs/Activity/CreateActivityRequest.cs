@@ -22,6 +22,7 @@ namespace Activadis.UI.Application.DTOs.Activity
         public bool FoodIncluded { get; set; }
         public bool ExternalAllowed { get; set; }
         public bool PlusOneAllowed { get; set; }
+        public bool IsDraft { get; set; } = true;
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

@@ -19,6 +19,7 @@ namespace Activadis.Application
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IActivityService, ActivityService>();
             services.AddScoped<ISignUpService, SignUpService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             return services;
         }

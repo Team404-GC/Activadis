@@ -31,7 +31,8 @@ namespace Activadis.Domain.Entities
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
-        
+        public DateTime? PublishedOn { get; set; }
+
         // Navigation Properties
         public ICollection<SignUp> SignUps { get; set; } = [];
     }
