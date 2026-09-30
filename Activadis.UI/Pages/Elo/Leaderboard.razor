@@ -1,0 +1,97 @@
+﻿@inject IEloService EloService
+@page "/ranglijst"
+
+<PageTitle>Ranglijst</PageTitle>
+
+<h1>Ranglijst</h1>
+
+<nav>
+    <a href="/ranglijst">Overall</a>
+    @foreach (CategoryDto category in categories)
+    {
+        <span> | </span>
+        <a href="@($"/ranglijst?categorie={category.Id}")">@category.Name</a>
+    }
+</nav>
+
+@if (isLoading)
+{
+    <div>
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (!entries.Any())
+{
+    <p>Er zijn nog geen ranglijstgegevens.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Speler</th>
+                <th>Functie</th>
+                <th>Rating</th>
+                <th>Piekrating</th>
+                <th>Wedstrijden</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (LeaderboardEntryDto entry in entries)
+            {
+                <tr>
+                    <td>@entry.Rank</td>
+                    <td><NavLink href="@($"/speler/{entry.UserId}")">@entry.FullName</NavLink></td>
+                    <td>@entry.JobTitle</td>
+                    <td>@entry.Rating</td>
+                    <td>@entry.PeakRating</td>
+                    <td>@entry.MatchCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "categorie")]
+    public Guid? CategoryId { get; set; }
+
+    private List<CategoryDto> categories = [];
+    private List<LeaderboardEntryDto> entries = [];
+    private bool isLoading = true;
+
+    // Runs on the first load and again whenever the category in the URL changes.
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        entries = [];
+
+        if (!categories.Any())
+        {
+            ApiResponse<List<CategoryDto>> categoryResponse = await EloService.GetCategoriesAsync();
+            if (!categoryResponse.Succeeded)
+            {
+                Notifications.AddNotification(categoryResponse.Message, true);
+                isLoading = false;
+                return;
+            }
+
+            categories = categoryResponse.Value ?? [];
+        }
+
+        ApiResponse<List<LeaderboardEntryDto>> response = CategoryId is null
+            ? await EloService.GetOverallLeaderboardAsync()
+            : await EloService.GetCategoryLeaderboardAsync(CategoryId.Value);
+
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        entries = response.Value ?? [];
+        isLoading = false;
+    }
+}

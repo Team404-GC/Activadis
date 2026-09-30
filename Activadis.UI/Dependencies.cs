@@ -52,6 +52,9 @@ namespace Activadis.UI
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IActivityService, ActivityService>();
             services.AddScoped<ISignUpService, SignUpService>();
+            services.AddScoped<IEloService, EloService>();
+
+            services.AddScoped<IEloService, EloService>();
 
             return services;
         }
