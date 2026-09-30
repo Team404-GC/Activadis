@@ -287,7 +287,7 @@ namespace Activadis.UnitTests
                 new Rating { UserId = Guid.NewGuid(), CategoryId = Guid.NewGuid(), CurrentRating = 1700, MatchCount = 12, PeakRating = 1700, User = new User { FullName = "Bob" } },
             };
 
-            _ratingRepositoryMock.Setup(repo => repo.GetAllAsync()).ReturnsAsync(ratings);
+            _ratingRepositoryMock.Setup(repo => repo.GetAllWithUsersAsync()).ReturnsAsync(ratings);
 
             var result = await _eloServiceMock.GetOverallLeaderboardAsync();
 
