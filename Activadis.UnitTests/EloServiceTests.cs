@@ -313,14 +313,19 @@ namespace Activadis.UnitTests
         }
 
         [Fact]
-        public async System.Threading.Tasks.Task CreateCategoryAsync_ValidRequest_ReturnsCategoryDtoAndPersists()
+        public async System.Threading.Tasks.Task CreateCategoryAsync_ValidRequest_Persists()
         {
             var request = new CreateCategoryRequest { Name = "Chess", Description = "1v1 strategy", DisplayOrder = 1 };
 
-            var result = await _eloServiceMock.CreateCategoryAsync(request);
+            Category? capturedCategory = null;
+            _categoryRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Category>()))
+                .Callback<Category>(c => capturedCategory = c);
 
-            Assert.Equal("Chess", result.Name);
-            Assert.True(result.IsActive);
+            await _eloServiceMock.CreateCategoryAsync(request);
+
+            Assert.NotNull(capturedCategory);
+            Assert.Equal("Chess", capturedCategory!.Name);
+            Assert.True(capturedCategory.IsActive);
             _categoryRepositoryMock.Verify(repo => repo.AddAsync(It.Is<Category>(c => c.Name == "Chess")), Times.Once);
         }
 

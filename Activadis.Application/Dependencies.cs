@@ -25,6 +25,10 @@ namespace Activadis.Application
             services.AddScoped<EloCalculationService>();
             services.AddScoped<LeaderboardService>();
 
+            services.AddScoped<IEloService, EloService>();
+            services.AddScoped<EloCalculationService>();
+            services.AddScoped<LeaderboardService>();
+
             return services;
         }
     }
