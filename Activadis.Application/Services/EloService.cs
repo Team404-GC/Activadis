@@ -1,4 +1,3 @@
-using Activadis.Application.DTOs.Elo;
 using Activadis.Application.Interfaces;
 using Activadis.Domain.Entities;
 using Activadis.Domain.Interfaces.Repositories;
