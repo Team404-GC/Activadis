@@ -12,11 +12,13 @@ namespace Activadis.API.Controllers
     [Route("[controller]")]
     public class SignUpController : ControllerBase
     {
+        private readonly ISignUpStorageService SignUpStorageService;
         private readonly ISignUpService SignUpService;
 
-        public SignUpController(ISignUpService signUpService)
+        public SignUpController(ISignUpService signUpService, ISignUpStorageService signUpStorageService)
         {
             SignUpService = signUpService;
+            SignUpStorageService = signUpStorageService;
         }
 
         [HttpPost]
@@ -43,6 +45,13 @@ namespace Activadis.API.Controllers
             {
                 return BadRequest(ApiResponse<object>.Fail(exception.Message));
             }
+        }
+
+        [HttpPost("Confirmation")]
+        public async Task<IActionResult> ConfirmSignUpAsync([FromBody] string token)
+        {
+            await SignUpStorageService.UseSignUpConfirmationAsync(token);
+            return NoContent();
         }
 
         [HttpDelete("{activityId}")]
