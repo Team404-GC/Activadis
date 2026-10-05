@@ -32,6 +32,7 @@ else
                 <th>#</th>
                 <th>Speler</th>
                 <th>Functie</th>
+                <th>Rang</th>
                 <th>Rating</th>
                 <th>Piekrating</th>
                 <th>Wedstrijden</th>
@@ -44,8 +45,9 @@ else
                     <td>@entry.Rank</td>
                     <td><NavLink href="@($"/speler/{entry.UserId}")">@entry.FullName</NavLink></td>
                     <td>@entry.JobTitle</td>
-                    <td>@entry.Rating</td>
-                    <td>@entry.PeakRating</td>
+                    <td>@(entry.RankTitle ?? "—")</td>
+                    <td>@entry.Rating.ToString("F1")</td>
+                    <td>@entry.PeakRating.ToString("F1")</td>
                     <td>@entry.MatchCount</td>
                 </tr>
             }
@@ -61,7 +63,6 @@ else
     private List<LeaderboardEntryDto> entries = [];
     private bool isLoading = true;
 
-    // Runs on the first load and again whenever the category in the URL changes.
     protected override async Task OnParametersSetAsync()
     {
         isLoading = true;

@@ -10,6 +10,8 @@ namespace Activadis.Domain.Entities
         public int DisplayOrder { get; set; }
         public bool IsActive { get; set; } = true;
 
+        public Dictionary<double, string> RankTitles { get; set; } = [];
+
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }

@@ -14,6 +14,7 @@ namespace Activadis.Infrastructure.Persistence
         public DbSet<Match> Matches => Set<Match>();
         public DbSet<MatchParticipant> MatchParticipants => Set<MatchParticipant>();
         public DbSet<Rating> Ratings => Set<Rating>();
+        public DbSet<Leaderboard> Leaderboards => Set<Leaderboard>();
 
 
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options)
@@ -28,6 +29,7 @@ namespace Activadis.Infrastructure.Persistence
             builder.Entity<Match>(options => options.Configure());
             builder.Entity<MatchParticipant>(options => options.Configure());
             builder.Entity<Rating>(options => options.Configure());
+            builder.Entity<Leaderboard>(options => options.Configure());
 
             base.OnModelCreating(builder);
         }

@@ -1,6 +1,6 @@
 ﻿<h3>@(Model.Name.Length == 0 ? "Creëer categorie" : "Bewerk categorie")</h3>
 
-<EditForm Model="Model" OnValidSubmit="() => OnSubmit.InvokeAsync(Model)">
+<EditForm Model="Model" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
     <section>
         <label>Naam</label>
@@ -25,6 +25,11 @@
         <InputCheckbox @bind-Value="Model.IsActive" />
         <InfoBubbleComponent Text="Alleen actieve categorieën worden getoond en kunnen worden gekozen bij het registreren van een wedstrijd." />
     </section>
+
+    <section style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ccc;">
+        <RankTitlesComponent RankTitles="RankTitles" RankTitlesChanged="OnRankTitlesChanged" />
+    </section>
+
     <br />
     <section>
         <button type="submit" disabled="@IsSaving">Opslaan</button>
@@ -44,4 +49,32 @@
 
     [Parameter]
     public EventCallback OnCancel { get; set; }
+
+    private Dictionary<double, string> RankTitles { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        if (Model?.RankTitles != null && Model.RankTitles.Count > 0)
+        {
+            RankTitles = new Dictionary<double, string>(Model.RankTitles);
+        }
+        else
+        {
+            RankTitles = new Dictionary<double, string>();
+        }
+        base.OnInitialized();
+    }
+
+    private async Task HandleSubmit()
+    {
+        Model.RankTitles = new Dictionary<double, string>(RankTitles);
+        await OnSubmit.InvokeAsync(Model);
+    }
+
+    private async Task OnRankTitlesChanged(Dictionary<double, string> updatedTitles)
+    {
+        RankTitles = updatedTitles;
+        await Task.CompletedTask;
+    }
 }
+

@@ -43,6 +43,7 @@ namespace Activadis.Infrastructure
             services.AddScoped<IMatchParticipantRepository, MatchParticipantRepository>();
             services.AddScoped<IMatchRepository, MatchRepository>();
             services.AddScoped<IRatingRepository, RatingRepository>();
+            services.AddScoped<ILeaderboardRepository, LeaderboardRepository>();
 
             return services;
         }

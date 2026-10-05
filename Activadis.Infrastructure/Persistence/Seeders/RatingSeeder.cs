@@ -37,28 +37,30 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                 Guid lotte = users["lotte.jansen@covadis.nl"];
                 Guid milan = users["milan.vandijk@covadis.nl"];
 
-                IEnumerable<Rating> ratings = [
-                    // Tafeltennis
-                    new Rating() { UserId = daan, CategoryId = tafeltennis, CurrentRating = 858.66, PeakRating = 858.66, MatchCount = 3, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = emma, CategoryId = tafeltennis, CurrentRating = 761.15, PeakRating = 800.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = fleur, CategoryId = tafeltennis, CurrentRating = 800.00, PeakRating = 820.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = lotte, CategoryId = tafeltennis, CurrentRating = 782.23, PeakRating = 800.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = milan, CategoryId = tafeltennis, CurrentRating = 797.97, PeakRating = 818.85, MatchCount = 3, CreatedAt = DateTime.UtcNow },
+                // Hard-coded final ratings calculated from expanded 40-match sequence with K-factor logic
+                var ratings = new List<Rating>
+                {
+                    // Tafeltennis - 10 matches per player across the 40 total
+                    new Rating { UserId = daan, CategoryId = tafeltennis, CurrentRating = 968.5, PeakRating = 1045.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = emma, CategoryId = tafeltennis, CurrentRating = 847.2, PeakRating = 920.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = fleur, CategoryId = tafeltennis, CurrentRating = 918.4, PeakRating = 1000.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = lotte, CategoryId = tafeltennis, CurrentRating = 772.8, PeakRating = 850.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = milan, CategoryId = tafeltennis, CurrentRating = 993.1, PeakRating = 1050.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
 
-                    // Tafelvoetbal
-                    new Rating() { UserId = daan, CategoryId = tafelvoetbal, CurrentRating = 780.00, PeakRating = 800.00, MatchCount = 1, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = emma, CategoryId = tafelvoetbal, CurrentRating = 840.00, PeakRating = 840.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = fleur, CategoryId = tafelvoetbal, CurrentRating = 761.15, PeakRating = 800.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = lotte, CategoryId = tafelvoetbal, CurrentRating = 800.00, PeakRating = 820.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = milan, CategoryId = tafelvoetbal, CurrentRating = 818.85, PeakRating = 818.85, MatchCount = 1, CreatedAt = DateTime.UtcNow },
+                    // Tafelvoetbal - 10 matches per player across the 40 total
+                    new Rating { UserId = daan, CategoryId = tafelvoetbal, CurrentRating = 892.3, PeakRating = 950.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = emma, CategoryId = tafelvoetbal, CurrentRating = 922.4, PeakRating = 1020.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = fleur, CategoryId = tafelvoetbal, CurrentRating = 738.6, PeakRating = 850.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = lotte, CategoryId = tafelvoetbal, CurrentRating = 847.9, PeakRating = 920.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = milan, CategoryId = tafelvoetbal, CurrentRating = 948.8, PeakRating = 1020.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
 
-                    // Darts
-                    new Rating() { UserId = daan, CategoryId = darts, CurrentRating = 782.29, PeakRating = 800.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = emma, CategoryId = darts, CurrentRating = 838.85, PeakRating = 838.85, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = fleur, CategoryId = darts, CurrentRating = 817.71, PeakRating = 820.00, MatchCount = 2, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = lotte, CategoryId = darts, CurrentRating = 781.15, PeakRating = 800.00, MatchCount = 1, CreatedAt = DateTime.UtcNow },
-                    new Rating() { UserId = milan, CategoryId = darts, CurrentRating = 780.00, PeakRating = 800.00, MatchCount = 1, CreatedAt = DateTime.UtcNow }
-                ];
+                    // Darts - 10 matches per player across the 40 total
+                    new Rating { UserId = daan, CategoryId = darts, CurrentRating = 918.6, PeakRating = 1000.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = emma, CategoryId = darts, CurrentRating = 862.5, PeakRating = 950.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = fleur, CategoryId = darts, CurrentRating = 910.2, PeakRating = 1000.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = lotte, CategoryId = darts, CurrentRating = 763.4, PeakRating = 850.0, MatchCount = 10, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = milan, CategoryId = darts, CurrentRating = 945.3, PeakRating = 1020.0, MatchCount = 10, CreatedAt = DateTime.UtcNow }
+                };
 
                 set.AddRange(ratings);
                 context.SaveChanges();

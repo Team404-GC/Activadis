@@ -23,22 +23,23 @@
                     </AuthorizeView>
                 </div>
                 <div class="nm-dropdown" @onclick:stopPropagation>
-                    <button class="nm-link nm-dropdown-toggle" @onclick="ToggleDropdown"> Elo ranking <i class="bi bi-chevron-down"></i> </button> 
-                    @if (dropdownOpen) {
-                        <div class="nm-dropdown-menu"> 
-                            <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink> 
-                            <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink> 
+                    <button class="nm-link nm-dropdown-toggle" @onclick="ToggleDropdown"> Elo ranking <i class="bi bi-chevron-down"></i> </button>
+                    @if (dropdownOpen)
+                    {
+                        <div class="nm-dropdown-menu">
+                            <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink>
+                            <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink>
                             <NavLink class="nm-dropdown-item" href="@($"/speler/{user.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
                         </div>
                     }
-            </div>
-            <button class="nm-button" @onclick="HandleLogout">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Uitloggen</span>
-            </button>
-        </Authorized>
-    </AuthorizeView>
-</div>
+                </div>
+                <button class="nm-button" @onclick="HandleLogout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Uitloggen</span>
+                </button>
+            </Authorized>
+        </AuthorizeView>
+    </div>
 </nav>
 
 @code {
@@ -46,18 +47,21 @@
     public Task<AuthenticationState> authState { get; set; }
     ClaimsPrincipal user = null!;
 
-    protected override async Task OnParametersSetAsync()
-    {
-        user = (await authState).User;
-    }
-        private bool isOpen = false;
+    private bool isOpen = false;
     private bool dropdownOpen = false;
+
+    protected override async Task OnParametersSetAsync()
+        => user = (await authState).User;
+
     private void ToggleMenu()
         => isOpen = !isOpen;
-        
+
     private void CloseMenu()
         => isOpen = false;
-    private void ToggleDropdown() { dropdownOpen = !dropdownOpen; }
+
+    private void ToggleDropdown()
+        => dropdownOpen = !dropdownOpen;
+
     private async Task HandleLogout()
     {
         await AuthService.LogoutAsync();

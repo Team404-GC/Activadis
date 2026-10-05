@@ -95,7 +95,8 @@ else
             Name = category.Name,
             Description = category.Description,
             DisplayOrder = category.DisplayOrder,
-            IsActive = category.IsActive
+            IsActive = category.IsActive,
+            RankTitles = category.RankTitles != null ? new Dictionary<double, string>(category.RankTitles) : new()
         };
         isFormOpen = true;
     }
@@ -114,7 +115,9 @@ else
             {
                 Name = model.Name,
                 Description = model.Description,
-                DisplayOrder = model.DisplayOrder
+                DisplayOrder = model.DisplayOrder,
+                IsActive = model.IsActive,
+                RankTitles = model.RankTitles
             });
         }
         else
@@ -125,7 +128,8 @@ else
                 Name = model.Name,
                 Description = model.Description,
                 DisplayOrder = model.DisplayOrder,
-                IsActive = model.IsActive
+                IsActive = model.IsActive,
+                RankTitles = model.RankTitles
             });
 
             response = new ApiResponse<object>()

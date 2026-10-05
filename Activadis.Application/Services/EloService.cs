@@ -58,6 +58,23 @@ namespace Activadis.Application.Services
 
             _leaderboardService.InvalidateCache(request.CategoryId);
 
+            var ratings = await _ratingRepository.GetCategoryRatingsAsync(request.CategoryId);
+            var entries = await _leaderboardService.GetCategoryLeaderboardAsync(
+                request.CategoryId,
+                ratings.ToList(),
+                category,
+                cacheDurationMinutes: 5);
+
+            await _leaderboardService.SaveCategoryLeaderboardAsync(request.CategoryId, entries, category);
+
+            var allRatings = await _ratingRepository.GetAllWithUsersAsync();
+            var overallEntries = await _leaderboardService.GetOverallLeaderboardAsync(
+                allRatings.ToList(),
+                null,
+                cacheDurationMinutes: 5);
+
+            await _leaderboardService.SaveOverallLeaderboardAsync(overallEntries);
+
             return new MatchResultDto
             {
                 MatchId = match.Id,
@@ -80,13 +97,13 @@ namespace Activadis.Application.Services
 
             foreach (var participant in request.Participants)
             {
-                var rating = await _ratingRepository.GetOrCreateRatingAsync(
-                    participant.UserId,
-                    match.CategoryId);
-
                 var user = await _userRepository.GetByIdAsync(participant.UserId);
                 if (user == null)
                     throw new InvalidOperationException($"User {participant.UserId} not found");
+
+                var rating = await _ratingRepository.GetOrCreateRatingAsync(
+                    participant.UserId,
+                    match.CategoryId);
 
                 participantData.Add((participant, rating, user));
             }
@@ -354,7 +371,7 @@ namespace Activadis.Application.Services
                 CategoryName = r.Category?.Name ?? "Onbekend",
                 CurrentRating = r.CurrentRating,
                 MatchCount = r.MatchCount,
-                PeakRating = r.PeakRating
+                PeakRating = r.PeakRating,
             }).ToList();
 
             var categoryData = ratingList.ToDictionary(
@@ -398,10 +415,12 @@ namespace Activadis.Application.Services
 
         public async Task<List<LeaderboardEntryDto>> GetCategoryLeaderboardAsync(Guid categoryId)
         {
+            var category = await _categoryRepository.GetByIdAsync(categoryId);
             var ratings = await _ratingRepository.GetCategoryRatingsAsync(categoryId);
-            var entries = _leaderboardService.GetCategoryLeaderboard(
+            var entries = await _leaderboardService.GetCategoryLeaderboardAsync(
                 categoryId,
                 ratings.ToList(),
+                category,
                 cacheDurationMinutes: 5);
 
             return entries.Select(e => new LeaderboardEntryDto
@@ -412,15 +431,17 @@ namespace Activadis.Application.Services
                 Rating = e.Rating,
                 MatchCount = e.MatchCount,
                 PeakRating = e.PeakRating,
-                Rank = e.Rank
+                Rank = e.Rank,
+                RankTitle = e.RankTitle
             }).ToList();
         }
 
         public async Task<List<LeaderboardEntryDto>> GetOverallLeaderboardAsync()
         {
             var allRatings = await _ratingRepository.GetAllWithUsersAsync();
-            var entries = _leaderboardService.GetOverallLeaderboard(
+            var entries = await _leaderboardService.GetOverallLeaderboardAsync(
                 allRatings.ToList(),
+                null,
                 cacheDurationMinutes: 5);
 
             return entries.Select(e => new LeaderboardEntryDto
@@ -431,7 +452,8 @@ namespace Activadis.Application.Services
                 Rating = e.Rating,
                 MatchCount = e.MatchCount,
                 PeakRating = e.PeakRating,
-                Rank = e.Rank
+                Rank = e.Rank,
+                RankTitle = e.RankTitle,
             }).ToList();
         }
 
@@ -444,7 +466,8 @@ namespace Activadis.Application.Services
                 Name = c.Name,
                 Description = c.Description,
                 DisplayOrder = c.DisplayOrder,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                RankTitles = c.RankTitles
             }).ToList();
         }
 
@@ -457,6 +480,7 @@ namespace Activadis.Application.Services
                 Description = request.Description,
                 DisplayOrder = request.DisplayOrder,
                 IsActive = true,
+                RankTitles = request.RankTitles,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -481,6 +505,9 @@ namespace Activadis.Application.Services
             if (request.IsActive.HasValue)
                 category.IsActive = request.IsActive.Value;
 
+            if (request.RankTitles.Any())
+                category.RankTitles = request.RankTitles;
+
             await _categoryRepository.UpdateAsync(category);
 
             return new CategoryDto
@@ -489,6 +516,7 @@ namespace Activadis.Application.Services
                 Name = category.Name,
                 Description = category.Description,
                 DisplayOrder = category.DisplayOrder,
+                RankTitles = request.RankTitles ?? new Dictionary<double, string>(),
                 IsActive = category.IsActive
             };
         }

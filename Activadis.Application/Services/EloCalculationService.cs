@@ -14,7 +14,7 @@ namespace Activadis.Application.Services
         {
             return matchCount switch
             {
-                < 10 => 40, 
+                < 10 => 100, 
                 < 30 => 20, 
                 _ => 10  
             };

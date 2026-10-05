@@ -12,5 +12,7 @@ namespace Activadis.Shared.DTOs.Elo.Category
         public int DisplayOrder { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public Dictionary<double, string> RankTitles { get; set; } = [];
     }
 }

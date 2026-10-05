@@ -1,5 +1,6 @@
 ﻿using Activadis.Application.Services;
 using Activadis.Domain.Entities;
+using Activadis.Domain.Interfaces.Repositories;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,8 @@ namespace Activadis.UnitTests
 
         public LeaderboardServiceTests()
         {
-            _leaderboardServiceMock = new LeaderboardService();
+            var leaderboardRepositoryMock = new Mock<ILeaderboardRepository>();
+            _leaderboardServiceMock = new LeaderboardService(leaderboardRepositoryMock.Object);
         }
 
         private static Rating CreateRating(User user, Guid categoryId, double currentRating, int matchCount, double peakRating)

@@ -9,5 +9,6 @@ namespace Activadis.Shared.DTOs.Elo.Leaderboard
         public int MatchCount { get; set; }
         public double PeakRating { get; set; }
         public int Rank { get; set; }
+        public string? RankTitle { get; set; }
     }
 }

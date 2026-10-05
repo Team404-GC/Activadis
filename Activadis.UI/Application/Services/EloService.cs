@@ -36,7 +36,7 @@ namespace Activadis.UI.Application.Services
             => await HttpService.PostAsync<MatchResultDto, RecordMatchRequest>("/Elo/match/record", request);
 
         public async Task<ApiResponse<CategoryDto>> UpdateCategoryAsync(UpdateCategoryRequest request)
-            => await HttpService.PutAsync<CategoryDto, UpdateCategoryRequest>($"/Elo/player/{request.Id}", request);
+            => await HttpService.PutAsync<CategoryDto, UpdateCategoryRequest>($"/Elo/categories/{request.Id}", request);
 
     }
 }

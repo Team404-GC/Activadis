@@ -16,7 +16,8 @@ namespace Activadis.Application.Extensions
                 Name = category.Name,
                 Description = category.Description,
                 DisplayOrder = category.DisplayOrder,
-                IsActive = category.IsActive
+                IsActive = category.IsActive,
+                RankTitles = category.RankTitles,
             };
         }
 
@@ -29,7 +30,7 @@ namespace Activadis.Application.Extensions
                 CategoryName = rating.Category?.Name ?? "Onbekend",
                 CurrentRating = rating.CurrentRating,
                 MatchCount = rating.MatchCount,
-                PeakRating = rating.PeakRating
+                PeakRating = rating.PeakRating,
             };
         }
 
@@ -43,7 +44,8 @@ namespace Activadis.Application.Extensions
                 Rating = entry.Rating,
                 MatchCount = entry.MatchCount,
                 PeakRating = entry.PeakRating,
-                Rank = entry.Rank
+                Rank = entry.Rank,
+                RankTitle = entry.RankTitle,
             };
         }
 
@@ -61,7 +63,7 @@ namespace Activadis.Application.Extensions
                 RatingChange = participant.RatingChange,
                 ActualScore = participant.ActualScore,
                 ExpectedScore = participant.ExpectedScore,
-                TeamId = null
+                TeamId = null,
             };
         }
     }

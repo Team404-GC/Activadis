@@ -20,6 +20,7 @@ namespace Activadis.UnitTests
         private readonly Mock<IMatchRepository> _matchRepositoryMock;
         private readonly Mock<IMatchParticipantRepository> _participantRepositoryMock;
         private readonly Mock<IUserRepository> _userRepositoryMock;
+        private readonly Mock<ILeaderboardRepository> _leaderboardRepositoryMock;
         private readonly LeaderboardService _leaderboardService;
         private readonly EloService _eloServiceMock;
 
@@ -30,10 +31,11 @@ namespace Activadis.UnitTests
             _matchRepositoryMock = new Mock<IMatchRepository>();
             _participantRepositoryMock = new Mock<IMatchParticipantRepository>();
             _userRepositoryMock = new Mock<IUserRepository>();
+            _leaderboardRepositoryMock = new Mock<ILeaderboardRepository>();
 
             // LeaderboardService has no interface and is a lightweight in-memory cache,
             // so a real instance is used rather than a mock.
-            _leaderboardService = new LeaderboardService();
+            _leaderboardService = new LeaderboardService(_leaderboardRepositoryMock.Object);
 
             _eloServiceMock = new EloService(
                 _categoryRepositoryMock.Object,
