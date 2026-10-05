@@ -1,4 +1,5 @@
-﻿using Activadis.Domain.Interfaces.Repositories;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Activadis.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Activadis.Application.Extensions;
 using Activadis.Application.Interfaces;
