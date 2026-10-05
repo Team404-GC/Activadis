@@ -1,0 +1,11 @@
+﻿@inject ISignUpService SignUpService
+@page "/confirm-signup/{Token}"
+
+@code {
+    [Parameter] public string Token { get; set; } = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ApiResponse<object> response = await SignUpService.ConfirmSignUpAsync(Token);
+    }
+}
