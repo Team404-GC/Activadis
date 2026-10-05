@@ -63,7 +63,8 @@ namespace Activadis.Application.Services
                 request.CategoryId,
                 ratings.ToList(),
                 category,
-                cacheDurationMinutes: 5);
+                cacheDurationMinutes: 5,
+                forceRebuild: true);
 
             await _leaderboardService.SaveCategoryLeaderboardAsync(request.CategoryId, entries, category);
 
@@ -71,7 +72,8 @@ namespace Activadis.Application.Services
             var overallEntries = await _leaderboardService.GetOverallLeaderboardAsync(
                 allRatings.ToList(),
                 null,
-                cacheDurationMinutes: 5);
+                cacheDurationMinutes: 5,
+                forceRebuild: true);
 
             await _leaderboardService.SaveOverallLeaderboardAsync(overallEntries);
 
@@ -505,7 +507,7 @@ namespace Activadis.Application.Services
             if (request.IsActive.HasValue)
                 category.IsActive = request.IsActive.Value;
 
-            if (request.RankTitles.Any())
+            if (request.RankTitles is { Count: > 0 })
                 category.RankTitles = request.RankTitles;
 
             await _categoryRepository.UpdateAsync(category);
@@ -516,7 +518,7 @@ namespace Activadis.Application.Services
                 Name = category.Name,
                 Description = category.Description,
                 DisplayOrder = category.DisplayOrder,
-                RankTitles = request.RankTitles ?? new Dictionary<double, string>(),
+                RankTitles = category.RankTitles ?? new Dictionary<double, string>(),
                 IsActive = category.IsActive
             };
         }

@@ -9,6 +9,19 @@ namespace Activadis.Application.Services
         private readonly object _cacheLock = new();
         private readonly ILeaderboardRepository _leaderboardRepository;
 
+        private const string HighestOverallTitle = "Ultime Covadiaan";
+        private const string LowestOverallTitle = "Subsidie Pakker";
+
+        private static readonly Dictionary<double, string> DefaultOverallRankTitles = new()
+        {
+            [0] = "Nieuweling",
+            [800] = "Groentje",
+            [1200] = "Strijder",
+            [1500] = "Kampioen",
+            [1800] = "Opperbaas",
+            [2000] = "Legende",
+        };
+
         public class LeaderboardEntry
         {
             public Guid UserId { get; set; }
@@ -36,32 +49,34 @@ namespace Activadis.Application.Services
             Guid categoryId,
             IEnumerable<Rating> ratings,
             Category? category = null,
-            int cacheDurationMinutes = 5)
+            int cacheDurationMinutes = 5,
+            bool forceRebuild = false)
         {
-            lock (_cacheLock)
+            if (!forceRebuild)
             {
-                if (_leaderboardCache.TryGetValue(categoryId, out var cache))
+                lock (_cacheLock)
                 {
-                    if (DateTime.UtcNow - cache.CachedAt < TimeSpan.FromMinutes(cacheDurationMinutes))
+                    if (_leaderboardCache.TryGetValue(categoryId, out var cache) &&
+                        DateTime.UtcNow - cache.CachedAt < TimeSpan.FromMinutes(cacheDurationMinutes))
                     {
                         return cache.Entries;
                     }
                 }
-            }
 
-            var dbLeaderboard = await _leaderboardRepository.GetLatestCategoryLeaderboardAsync(categoryId);
-            if (dbLeaderboard != null)
-            {
-                var entries = ConvertToLeaderboardEntries(dbLeaderboard.Entries);
-                lock (_cacheLock)
+                var dbLeaderboard = await _leaderboardRepository.GetLatestCategoryLeaderboardAsync(categoryId);
+                if (dbLeaderboard != null)
                 {
-                    _leaderboardCache[categoryId] = new LeaderboardCache
+                    var entries = ConvertToLeaderboardEntries(dbLeaderboard.Entries);
+                    lock (_cacheLock)
                     {
-                        CachedAt = DateTime.UtcNow,
-                        Entries = entries
-                    };
+                        _leaderboardCache[categoryId] = new LeaderboardCache
+                        {
+                            CachedAt = DateTime.UtcNow,
+                            Entries = entries
+                        };
+                    }
+                    return entries;
                 }
-                return entries;
             }
 
             var newEntries = BuildLeaderboardEntries(ratings, category?.RankTitles);
@@ -80,34 +95,37 @@ namespace Activadis.Application.Services
         public async Task<List<LeaderboardEntry>> GetOverallLeaderboardAsync(
             IEnumerable<Rating> allRatings,
             Dictionary<double, string>? overallRankTitles = null,
-            int cacheDurationMinutes = 5)
+            int cacheDurationMinutes = 5,
+            bool forceRebuild = false)
         {
+            overallRankTitles ??= DefaultOverallRankTitles;
             Guid overallKey = Guid.Empty;
 
-            lock (_cacheLock)
+            if (!forceRebuild)
             {
-                if (_leaderboardCache.TryGetValue(overallKey, out var cache))
+                lock (_cacheLock)
                 {
-                    if (DateTime.UtcNow - cache.CachedAt < TimeSpan.FromMinutes(cacheDurationMinutes))
+                    if (_leaderboardCache.TryGetValue(overallKey, out var cache) &&
+                        DateTime.UtcNow - cache.CachedAt < TimeSpan.FromMinutes(cacheDurationMinutes))
                     {
                         return cache.Entries;
                     }
                 }
-            }
 
-            var dbLeaderboard = await _leaderboardRepository.GetLatestOverallLeaderboardAsync();
-            if (dbLeaderboard != null)
-            {
-                var entries = ConvertToLeaderboardEntries(dbLeaderboard.Entries);
-                lock (_cacheLock)
+                var dbLeaderboard = await _leaderboardRepository.GetLatestOverallLeaderboardAsync();
+                if (dbLeaderboard != null)
                 {
-                    _leaderboardCache[overallKey] = new LeaderboardCache
+                    var entries = ConvertToLeaderboardEntries(dbLeaderboard.Entries);
+                    lock (_cacheLock)
                     {
-                        CachedAt = DateTime.UtcNow,
-                        Entries = entries
-                    };
+                        _leaderboardCache[overallKey] = new LeaderboardCache
+                        {
+                            CachedAt = DateTime.UtcNow,
+                            Entries = entries
+                        };
+                    }
+                    return entries;
                 }
-                return entries;
             }
 
             var newEntries = BuildOverallLeaderboardEntries(allRatings, overallRankTitles);
@@ -165,7 +183,7 @@ namespace Activadis.Application.Services
                     }
                 }
 
-                var entries = BuildOverallLeaderboardEntries(allRatings, null);
+                var entries = BuildOverallLeaderboardEntries(allRatings, DefaultOverallRankTitles);
                 _leaderboardCache[overallKey] = new LeaderboardCache
                 {
                     CachedAt = DateTime.UtcNow,
@@ -305,6 +323,12 @@ namespace Activadis.Application.Services
                     return entry;
                 })
                 .ToList();
+
+            if (entries.Count > 1)
+                entries[^1].RankTitle = LowestOverallTitle;
+
+            if (entries.Count > 0)
+                entries[0].RankTitle = HighestOverallTitle;
 
             return entries;
         }

@@ -346,7 +346,7 @@ namespace Activadis.UnitTests
         [Fact]
         public async System.Threading.Tasks.Task UpdateCategoryAsync_ValidRequest_UpdatesAndReturnsCategoryDto()
         {
-            var category = new Category { Id = Guid.NewGuid(), Name = "Chess", DisplayOrder = 1, IsActive = true };
+            var category = new Category { Id = Guid.NewGuid(), Name = "Chess", DisplayOrder = 1, IsActive = true, RankTitles = new Dictionary<double, string>() };
             var request = new UpdateCategoryRequest { Id = category.Id, Name = "Chess Classic", IsActive = false };
 
             _categoryRepositoryMock.Setup(repo => repo.GetByIdAsync(category.Id)).ReturnsAsync(category);

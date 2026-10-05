@@ -12,43 +12,43 @@ namespace Activadis.UnitTests
     public class EloCalculationServiceTests
     {
         [Fact]
-        public void GetKFactor_NewPlayer_Returns40()
+        public void GetKFactor_NewPlayer_Returns100()
         {
             var result = EloCalculationService.GetKFactor(5);
 
-            Assert.Equal(40, result);
+            Assert.Equal(100, result);
         }
 
         [Fact]
-        public void GetKFactor_IntermediatePlayer_Returns20()
+        public void GetKFactor_IntermediatePlayer_Returns60()
         {
             var result = EloCalculationService.GetKFactor(15);
 
-            Assert.Equal(20, result);
+            Assert.Equal(60, result);
         }
 
         [Fact]
-        public void GetKFactor_ExperiencedPlayer_Returns10()
+        public void GetKFactor_ExperiencedPlayer_Returns45()
         {
             var result = EloCalculationService.GetKFactor(50);
 
-            Assert.Equal(10, result);
+            Assert.Equal(45, result);
         }
 
         [Fact]
-        public void GetKFactor_BoundaryAtNine_Returns40()
+        public void GetKFactor_BoundaryAtNine_Returns100()
         {
             var result = EloCalculationService.GetKFactor(9);
 
-            Assert.Equal(40, result);
+            Assert.Equal(100, result);
         }
 
         [Fact]
-        public void GetKFactor_BoundaryAtTen_Returns20()
+        public void GetKFactor_BoundaryAtTen_Returns60()
         {
             var result = EloCalculationService.GetKFactor(10);
 
-            Assert.Equal(20, result);
+            Assert.Equal(60, result);
         }
 
         [Fact]

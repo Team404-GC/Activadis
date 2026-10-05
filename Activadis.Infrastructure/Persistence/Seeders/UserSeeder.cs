@@ -94,14 +94,6 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         JobTitle = "Stagiair softwareontwikkeling",
                         CreatedAt = DateTime.UtcNow
                     },
-                    new User()
-                    {
-                        Email = "gebruiker@covadis.nl",
-                        FullName = "Gebruiker 1",
-                        HashedPassword = "$2a$12$OaQw61Dqu1N8ufUzAcVYT.mnAur1KXHqwMm/9fOl4PXmGscAKKAMK", //StrongPassword1!
-                        Role = UserRole.User,
-                        CreatedAt = DateTime.UtcNow
-                    }
                 ];
 
                 set.AddRange(users);

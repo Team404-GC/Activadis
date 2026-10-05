@@ -8,7 +8,7 @@ namespace Activadis.Infrastructure.Repositories
     public class RatingRepository : Repository<Rating>, IRatingRepository
     {
         private readonly ApplicationDBContext _context;
-        private const double InitialRating = 1200;
+        private const double InitialRating = 800;
 
         public RatingRepository(ApplicationDBContext context)
             : base(context)
