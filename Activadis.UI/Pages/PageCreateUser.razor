@@ -1,0 +1,74 @@
+﻿@inject IUserService UserService
+@attribute [Authorize(Roles = "Admin")]
+@page "/gebruiker/nieuw"
+
+<PageTitle>Gebruiker aanmaken</PageTitle>
+
+<h1>Gebruiker aanmaken</h1>
+<p class="cu-intro">De nieuwe gebruiker krijgt een e-mail met een link om zelf een wachtwoord in te stellen.</p>
+
+<div class="cu-card">
+    <EditForm Model="request" OnValidSubmit="CreateAsync">
+        <DataAnnotationsValidator />
+
+        <div class="cu-field">
+            <label for="fullName">Naam</label>
+            <InputText id="fullName" class="form-control" @bind-Value="request.FullName" />
+            <ValidationMessage For="@(() => request.FullName)" />
+        </div>
+
+        <div class="cu-field">
+            <label for="email">E-mail</label>
+            <InputText id="email" class="form-control" @bind-Value="request.Email" inputmode="email" />
+            <ValidationMessage For="@(() => request.Email)" />
+        </div>
+
+        <div class="cu-field">
+            <label for="jobTitle">Functie</label>
+            <InputText id="jobTitle" class="form-control" @bind-Value="request.JobTitle" />
+            <ValidationMessage For="@(() => request.JobTitle)" />
+        </div>
+
+        <div class="cu-field">
+            <label for="role">Rol</label>
+            <InputSelect id="role" class="form-control" @bind-Value="request.Role">
+                <option value="User">Medewerker</option>
+                <option value="Admin">Beheerder</option>
+            </InputSelect>
+            <ValidationMessage For="@(() => request.Role)" />
+        </div>
+
+        <button type="submit" class="cu-button" disabled="@isLoading">
+            @if (isLoading)
+            {
+                <span>Aan het laden...</span>
+            }
+            else
+            {
+                <span>Aanmaken</span>
+            }
+        </button>
+    </EditForm>
+</div>
+
+@code {
+    private CreateUserRequest request = new CreateUserRequest();
+    private bool isLoading = false;
+
+    private async Task CreateAsync()
+    {
+        isLoading = true;
+
+        ApiResponse<object> response = await UserService.CreateAsync(request);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        Notifications.AddNotification("Het account is aangemaakt en de uitnodiging is verstuurd.", false);
+        request = new CreateUserRequest();
+        isLoading = false;
+    }
+}

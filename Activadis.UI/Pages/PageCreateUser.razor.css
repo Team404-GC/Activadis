@@ -1,0 +1,55 @@
+﻿.cu-intro {
+    margin-bottom: 24px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.cu-card {
+    max-width: 560px;
+    padding: 32px;
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+.cu-field {
+    margin-bottom: 20px;
+}
+
+    .cu-field label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .cu-field ::deep .validation-message {
+        margin-top: 4px;
+        font-size: 13px;
+        color: var(--DangerText);
+    }
+
+.cu-button {
+    padding: 10px 28px;
+    border: none;
+    border-radius: 20px;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .cu-button:hover {
+        background: var(--ButtonColorHover);
+    }
+
+    .cu-button:disabled {
+        background: var(--ButtonDisabledColor);
+        cursor: not-allowed;
+    }
+
+@media (max-width: 700px) {
+    .cu-card {
+        padding: 24px 16px;
+    }
+}

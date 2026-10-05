@@ -17,5 +17,8 @@ namespace Activadis.Infrastructure.Repositories
 
         public async Task<User?> GetByEmailAsync(string email)
             => await Context.Users.FirstOrDefaultAsync(x => x.Email == email && x.DeletedAt == null);
+
+        public async Task<User?> GetByPasswordSetupTokenHashAsync(string tokenHash)
+            => await Context.Users.FirstOrDefaultAsync(x => x.PasswordSetupTokenHash == tokenHash && x.DeletedAt == null);
     }
 }

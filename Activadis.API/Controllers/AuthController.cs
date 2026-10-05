@@ -30,5 +30,33 @@ namespace Activadis.API.Controllers
                 return Unauthorized(ApiResponse<Token>.Fail(exception.Message));
             }
         }
+
+        [HttpGet("SetPassword/{token}")]
+        public async Task<IActionResult> CheckPasswordSetupAsync(string token)
+        {
+            try
+            {
+                await UserService.CheckPasswordSetupAsync(token);
+                return Ok(ApiResponse<object>.Ok());
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpPost("SetPassword")]
+        public async Task<IActionResult> SetPasswordAsync(SetPasswordRequest request)
+        {
+            try
+            {
+                await UserService.SetPasswordAsync(request);
+                return Ok(ApiResponse<object>.Ok());
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
     }
 }
