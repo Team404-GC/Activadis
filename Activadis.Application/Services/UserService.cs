@@ -25,7 +25,7 @@ namespace Activadis.Application.Services
             Configuration = configuration;
         }
 
-        public async Task<bool> CreateAsync(CreateUserRequest request)
+        public async Task CreateAsync(CreateUserRequest request)
         {
             User? existingUser = await UserRepository.GetByEmailAsync(request.Email.Trim());
             request.Validate(existingUser);
@@ -38,10 +38,9 @@ namespace Activadis.Application.Services
 
             bool sent = await EmailService.SendPasswordSetupAsync(user.Email, user.FullName, ToPasswordSetupLink(token));
             if (!sent)
-                return false;
+                throw new ArgumentException("De uitnodigingsmail kon niet worden verstuurd. Het account is niet aangemaakt.");
 
             await UserRepository.AddAsync(user);
-            return true;
         }
 
         private string ToPasswordSetupLink(string token)

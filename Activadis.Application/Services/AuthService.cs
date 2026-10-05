@@ -51,11 +51,10 @@ namespace Activadis.Application.Services
         {
             string tokenHash = TokenService.HashPasswordSetupToken(token);
 
-            User user = await UserRepository.GetByPasswordSetupTokenHashAsync(tokenHash)
-                ?? throw new ArgumentException("De link is ongeldig of al gebruikt.");
+            User? user = await UserRepository.GetByPasswordSetupTokenHashAsync(tokenHash);
 
-            if (user.PasswordSetupExpired())
-                throw new ArgumentException("De link is verlopen. Neem contact op met een beheerder.");
+            if (user is null || user.PasswordSetupExpired())
+                throw new ArgumentException("Deze link is niet meer geldig. Heb je je wachtwoord al ingesteld? Dan kun je inloggen. Lukt dat niet, neem dan contact op met een beheerder.");
 
             return user;
         }

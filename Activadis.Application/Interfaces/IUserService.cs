@@ -4,6 +4,6 @@ namespace Activadis.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<bool> CreateAsync(CreateUserRequest request);
+        Task CreateAsync(CreateUserRequest request);
     }
 }

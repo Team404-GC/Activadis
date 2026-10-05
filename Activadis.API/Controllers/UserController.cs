@@ -23,10 +23,7 @@ namespace Activadis.API.Controllers
         {
             try
             {
-                bool created = await UserService.CreateAsync(request);
-                if (!created)
-                    return StatusCode(StatusCodes.Status500InternalServerError, ApiResponse<object>.Fail("De uitnodigingsmail kon niet worden verstuurd. Het account is niet aangemaakt."));
-
+                await UserService.CreateAsync(request);
                 return Ok(ApiResponse<object>.Ok(message: "Het account is aangemaakt en de uitnodiging is verstuurd."));
             }
             catch (ArgumentException exception)
