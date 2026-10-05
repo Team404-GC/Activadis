@@ -7,5 +7,6 @@ namespace Activadis.UI.Application.Interfaces
     {
         Task<ApiResponse<object>> SignUpAsync(SignUpRequest request);
         Task<ApiResponse<object>> SignOutAsync(Guid activityId);
+        Task<ApiResponse<object>> ConfirmSignUpAsync(string token);
     }
 }
