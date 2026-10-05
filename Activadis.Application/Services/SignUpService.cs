@@ -9,13 +9,15 @@ namespace Activadis.Application.Services
 {
     public class SignUpService : ISignUpService
     {
+        private readonly ISignUpStorageService SignUpStorageService;
         private readonly IActivityRepository ActivityRepository;
         private readonly ISignUpRepository SignUpRepository;
 
-        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository)
+        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, ISignUpStorageService signUpStorageService)
         {
             ActivityRepository = activityRepository;
             SignUpRepository = signUpRepository;
+            SignUpStorageService = signUpStorageService;
         }
 
         public async Task SignUpAsync(SignUpRequest request, Guid userId)
@@ -24,21 +26,14 @@ namespace Activadis.Application.Services
             int totalSignUps = await SignUpRepository.CountByActivityIdAsync(request.ActivityId);
             request.Validate(activity, userId, totalSignUps);
 
-            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
-            if (signUp is null)
+            if (userId == Guid.Empty)
             {
-                await SignUpRepository.AddAsync(
-                    request.ToSignUp(userId)
-                );
+                await SignUpStorageService.SendSignUpConfirmationAsync(request);
                 return;
             }
 
-            if (signUp.DeletedAt is null)
-                throw new ArgumentException("Je kan niet 2x inschrijven bij dezelfde activiteit.");
-
-            signUp.HasPlusOne = request.HasPlusOne;
-            signUp.DeletedAt = null;
-            await SignUpRepository.UpdateAsync(signUp);
+            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
+            await SignUpRepository.CreateOrUpdateAsync(signUp, request, userId);
         }
 
         public async Task SignOutAsync(Guid activityId, Guid userId)

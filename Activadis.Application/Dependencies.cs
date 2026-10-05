@@ -21,6 +21,8 @@ namespace Activadis.Application
             services.AddScoped<ISignUpService, SignUpService>();
             services.AddScoped<IEmailService, EmailService>();
 
+            services.AddSingleton<ISignUpStorageService, SignUpStorageService>();
+
             return services;
         }
     }

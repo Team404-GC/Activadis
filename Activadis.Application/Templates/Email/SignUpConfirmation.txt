@@ -1,0 +1,8 @@
+Hallo {{FullName}},
+
+Er is ingeschreven bij een activiteit onder deze email. Open de link hieronder om te bevestigen dat je inschrijft voor deze activiteit:
+{{Link}}
+
+Je kunt weer uitschrijven op https://localhost:4200 met je e-mailadres: {{Email}}
+
+Heb je deze e-mail niet verwacht? Dan kun je hem negeren.
