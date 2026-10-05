@@ -18,6 +18,9 @@ namespace Activadis.Infrastructure.Repositories
         public async Task<SignUp?> GetByUserIdAndActivityIdIncludingDeletedAsync(Guid userId, Guid activityId)
             => await Context.SignUps.SingleOrDefaultAsync(x => x.UserId == userId && x.ActivityId == activityId);
 
+        public async Task<SignUp?> GetByEmailAndActivityIdIncludingDeletedAsync(string email, Guid activityId)
+            => await Context.SignUps.SingleOrDefaultAsync(x => x.Email == email && x.ActivityId == activityId);
+
         public async Task<SignUp?> GetByUserIdAndActivityIdAsync(Guid userId, Guid activityId)
             => await Context.SignUps.SingleOrDefaultAsync(x => x.UserId == userId && x.ActivityId == activityId && x.DeletedAt == null);
 
