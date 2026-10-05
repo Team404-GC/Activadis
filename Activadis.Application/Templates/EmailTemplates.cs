@@ -5,6 +5,26 @@ namespace Activadis.Application.Templates
 {
     public static class EmailTemplates
     {
+        public static EmailMessage SignUpConfirmation(string email, string fullName, string link)
+        {
+            Dictionary<string, string> values = new Dictionary<string, string>()
+            {
+                ["FullName"] = fullName,
+                ["Email"] = email,
+                ["Link"] = link
+            };
+
+            return new EmailMessage()
+            {
+                ToEmail = email,
+                ToName = fullName,
+
+                Subject = "Bevestig je inschrijving voor de activiteit",
+                HtmlBody = RenderHtml("SignUpConfirmation.html", "Bevestig je inschrijving", values),
+                TextBody = Fill(Read("SignUpConfirmation.txt"), values, false)
+            };
+        }
+
         public static EmailMessage PasswordSetup(string email, string fullName, string link)
         {
             Dictionary<string, string> values = new Dictionary<string, string>()

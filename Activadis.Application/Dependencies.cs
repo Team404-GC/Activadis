@@ -30,6 +30,8 @@ namespace Activadis.Application
             services.AddScoped<EloCalculationService>();
             services.AddScoped<LeaderboardService>();
 
+            services.AddSingleton<ISignUpStorageService, SignUpStorageService>();
+
             return services;
         }
     }

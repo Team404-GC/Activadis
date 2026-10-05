@@ -20,7 +20,6 @@ namespace Activadis.API.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> SignUpAsync(SignUpRequest request)
         {
             string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
