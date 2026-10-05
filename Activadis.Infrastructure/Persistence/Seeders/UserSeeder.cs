@@ -17,6 +17,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                     {
                         Email = "beheerder1@covadis.nl",
                         FullName = "Beheerder 1",
+                        JobTitle = "Beheerder",
                         HashedPassword = "$2a$12$OaQw61Dqu1N8ufUzAcVYT.mnAur1KXHqwMm/9fOl4PXmGscAKKAMK", //StrongPassword1!
                         Role = UserRole.Admin,
                         CreatedAt = DateTime.UtcNow
@@ -25,6 +26,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                     {
                         Email = "gebruiker@covadis.nl",
                         FullName = "Gebruiker 1",
+                        JobTitle = "Medewerker",
                         HashedPassword = "$2a$12$OaQw61Dqu1N8ufUzAcVYT.mnAur1KXHqwMm/9fOl4PXmGscAKKAMK", //StrongPassword1!
                         Role = UserRole.User,
                         CreatedAt = DateTime.UtcNow

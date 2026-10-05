@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.Auth;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography;
 using Activadis.Domain.Entities;
 using System.Security.Claims;
 using System.Text;
@@ -63,5 +64,11 @@ namespace Activadis.Application.Services
                 ExpiresOn = expiresOn
             };
         }
+
+        public string GeneratePasswordSetupToken()
+            => Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
+
+        public string HashPasswordSetupToken(string token)
+            => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     }
 }
