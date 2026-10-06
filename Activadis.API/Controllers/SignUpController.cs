@@ -50,21 +50,42 @@ namespace Activadis.API.Controllers
         [HttpPost("Confirmation")]
         public async Task<IActionResult> ConfirmSignUpAsync([FromBody] string token)
         {
-            await SignUpStorageService.UseSignUpConfirmationAsync(token);
-            return NoContent();
+            try
+            {
+                await SignUpStorageService.UseSignUpConfirmationAsync(token);
+                return Ok(ApiResponse<object>.Ok());
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
         }
 
-        [HttpDelete("{activityId}")]
-        [Authorize]
-        public async Task<IActionResult> SignOutAsync(Guid activityId)
+        [HttpPost("SignOut")]
+        public async Task<IActionResult> SignOutAsync(SignOutRequest request)
         {
             string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(id, out Guid userId))
-                return Challenge(JwtBearerDefaults.AuthenticationScheme);
+                userId = Guid.Empty;
 
             try
             {
-                await SignUpService.SignOutAsync(activityId, userId);
+                await SignUpService.SignOutAsync(request, userId);
+                return Ok(ApiResponse<object>.Ok());
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+
+        [HttpDelete("SignOut/Confirmation/{token}")]
+        public async Task<IActionResult> ConfirmSignOutAsync(string token)
+        {
+            try
+            {
+                await SignUpStorageService.UseSignOutConfirmationAsync(token);
                 return Ok(ApiResponse<object>.Ok());
             }
             catch (ArgumentException exception)

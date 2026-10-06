@@ -1,13 +1,13 @@
 ﻿using Activadis.Shared.DTOs.SignUp;
 
-namespace Activadis.Application.DTOs.SignUp
+namespace Activadis.Application.DTOs
 {
-    public class SignUpConfirmationDTO
+    public class ConfirmationDTO<TRequest>
     {
-        public SignUpRequest Request { get; set; }
+        public TRequest Request { get; set; }
         public DateTime Expires { get; set; }
 
-        public SignUpConfirmationDTO(SignUpRequest request, DateTime expires)
+        public ConfirmationDTO(TRequest request, DateTime expires)
         {
             Request = request;
             Expires = expires;
