@@ -36,12 +36,18 @@ namespace Activadis.Application.Services
             await SignUpRepository.CreateOrUpdateAsync(signUp, request, userId);
         }
 
-        public async Task SignOutAsync(Guid activityId, Guid userId)
+        public async Task SignOutAsync(SignOutRequest request, Guid userId)
         {
-            Activity? activity = await ActivityRepository.GetByIdAsync(activityId);
+            Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
             SignOutValidation.Validate(activity);
 
-            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, activityId)
+            if (userId == Guid.Empty)
+            {
+                await SignUpStorageService.SendSignOutConfirmationAsync(request);
+                return;
+            }
+
+            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
                 ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
             await SignUpRepository.DeleteAsync(signUp);

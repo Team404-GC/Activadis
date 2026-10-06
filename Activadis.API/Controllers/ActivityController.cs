@@ -46,17 +46,20 @@ namespace Activadis.API.Controllers
         }
 
         [HttpGet("{id:guid}")]
-        [Authorize]
         public async Task<IActionResult> GetDetailAsync(Guid id)
         {
             string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(nameIdentifier, out Guid userId))
-                return Challenge(JwtBearerDefaults.AuthenticationScheme);
+                userId = Guid.Empty;
 
             try
             {
                 ActivityDetailResponse activity = await ActivityService.GetDetailAsync(id, userId);
                 return Ok(ApiResponse<ActivityDetailResponse>.Ok(activity));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
             }
             catch (KeyNotFoundException exception)
             {

@@ -25,6 +25,26 @@ namespace Activadis.Application.Templates
             };
         }
 
+        public static EmailMessage SignOutConfirmation(string email, string fullName, string link)
+        {
+            Dictionary<string, string> values = new Dictionary<string, string>()
+            {
+                ["FullName"] = fullName,
+                ["Email"] = email,
+                ["Link"] = link
+            };
+
+            return new EmailMessage()
+            {
+                ToEmail = email,
+                ToName = fullName,
+
+                Subject = "Bevestig je uitschrijving voor de activiteit",
+                HtmlBody = RenderHtml("SignOutConfirmation.html", "Bevestig je uitschrijving", values),
+                TextBody = Fill(Read("SignOutConfirmation.txt"), values, false)
+            };
+        }
+
         public static EmailMessage PasswordSetup(string email, string fullName, string link)
         {
             Dictionary<string, string> values = new Dictionary<string, string>()

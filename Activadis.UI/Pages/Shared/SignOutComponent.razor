@@ -2,26 +2,12 @@
 {
     <div class="signup-container" @onclick="CloseAsync">
         <EditForm Model="Request" OnValidSubmit="OnSubmitAsync" class="form" @onclick:stopPropagation="true">
-            @if (User?.Identity?.IsAuthenticated == false)
-            {
-                <section>
-                    <label>Naam</label>
-                    <InputText @bind-Value="Request.FullName" />
-                </section>
-                <section>
-                    <label>Email</label>
-                    <InputText @bind-Value="Request.Email" />
-                </section>
-            }
             <section>
-                <label>Zou je een +1 willen meenemen?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="Request.HasPlusOne" />
-                    <span class="slider round"></span>
-                </label>
+                <label>Email</label>
+                <InputText @bind-Value="Request.Email" />
             </section>
             <section>
-                <button type="submit">Inschrijven</button>
+                <button type="submit">Uitschrijven</button>
             </section>
         </EditForm>
     </div>
@@ -31,10 +17,10 @@
     [CascadingParameter] public Task<AuthenticationState>? AuthenticationState { get; set; }
     private ClaimsPrincipal? User { get; set; }
 
-    [Parameter] public required EventCallback<SignUpRequest> RequestChanged { get; set; }
+    [Parameter] public required EventCallback<SignOutRequest> RequestChanged { get; set; }
     [Parameter] public required EventCallback<bool> ShouldDisplayChanged { get; set; }
     [Parameter] public required EventCallback OnSubmit { get; set; }
-    [Parameter] public required SignUpRequest Request { get; set; }
+    [Parameter] public required SignOutRequest Request { get; set; }
     [Parameter] public required bool ShouldDisplay { get; set; }
 
     protected override async Task OnParametersSetAsync()
