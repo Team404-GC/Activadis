@@ -1,0 +1,58 @@
+﻿.switch {
+    position: relative;
+    display: inline-block;
+    width: calc(60px * var(--size));
+    height: calc(34px * var(--size));
+    --size: 0.7;
+}
+
+    .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--TaskbarColor);
+    -webkit-transition: .4s;
+    transition: .4s;
+    border: 1px solid var(--DashboardColor);
+}
+
+    .slider:before {
+        position: absolute;
+        content: "";
+        height: calc(26px * var(--size));
+        width: calc(26px * var(--size));
+        left: calc(4px * var(--size));
+        bottom: calc(4px * var(--size));
+        background-color: var(--TextColor);
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(calc(26px * var(--size)));
+    -ms-transform: translateX(calc(26px * var(--size)));
+    transform: translateX(calc(26px * var(--size)));
+    background-color: var(--AccentColor);
+}
+
+.slider.round {
+    border-radius: calc(34px * var(--size));
+}
+
+    .slider.round:before {
+        border-radius: 50%;
+    }
+
+
+button[type="submit"] {
+    display: block;
+}

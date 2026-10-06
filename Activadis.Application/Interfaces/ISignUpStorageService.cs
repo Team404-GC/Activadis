@@ -6,5 +6,7 @@ namespace Activadis.Application.Interfaces
     {
         Task SendSignUpConfirmationAsync(SignUpRequest request);
         Task UseSignUpConfirmationAsync(string token);
+        Task SendSignOutConfirmationAsync(SignOutRequest request);
+        Task UseSignOutConfirmationAsync(string token);
     }
 }

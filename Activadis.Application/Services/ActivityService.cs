@@ -51,7 +51,10 @@ namespace Activadis.Application.Services
             Activity activity = await ActivityRepository.GetDetailAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
-            bool hasSignedUp = await SignUpRepository.HasSignedUpAsync(userId, id);
+            if (userId == Guid.Empty && !activity.ExternalAllowed)
+                throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
+
+            bool hasSignedUp = userId == Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);
             return activity.ToDetailResponse(hasSignedUp);
         }
 

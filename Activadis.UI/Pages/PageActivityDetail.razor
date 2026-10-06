@@ -1,7 +1,6 @@
 ﻿@using System.Globalization
 @inject IActivityService ActivityService
 @inject ISignUpService SignUpService
-@attribute [Authorize]
 @page "/activiteit/{Id:guid}"
 
 <PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>
@@ -79,25 +78,18 @@ else
             </section>
 
             <div class="ad-actions">
-                <button class="ad-register" type="button"
-                        @onclick="@(() => !activity.HasSignedUp ? OpenSignUpAsync() : SignOutAsync())"
-                        disabled="@IsSignUpDisabled">
-                    @if (!isSigningUp)
-                    {
-                        @if (!activity.HasSignedUp)
-                        {
-                            <span>Inschrijven</span>
-                        }
-                        else
-                        {
-                            <span>Uitschrijven</span>
-                        }
-                    }
-                    else
-                    {
-                        <span>Aan het laden..</span>
-                    }
-                </button>
+                @if (!activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
+                {
+                    <button class="ad-register" type="button" @onclick="OpenSignUpAsync" disabled="@(IsSignUpDisabled || isSigningUp || isSigningOut)">
+                        @(!isSigningUp ? "Inschrijven" : "Aan het laden..")
+                    </button>
+                }
+                @if (activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
+                {
+                    <button class="ad-register" type="button" @onclick="OpenSignOutAsync" disabled="@(isSigningUp || isSigningOut)">
+                        @(!isSigningOut ? "Uitschrijven" : "Aan het laden..")
+                    </button>
+                }
             </div>
         </div>
 
@@ -109,24 +101,36 @@ else
         }
     </div>
 
-    @if (isSignUpOpen)
-    {
-        <SignUpComponent OnSubmit="SubmitSignUpAsync"/>
-    }
+    <SignUpComponent @bind-ShouldDisplay="shouldDisplaySignUp" @bind-Request="signUpRequest" OnSubmit="SubmitSignUpAsync" />
+    <SignOutComponent @bind-ShouldDisplay="shouldDisplaySignOut" @bind-Request="signOutRequest" OnSubmit="SubmitSignOutAsync" />
 }
 
 @code {
-    [Parameter]
-    public Guid Id { get; set; }
+    [CascadingParameter] public Task<AuthenticationState>? AuthenticationState { get; set; }
+    private ClaimsPrincipal? User { get; set; }
+
+    [Parameter] public Guid Id { get; set; }
 
     private ActivityDetailResponse? activity;
     private bool isLoading = true;
 
-    private bool isSignUpOpen;
-    private bool isSigningUp;
+    private bool shouldDisplaySignUp = false;
+    private bool isSigningUp = false;
+
+    private bool shouldDisplaySignOut = false;
+    private bool isSigningOut = false;
+
+    private SignUpRequest signUpRequest = new SignUpRequest();
+    private SignOutRequest signOutRequest = new SignOutRequest();
 
     protected override async Task OnParametersSetAsync()
     {
+        if (AuthenticationState is null)
+            return;
+
+        AuthenticationState state = await AuthenticationState;
+        User = state.User;
+
         isLoading = true;
         activity = null;
 
@@ -138,8 +142,10 @@ else
             return;
         }
 
-        activity = response.Value;
+        signUpRequest.ActivityId = Id;
+        signOutRequest.ActivityId = Id;
 
+        activity = response.Value;
         isLoading = false;
     }
 
@@ -148,38 +154,28 @@ else
         if (activity is null)
             return;
 
-        if (activity.PlusOneAllowed)
+        if (activity.PlusOneAllowed || User?.Identity?.IsAuthenticated == false)
         {
-            isSignUpOpen = true;
+            shouldDisplaySignUp = true;
             return;
         }
 
-        await SignUpAsync(new SignUpRequest()
-        {
-            HasPlusOne = false,
-            ActivityId = Id
-        });
+        await SignUpAsync();
     }
 
-    public async Task SubmitSignUpAsync(bool hasPlusOne)
+    public async Task SubmitSignUpAsync()
     {
-        isSignUpOpen = false;
-
-        await SignUpAsync(new SignUpRequest()
-        {
-            HasPlusOne = hasPlusOne,
-            ActivityId = Id
-        });
+        shouldDisplaySignUp = false;
+        await SignUpAsync();
     }
 
-    public async Task SignUpAsync(SignUpRequest request)
+    public async Task SignUpAsync()
     {
         if (activity is null)
             return;
 
         isSigningUp = true;
-
-        ApiResponse<object> response = await SignUpService.SignUpAsync(request);
+        ApiResponse<object> response = await SignUpService.SignUpAsync(signUpRequest);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
@@ -187,12 +183,39 @@ else
             return;
         }
 
-        activity.AvailableSpots--;
-        activity.TotalSignUps++;
-        activity.HasSignedUp = true;
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            activity.AvailableSpots--;
+            activity.TotalSignUps++;
+            activity.HasSignedUp = true;
+            Notifications.AddNotification("Je bent succesvol ingeschreven bij deze activiteit.", false);
+        }
+        else
+        {
+            Notifications.AddNotification("We hebben een e-mail naar je verstuurd om de inschrijving te bevestigen.", false);
+        }
 
-        Notifications.AddNotification("Je bent succesvol aangemeld bij deze activiteit.", false);
         isSigningUp = false;
+    }
+
+    public async Task OpenSignOutAsync()
+    {
+        if (activity is null)
+            return;
+
+        if (User?.Identity?.IsAuthenticated == false)
+        {
+            shouldDisplaySignOut = true;
+            return;
+        }
+
+        await SignUpAsync();
+    }
+
+    public async Task SubmitSignOutAsync()
+    {
+        shouldDisplaySignOut = false;
+        await SignOutAsync();
     }
 
     public async Task SignOutAsync()
@@ -200,22 +223,28 @@ else
         if (activity is null)
             return;
 
-        isSigningUp = true;
-
-        ApiResponse<object> response = await SignUpService.SignOutAsync(Id);
+        isSigningOut = true;
+        ApiResponse<object> response = await SignUpService.SignOutAsync(signOutRequest);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
-            isSigningUp = false;
+            isSigningOut = false;
             return;
         }
 
-        activity.AvailableSpots++;
-        activity.TotalSignUps--;
-        activity.HasSignedUp = false;
+        if (User?.Identity?.IsAuthenticated == true)
+        {
+            activity.AvailableSpots++;
+            activity.TotalSignUps--;
+            activity.HasSignedUp = false;
+            Notifications.AddNotification("Je bent succesvol uitgeschreven bij deze activiteit.", false);
+        }
+        else
+        {
+            Notifications.AddNotification("We hebben een e-mail naar je verstuurd om de uitschrijving te bevestigen.", false);
+        }
 
-        Notifications.AddNotification("Je bent succesvol afgemeld bij deze activiteit.", false);
-        isSigningUp = false;
+        isSigningOut = false;
     }
 
     private static string ToImageSource(ActivityDetailResponse activity)
