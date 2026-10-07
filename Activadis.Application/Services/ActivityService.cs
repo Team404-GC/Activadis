@@ -1,11 +1,12 @@
-﻿using Activadis.Application.Validations.Activity;
-using Activadis.Domain.Interfaces.Repositories;
-using Activadis.Application.DTOs.Activity;
+﻿using Activadis.Application.DTOs.Activity;
 using Activadis.Application.Extensions;
 using Activadis.Application.Interfaces;
-using Activadis.Shared.DTOs.Activity;
+using Activadis.Application.Validations.Activity;
 using Activadis.Domain.Entities;
 using Activadis.Domain.Enums;
+using Activadis.Domain.Filters;
+using Activadis.Domain.Interfaces.Repositories;
+using Activadis.Shared.DTOs.Activity;
 
 namespace Activadis.Application.Services
 {
@@ -30,23 +31,30 @@ namespace Activadis.Application.Services
             Activity activity = request.ToActivity(image.ToArray());
             activity = await ActivityRepository.AddAsync(activity);
         }
+		public async Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role, ActivityFilterRequest request)
+		{
+			bool isAdmin = role == UserRole.Admin;
 
-        public async Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role)
-        {
-            bool isAdmin = role == UserRole.Admin;
-            IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin);
+			ActivityFilter filter = new ActivityFilter()
+			{
+				Name = string.IsNullOrWhiteSpace(request.Name) ? null : request.Name.Trim(),
+				From = request.From,
+				To = request.To,
+				IncludePast = isAdmin && request.IncludePast
+			};
 
-            Dictionary<Guid, bool> activitiesSignedIn = activities.ToDictionary(x => x.Id, x => false);
-            foreach (Activity activity in activities)
-            {
-                bool hasSignedIn = await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
-                activitiesSignedIn[activity.Id] = hasSignedIn;
-            }
+			IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin, filter);
 
-            return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
-        }
+			Dictionary<Guid, bool> activitiesSignedIn = activities.ToDictionary(x => x.Id, x => false);
+			foreach (Activity activity in activities)
+			{
+				bool hasSignedIn = await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
+				activitiesSignedIn[activity.Id] = hasSignedIn;
+			}
 
-        public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId)
+			return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
+		}
+		public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId)
         {
             Activity activity = await ActivityRepository.GetDetailAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");

@@ -1,0 +1,66 @@
+﻿@if (!Activities.Any())
+{
+    <p class="ao-state">@EmptyMessage</p>
+}
+else
+{
+    <div class="ao-list">
+        @foreach (ActivityOverviewResponse activity in Activities)
+        {
+            <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Id}")">
+                <span class="ao-card-name">@activity.Name</span>
+
+                <span class="ao-card-meta">
+                    <i class="bi bi-calendar-event"></i>
+                    <span>@FormatPeriod(activity)</span>
+                </span>
+
+                <span class="ao-card-meta">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>@activity.Location</span>
+                </span>
+
+                @if (activity.HasTakenPlace)
+                {
+                    <span class="ao-card-tag">Afgelopen</span>
+                }
+
+                @if (activity.HasSignedIn)
+                {
+                    <span class="ao-card-signed-up">
+                        <i class="bi bi-person-check-fill"></i>
+                    </span>
+                }
+            </NavLink>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public IEnumerable<ActivityOverviewResponse> Activities { get; set; } = [];
+
+    [Parameter]
+    public string EmptyMessage { get; set; } = "Er zijn op dit moment geen activiteiten.";
+
+    private static string FormatPeriod(ActivityOverviewResponse activity)
+        => activity.StartDate.Date == activity.EndDate.Date
+            ? $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():HH:mm}"
+            : $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():dd-MM-yyyy HH:mm}";
+
+    private static string GetClasses(ActivityOverviewResponse activity)
+    {
+        List<string> classes = [];
+
+        if (activity.IsDraft)
+            classes.Add("ao-card-draft");
+
+        if (activity.IsDeleted)
+            classes.Add("ao-card-deleted");
+
+        if (activity.HasTakenPlace)
+            classes.Add("ao-card-taken-place");
+
+        return string.Join(' ', classes);
+    }
+}

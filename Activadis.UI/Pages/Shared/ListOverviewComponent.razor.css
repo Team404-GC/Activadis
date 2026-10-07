@@ -1,0 +1,82 @@
+.ao-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.ao-state {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    color: var(--MutedText);
+}
+
+::deep .ao-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    text-decoration: none;
+    position: relative;
+}
+
+    ::deep .ao-card:hover {
+        border-color: var(--AccentColor);
+        box-shadow: 0 0 0 3px var(--AccentColorSoft);
+    }
+
+::deep .ao-card-draft {
+    opacity: 0.6;
+}
+
+::deep .ao-card-deleted {
+    --BorderColor: color-mix(red 40%, white 60%);
+    --TaskbarColor: color-mix(red 10%, white 90%);
+}
+
+::deep .ao-card-taken-place {
+    --BorderColor: color-mix(yellow 40%, white 60%);
+    --TaskbarColor: color-mix(yellow 10%, white 90%);
+    opacity: 0.75;
+}
+
+.ao-card-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--TextColor);
+}
+
+.ao-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--MutedText);
+}
+
+    .ao-card-meta i {
+        font-size: 15px;
+        width: 16px;
+        text-align: center;
+    }
+
+.ao-card-tag {
+    align-self: flex-start;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--SurfaceColor);
+    color: var(--MutedText);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ao-card-signed-up {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+}

@@ -1,73 +1,8 @@
-﻿.ao-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+﻿.ao-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: 16px;
-    margin-top: 24px;
-}
-
-::deep .ao-card {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 16px;
-    border: 1px solid var(--BorderColor);
-    border-radius: 12px;
-    background: var(--TaskbarColor);
-    color: var(--TextColor);
-    text-decoration: none;
-    position: relative;
-}
-
-    .ao-card:hover {
-        border-color: var(--AccentColor);
-        box-shadow: 0 0 0 3px var(--AccentColorSoft);
-    }
-
-    ::deep .ao-card-draft {
-        opacity: 0.6;
-    }
-
-::deep .ao-card-deleted {
-    --BorderColor: color-mix(red 40%, white 60%);
-    --TaskbarColor: color-mix(red 10%, white 90%);
-}
-
-::deep .ao-card-taken-place {
-    --BorderColor: color-mix(yellow 40%, white 60%);
-    --TaskbarColor: color-mix(yellow 10%, white 90%);
-}
-
-.ao-card-signed-up {
-    position: absolute;
-    bottom: 5px;
-    right: 10px;
-}
-
-.ao-card-name {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--TextColor);
-}
-
-.ao-card-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: var(--MutedText);
-}
-
-    .ao-card-meta i {
-        font-size: 15px;
-        width: 16px;
-        text-align: center;
-    }
-
-.ao-state {
-    display: flex;
-    justify-content: center;
-    margin-top: 48px;
-    color: var(--MutedText);
 }
 
 .ao-tabs {
@@ -80,11 +15,17 @@
 .ao-tab {
     padding: 8px 16px;
     margin-bottom: -1px;
+    border-top: none;
+    border-left: none;
+    border-right: none;
     border-bottom: 2px solid transparent;
+    background: none;
     color: rgba(255, 255, 255, 0.65);
+    font-family: inherit;
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
+    cursor: pointer;
 }
 
     .ao-tab:hover {
@@ -96,3 +37,62 @@
         border-bottom-color: var(--AccentColor);
         color: #ffffff;
     }
+
+.ao-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.ao-input {
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    background: none;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+    .ao-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .ao-input:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+    }
+
+    .ao-input:disabled {
+        opacity: 0.5;
+    }
+
+.ao-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 16px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    background: none;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .ao-filter.active {
+        border-color: var(--AccentColor);
+        background: var(--AccentColor);
+        color: var(--ButtonTextColor);
+        font-weight: 600;
+    }
+
+.ao-state {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    color: var(--MutedText);
+}
