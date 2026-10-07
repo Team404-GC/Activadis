@@ -6,10 +6,29 @@
 
 <h1>Activiteiten</h1>
 
-<nav class="ao-tabs">
-    <a class="ao-tab @(IsMyActivities ? "" : "active")" href="/activiteiten">Alle activiteiten</a>
-    <a class="ao-tab @(IsMyActivities ? "active" : "")" href="@($"/activiteiten/?tab={MyActivitiesTab}")">Mijn activiteiten</a>
-</nav>
+<div class="ao-toolbar">
+    <nav class="ao-tabs">
+        <button type="button" class="ao-tab @(showMine ? "" : "active")" @onclick="@(() => SelectTabAsync(false))">Alle activiteiten</button>
+        <button type="button" class="ao-tab @(showMine ? "active" : "")" @onclick="@(() => SelectTabAsync(true))">Mijn activiteiten</button>
+    </nav>
+
+    @if (!showMine)
+    {
+        <div class="ao-filters">
+            <input class="ao-input" type="search" placeholder="Zoek op naam" @bind="name" @bind:after="LoadAsync" />
+            <input class="ao-input" type="date" @bind="date" @bind:after="LoadAsync" />
+            <input class="ao-input" type="time" @bind="time" @bind:after="LoadAsync" disabled="@(date is null)" />
+
+            @if (isAdmin)
+            {
+                <button type="button" class="ao-filter @(showPast ? "active" : "")" @onclick="TogglePastActivitiesAsync">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Toon afgelopen</span>
+                </button>
+            }
+        </div>
+    }
+</div>
 
 @if (isLoading)
 {
@@ -17,61 +36,58 @@
         <div class="spinner-border" role="status"></div>
     </div>
 }
-else if (!activities.Any())
-{
-    <p class="ao-state">@(IsMyActivities ? "Je bent nog niet ingeschreven voor een activiteit." : "Er zijn op dit moment geen activiteiten.")</p>
-}
 else
 {
-@* <ListOverviewComponent Activities="activities" /> *@
-    <div class="ao-list">
-        @foreach (ActivityOverviewResponse activity in activities)
-        {
-            <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Id}")">
-                <span class="ao-card-name">@activity.Name</span>
-
-                <span class="ao-card-meta">
-                    <i class="bi bi-calendar-event"></i>
-                    <span>@FormatPeriod(activity)</span>
-                </span>
-
-                <span class="ao-card-meta">
-                    <i class="bi bi-geo-alt"></i>
-                    <span>@activity.Location</span>
-                </span>
-
-                @if (activity.HasSignedIn)
-                {
-                    <span class="ao-card-signed-up">
-                        <i class="bi bi-person-check-fill"></i>
-                    </span>
-                }
-            </NavLink>
-        }
-    </div>
+    <ListOverviewComponent Activities="activities"
+                           EmptyMessage="@(showMine ? "Je bent nog niet ingeschreven voor een activiteit." : "Er zijn op dit moment geen activiteiten.")" />
 }
 
-
 @code {
-    private const string MyActivitiesTab = "mijn";
-
-    [SupplyParameterFromQuery(Name = "tab")]
-    public string? Tab { get; set; }
-
     private IEnumerable<ActivityOverviewResponse> activities = [];
     private bool isLoading = true;
+    private bool showMine = false;
+    private bool showPast = false;
 
-    private bool IsMyActivities => Tab == MyActivitiesTab;
+    private string? name;
+    private DateTime? date;
+    private TimeOnly? time;
 
-    // Runs on the first load and again whenever the tab in the URL changes.
-    protected override async Task OnParametersSetAsync()
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = null!;
+
+    private bool isAdmin;
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState state = await AuthState;
+        isAdmin = state.User.IsInRole("Admin");
+
+        await LoadAsync();
+    }
+
+    private async Task SelectTabAsync(bool mine)
+    {
+        if (showMine == mine)
+            return;
+
+        showMine = mine;
+        await LoadAsync();
+    }
+
+    private async Task TogglePastActivitiesAsync()
+    {
+        showPast = !showPast;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
     {
         isLoading = true;
         activities = [];
 
-        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = IsMyActivities
+        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = showMine
             ? await ActivityService.GetSignedUpAsync()
-            : await ActivityService.GetUpcomingAsync();
+            : await ActivityService.GetActivitiesAsync(BuildFilter());
 
         if (!response.Succeeded)
         {
@@ -84,24 +100,23 @@ else
         isLoading = false;
     }
 
-    private static string FormatPeriod(ActivityOverviewResponse activity)
-        => activity.StartDate.Date == activity.EndDate.Date
-            ? $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():HH:mm}"
-            : $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():dd-MM-yyyy HH:mm}";
-
-    private static string GetClasses(ActivityOverviewResponse activity)
+    private ActivityFilterRequest BuildFilter()
     {
-        List<string> classes = [];
+        ActivityFilterRequest filter = new ActivityFilterRequest()
+        {
+            Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
+            IncludePast = isAdmin && showPast
+        };
 
-        if (activity.IsDraft)
-            classes.Add("ao-card-draft");
+        if (date is DateTime day)
+        {
+            DateTime from = time is TimeOnly moment ? day.Date.Add(moment.ToTimeSpan()) : day.Date;
+            DateTime to = time is null ? day.Date.AddDays(1).AddTicks(-1) : from;
 
-        if (activity.IsDeleted)
-            classes.Add("ao-card-deleted");
+            filter.From = DateTime.SpecifyKind(from, DateTimeKind.Local).ToUniversalTime();
+            filter.To = DateTime.SpecifyKind(to, DateTimeKind.Local).ToUniversalTime();
+        }
 
-        if (activity.HasTakenPlace)
-            classes.Add("ao-card-taken-place");
-
-        return string.Join(' ', classes);
+        return filter;
     }
 }

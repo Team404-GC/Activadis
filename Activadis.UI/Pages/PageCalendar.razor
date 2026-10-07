@@ -23,7 +23,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = await ActivityService.GetUpcomingAsync();
+        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = await ActivityService.GetActivitiesAsync(new ActivityFilterRequest());
 
         if (!response.Succeeded)
         {
