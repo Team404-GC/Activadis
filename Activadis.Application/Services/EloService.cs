@@ -49,6 +49,7 @@ namespace Activadis.Application.Services
                 CreatedAt = DateTime.UtcNow
             };
 
+            await _matchRepository.AddAsync(match);
             var results = request.MatchType?.ToLower() == "team"
                 ? await ProcessTeamMatchAsync(match, request)
                 : await ProcessIndividualMatchAsync(match, request);

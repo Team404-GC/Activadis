@@ -25,60 +25,32 @@ namespace Activadis.API.Controllers
         [HttpGet("leaderboard/overall")]
         public async Task<IActionResult> GetOverallLeaderboard()
         {
-            try
-            {
-                var leaderboard = await _eloService.GetOverallLeaderboardAsync();
-                return Ok(ApiResponse<List<LeaderboardEntryDto>>.Ok(leaderboard));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<List<LeaderboardEntryDto>>.Fail(ex.Message));
-            }
+            var leaderboard = await _eloService.GetOverallLeaderboardAsync();
+            return Ok(ApiResponse<List<LeaderboardEntryDto>>.Ok(leaderboard));
         }
 
         [HttpGet("leaderboard/category/{categoryId}")]
         public async Task<IActionResult> GetCategoryLeaderboard(Guid categoryId)
         {
-            try
-            {
-                var leaderboard = await _eloService.GetCategoryLeaderboardAsync(categoryId);
-                return Ok(ApiResponse<List<LeaderboardEntryDto>>.Ok(leaderboard));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<List<LeaderboardEntryDto>>.Fail(ex.Message));
-            }
+            var leaderboard = await _eloService.GetCategoryLeaderboardAsync(categoryId);
+            return Ok(ApiResponse<List<LeaderboardEntryDto>>.Ok(leaderboard));
         }
 
         [HttpGet("player/{userId}")]
         public async Task<IActionResult> GetPlayerProfile(Guid userId)
         {
-            try
-            {
-                var profile = await _eloService.GetPlayerProfileAsync(userId);
-                if (profile == null)
-                    return NotFound(ApiResponse<PlayerProfileDto>.Fail("Player not found"));
+            var profile = await _eloService.GetPlayerProfileAsync(userId);
+            if (profile == null)
+                return NotFound(ApiResponse<PlayerProfileDto>.Fail("Player not found"));
 
-                return Ok(ApiResponse<PlayerProfileDto>.Ok(profile));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<PlayerProfileDto>.Fail(ex.Message));
-            }
+            return Ok(ApiResponse<PlayerProfileDto>.Ok(profile));
         }
 
         [HttpGet("categories")]
         public async Task<IActionResult> GetCategories()
         {
-            try
-            {
-                var categories = await _eloService.GetCategoriesAsync();
-                return Ok(ApiResponse<List<CategoryDto>>.Ok(categories));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<List<CategoryDto>>.Fail(ex.Message));
-            }
+            var categories = await _eloService.GetCategoriesAsync();
+            return Ok(ApiResponse<List<CategoryDto>>.Ok(categories));
         }
 
         [HttpPost("match/record")]
@@ -97,52 +69,34 @@ namespace Activadis.API.Controllers
             {
                 return BadRequest(ApiResponse<MatchResultDto>.Fail(ex.Message));
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<MatchResultDto>.Fail(ex.Message));
-            }
         }
 
         [HttpPost("categories")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
         {
-            try
-            {
-                if (!ModelState.IsValid)
-                    return BadRequest(ApiResponse<CategoryDto>.Fail("Invalid category data"));
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<CategoryDto>.Fail("Invalid category data"));
 
-                await _eloService.CreateCategoryAsync(request);
-                return Ok(ApiResponse<object>.Ok());
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<CategoryDto>.Fail(ex.Message));
-            }
+            await _eloService.CreateCategoryAsync(request);
+            return Ok(ApiResponse<object>.Ok());
         }
 
         [HttpPut("categories/{categoryId}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(Guid categoryId, [FromBody] UpdateCategoryRequest request)
         {
-            try
-            {
-                if (request.Id != categoryId)
-                    return BadRequest(ApiResponse<CategoryDto>.Fail("Category ID mismatch"));
+            if (request.Id != categoryId)
+                return BadRequest(ApiResponse<CategoryDto>.Fail("Category ID mismatch"));
 
-                if (!ModelState.IsValid)
-                    return BadRequest(ApiResponse<CategoryDto>.Fail("Invalid category data"));
+            if (!ModelState.IsValid)
+                return BadRequest(ApiResponse<CategoryDto>.Fail("Invalid category data"));
 
-                var category = await _eloService.UpdateCategoryAsync(request);
-                if (category == null)
-                    return NotFound(ApiResponse<CategoryDto>.Fail("Category not found"));
+            var category = await _eloService.UpdateCategoryAsync(request);
+            if (category == null)
+                return NotFound(ApiResponse<CategoryDto>.Fail("Category not found"));
 
-                return Ok(ApiResponse<CategoryDto>.Ok(category));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ApiResponse<CategoryDto>.Fail(ex.Message));
-            }
+            return Ok(ApiResponse<CategoryDto>.Ok(category));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿@using System.Globalization
 @inject IEloService EloService
+@attribute [Authorize(Roles = "Admin")]
 @page "/wedstrijd/nieuw"
 
 <PageTitle>Wedstrijd registreren</PageTitle>
