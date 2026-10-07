@@ -11,12 +11,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "JobTitle",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "PasswordSetupTokenExpiresAt",
@@ -34,9 +28,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "JobTitle",
-                table: "Users");
 
             migrationBuilder.DropColumn(
                 name: "PasswordSetupTokenExpiresAt",

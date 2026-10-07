@@ -11,7 +11,6 @@ namespace Activadis.Domain.Entities
         public string JobTitle { get; set; } = string.Empty;
         public string HashedPassword { get; set; } = string.Empty;
         public UserRole Role { get; set; }
-        public string? JobTitle { get; set; }
 
         public string? PasswordSetupTokenHash { get; set; }
         public DateTime? PasswordSetupTokenExpiresAt { get; set; }
