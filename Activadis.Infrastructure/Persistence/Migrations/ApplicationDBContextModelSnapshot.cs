@@ -361,6 +361,13 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PasswordSetupTokenExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PasswordSetupTokenHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")

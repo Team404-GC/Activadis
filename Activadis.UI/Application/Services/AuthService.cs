@@ -26,6 +26,12 @@ namespace Activadis.UI.Application.Services
 			return response;
 		}
 
+		public async Task<ApiResponse<object>> CheckPasswordSetupAsync(string token)
+			=> await HttpService.GetAsync<object>($"/Auth/SetPassword/{Uri.EscapeDataString(token)}");
+
+		public async Task<ApiResponse<object>> SetPasswordAsync(SetPasswordRequest request)
+			=> await HttpService.PostAsync<object, SetPasswordRequest>("/Auth/SetPassword", request);
+
 		public async Task LogoutAsync()
 			=> await AuthStateProvider.MarkUserAsLoggedOutAsync();
 	}

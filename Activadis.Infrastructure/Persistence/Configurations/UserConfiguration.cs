@@ -13,6 +13,9 @@ namespace Activadis.Infrastructure.Persistence.Configurations
             builder.Property(u => u.Email)
                 .IsRequired(true);
 
+            builder.Property(u => u.JobTitle)
+                .IsRequired(true);
+
             builder.Property(u => u.HashedPassword)
                 .IsRequired(true);
         }

@@ -20,6 +20,7 @@ namespace Activadis.Application
             services.AddScoped<IActivityService, ActivityService>();
             services.AddScoped<ISignUpService, SignUpService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IUserService, UserService>();
 
             services.AddScoped<IEloService, EloService>();
             services.AddScoped<EloCalculationService>();
