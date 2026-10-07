@@ -35,15 +35,7 @@ namespace Activadis.Application.Services
 		{
 			bool isAdmin = role == UserRole.Admin;
 
-			ActivityFilter filter = new ActivityFilter()
-			{
-				Name = string.IsNullOrWhiteSpace(request.Name) ? null : request.Name.Trim(),
-				From = request.From,
-				To = request.To,
-				IncludePast = isAdmin && request.IncludePast
-			};
-
-			IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin, filter);
+			IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin, request.ToFilter(isAdmin));
 
 			Dictionary<Guid, bool> activitiesSignedIn = activities.ToDictionary(x => x.Id, x => false);
 			foreach (Activity activity in activities)

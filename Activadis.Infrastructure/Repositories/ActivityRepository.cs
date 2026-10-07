@@ -3,6 +3,7 @@ using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
 using Activadis.Domain.Filters;
+using Activadis.Infrastructure.Extensions;
 
 namespace Activadis.Infrastructure.Repositories
 {
@@ -18,12 +19,7 @@ namespace Activadis.Infrastructure.Repositories
 
 		public async Task<IEnumerable<Activity>> GetListAsync(bool isAdmin, ActivityFilter filter)
 			=> await Context.Activities
-				.Where(x => x.DeletedAt == null)
-				.Where(x => isAdmin || x.PublishedOn != null)
-				.Where(x => (isAdmin && filter.IncludePast) || x.EndDate >= DateTime.UtcNow)
-				.Where(x => filter.Name == null || x.Name.Contains(filter.Name))
-				.Where(x => filter.To == null || x.StartDate <= filter.To)
-				.Where(x => filter.From == null || x.EndDate >= filter.From)
+				.ApplyFilter(isAdmin, filter)
 				.OrderBy(x => x.StartDate)
 				.ToListAsync();
 		public async Task<Activity?> GetDetailAsync(Guid id)

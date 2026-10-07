@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Activadis.Shared.DTOs;
 using Activadis.Domain.Enums;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Activadis.API.Controllers
 {
@@ -21,7 +22,8 @@ namespace Activadis.API.Controllers
             ActivityService = activityService;
         }
 
-        [HttpGet]
+        [AcceptVerbs("QUERY")]
+        [SwaggerIgnore]
         public async Task<IActionResult> GetActivitiesAsync([FromQuery] ActivityFilterRequest filter)
         {
             if (!Guid.TryParse(Request.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId))
