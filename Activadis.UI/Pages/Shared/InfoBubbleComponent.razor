@@ -1,0 +1,12 @@
+﻿<button type="button" @onclick="() => isOpen = !isOpen">i</button>
+@if (isOpen)
+{
+    <small>@Text</small>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public string Text { get; set; } = string.Empty;
+
+    private bool isOpen;
+}

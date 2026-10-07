@@ -22,6 +22,14 @@ namespace Activadis.Application
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IUserService, UserService>();
 
+            services.AddScoped<IEloService, EloService>();
+            services.AddScoped<EloCalculationService>();
+            services.AddScoped<LeaderboardService>();
+
+            services.AddScoped<IEloService, EloService>();
+            services.AddScoped<EloCalculationService>();
+            services.AddScoped<LeaderboardService>();
+
             return services;
         }
     }

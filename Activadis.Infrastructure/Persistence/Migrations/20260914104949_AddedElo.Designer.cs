@@ -4,6 +4,7 @@ using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Activadis.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20260914104949_AddedElo")]
+    partial class AddedElo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,10 +57,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("ImageContentType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -74,9 +73,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("PlusOneAllowed")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime?>("PublishedOn")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("SignOutDeadline")
                         .HasColumnType("datetime2");
@@ -122,10 +118,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("RankTitles")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -135,39 +127,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("Activadis.Domain.Entities.Leaderboard", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Entries")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsOverall")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId", "IsOverall", "CreatedAt")
-                        .IsDescending(false, false, true);
-
-                    b.ToTable("Leaderboards");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Match", b =>
@@ -327,11 +286,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("ActivityId");
 
-                    b.HasIndex("ActivityId", "UserId")
-                        .IsUnique()
-                        .HasFilter("[UserId] IS NOT NULL");
+                    b.HasIndex("UserId");
 
                     b.ToTable("SignUps");
                 });
@@ -361,13 +318,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("JobTitle")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("PasswordSetupTokenExpiresAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PasswordSetupTokenHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Role")
@@ -379,16 +329,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Activadis.Domain.Entities.Leaderboard", b =>
-                {
-                    b.HasOne("Activadis.Domain.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Match", b =>

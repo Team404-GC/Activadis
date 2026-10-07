@@ -1,0 +1,155 @@
+﻿@inject IEloService EloService
+@page "/categorieen"
+
+<PageTitle>Categorieën</PageTitle>
+
+<h1>Categorieën</h1>
+
+<button type="button" @onclick="OpenCreate">Nieuwe categorie</button>
+
+@if (isLoading)
+{
+    <div>
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (!categories.Any())
+{
+    <p>Er zijn nog geen categorieën.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Naam</th>
+                <th>Beschrijving</th>
+                <th>Volgorde</th>
+                <th>Actief</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (CategoryDto category in categories)
+            {
+                <tr>
+                    <td><NavLink href="@($"/ranglijst?categorie={category.Id}")">@category.Name</NavLink></td>
+                    <td>@category.Description</td>
+                    <td>@category.DisplayOrder</td>
+                    <td>@(category.IsActive ? "Ja" : "Nee")</td>
+                    <td><button type="button" @onclick="@(() => OpenEdit(category))">Bewerken</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (isFormOpen)
+{
+    <CategoryFormComponent Model="formModel"
+                           IsSaving="isSaving"
+                           OnSubmit="SubmitAsync"
+                           OnCancel="CloseForm" />
+}
+
+@code {
+    private List<CategoryDto> categories = [];
+    private bool isLoading = true;
+
+    private bool isFormOpen;
+    private bool isSaving;
+    private Guid? editingId;
+    private CreateCategoryRequest formModel = new();
+
+    protected override async Task OnInitializedAsync()
+        => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        isLoading = true;
+
+        ApiResponse<List<CategoryDto>> response = await EloService.GetCategoriesAsync();
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        categories = response.Value ?? [];
+        isLoading = false;
+    }
+
+    private void OpenCreate()
+    {
+        editingId = null;
+        formModel = new CreateCategoryRequest() { IsActive = true };
+        isFormOpen = true;
+    }
+
+    private void OpenEdit(CategoryDto category)
+    {
+        editingId = category.Id;
+        formModel = new CreateCategoryRequest()
+        {
+            Name = category.Name,
+            Description = category.Description,
+            DisplayOrder = category.DisplayOrder,
+            IsActive = category.IsActive,
+            RankTitles = category.RankTitles != null ? new Dictionary<double, string>(category.RankTitles) : new()
+        };
+        isFormOpen = true;
+    }
+
+    private void CloseForm()
+        => isFormOpen = false;
+
+    private async Task SubmitAsync(CreateCategoryRequest model)
+    {
+        isSaving = true;
+
+        ApiResponse<object> response;
+        if (editingId is null)
+        {
+            response = await EloService.CreateCategoryAsync(new CreateCategoryRequest()
+            {
+                Name = model.Name,
+                Description = model.Description,
+                DisplayOrder = model.DisplayOrder,
+                IsActive = model.IsActive,
+                RankTitles = model.RankTitles
+            });
+        }
+        else
+        {
+            ApiResponse<CategoryDto> updateResponse = await EloService.UpdateCategoryAsync(new UpdateCategoryRequest()
+            {
+                Id = editingId.Value,
+                Name = model.Name,
+                Description = model.Description,
+                DisplayOrder = model.DisplayOrder,
+                IsActive = model.IsActive,
+                RankTitles = model.RankTitles
+            });
+
+            response = new ApiResponse<object>()
+            {
+                Succeeded = updateResponse.Succeeded,
+                Message = updateResponse.Message
+            };
+        }
+
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSaving = false;
+            return;
+        }
+
+        Notifications.AddNotification("De categorie is met succes opgeslagen.", false);
+        isSaving = false;
+        isFormOpen = false;
+
+        await LoadAsync();
+    }
+}

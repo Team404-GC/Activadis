@@ -26,176 +26,176 @@ namespace Activadis.Infrastructure.Persistence.Migrations
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Activadis.Domain.Entities.Activity", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("CostPerPerson")
-                        .HasColumnType("decimal(18,2)");
+                b.Property<decimal>("CostPerPerson")
+                    .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("DeletedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("EndDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<bool>("ExternalAllowed")
-                        .HasColumnType("bit");
+                b.Property<bool>("ExternalAllowed")
+                    .HasColumnType("bit");
 
-                    b.Property<bool>("FoodIncluded")
-                        .HasColumnType("bit");
+                b.Property<bool>("FoodIncluded")
+                    .HasColumnType("bit");
 
-                    b.Property<byte[]>("Image")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                b.Property<byte[]>("Image")
+                    .IsRequired()
+                    .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Location")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MaxParticipants")
-                        .HasColumnType("int");
+                b.Property<int>("MaxParticipants")
+                    .HasColumnType("int");
 
-                    b.Property<int>("MinParticipants")
-                        .HasColumnType("int");
+                b.Property<int>("MinParticipants")
+                    .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("PlusOneAllowed")
-                        .HasColumnType("bit");
+                b.Property<bool>("PlusOneAllowed")
+                    .HasColumnType("bit");
 
-                    b.Property<DateTime>("SignOutDeadline")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("SignOutDeadline")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("SignUpDeadline")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("SignUpDeadline")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("StartDate")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("UpdatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Activities");
-                });
+                b.ToTable("Activities");
+            });
 
             modelBuilder.Entity("Activadis.Domain.Entities.SignUp", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ActivityId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<Guid>("ActivityId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("DeletedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("FullName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("HasPlusOne")
-                        .HasColumnType("bit");
+                b.Property<bool>("HasPlusOne")
+                    .HasColumnType("bit");
 
-                    b.Property<bool>("IsExternal")
-                        .HasColumnType("bit");
+                b.Property<bool>("IsExternal")
+                    .HasColumnType("bit");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("UpdatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                b.Property<Guid?>("UserId")
+                    .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.HasIndex("ActivityId");
+                b.HasIndex("ActivityId");
 
-                    b.HasIndex("UserId");
+                b.HasIndex("UserId");
 
-                    b.ToTable("SignUps");
-                });
+                b.ToTable("SignUps");
+            });
 
             modelBuilder.Entity("Activadis.Domain.Entities.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("DeletedAt")
+                    .HasColumnType("datetime2");
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("FullName")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("HashedPassword")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                b.Property<string>("HashedPassword")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                b.Property<int>("Role")
+                    .HasColumnType("int");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                b.Property<DateTime?>("UpdatedAt")
+                    .HasColumnType("datetime2");
 
-                    b.HasKey("Id");
+                b.HasKey("Id");
 
-                    b.ToTable("Users");
-                });
+                b.ToTable("Users");
+            });
 
             modelBuilder.Entity("Activadis.Domain.Entities.SignUp", b =>
-                {
-                    b.HasOne("Activadis.Domain.Entities.Activity", "Activity")
-                        .WithMany("SignUps")
-                        .HasForeignKey("ActivityId")
-                        .OnDelete(DeleteBehavior.Restrict);
+            {
+                b.HasOne("Activadis.Domain.Entities.Activity", "Activity")
+                    .WithMany("SignUps")
+                    .HasForeignKey("ActivityId")
+                    .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Activadis.Domain.Entities.User", "User")
-                        .WithMany("SignUps")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                b.HasOne("Activadis.Domain.Entities.User", "User")
+                    .WithMany("SignUps")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("Activity");
+                b.Navigation("Activity");
 
-                    b.Navigation("User");
-                });
+                b.Navigation("User");
+            });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Activity", b =>
-                {
-                    b.Navigation("SignUps");
-                });
+            {
+                b.Navigation("SignUps");
+            });
 
             modelBuilder.Entity("Activadis.Domain.Entities.User", b =>
-                {
-                    b.Navigation("SignUps");
-                });
+            {
+                b.Navigation("SignUps");
+            });
 #pragma warning restore 612, 618
         }
     }

@@ -1,0 +1,80 @@
+﻿<h3>@(Model.Name.Length == 0 ? "Creëer categorie" : "Bewerk categorie")</h3>
+
+<EditForm Model="Model" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <section>
+        <label>Naam</label>
+        <InputText @bind-Value="Model.Name" />
+        <InfoBubbleComponent Text="De naam van de categorie, bijvoorbeeld Tafeltennis. Verplicht." />
+        <ValidationMessage For="@(() => Model.Name)" />
+    </section>
+    <section>
+        <label>Beschrijving</label>
+        <InputText @bind-Value="Model.Description" />
+        <InfoBubbleComponent Text="Optioneel. Een korte uitleg waar de categorie over gaat." />
+        <ValidationMessage For="@(() => Model.Description)" />
+    </section>
+    <section>
+        <label>Volgorde</label>
+        <InputNumber @bind-Value="Model.DisplayOrder" />
+        <InfoBubbleComponent Text="Bepaalt in welke volgorde categorieën worden getoond. Een lager nummer komt eerder in de lijst." />
+        <ValidationMessage For="@(() => Model.DisplayOrder)" />
+    </section>
+    <section>
+        <label>Actief?</label>
+        <InputCheckbox @bind-Value="Model.IsActive" />
+        <InfoBubbleComponent Text="Alleen actieve categorieën worden getoond en kunnen worden gekozen bij het registreren van een wedstrijd." />
+    </section>
+
+    <section style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ccc;">
+        <RankTitlesComponent RankTitles="RankTitles" RankTitlesChanged="OnRankTitlesChanged" />
+    </section>
+
+    <br />
+    <section>
+        <button type="submit" disabled="@IsSaving">Opslaan</button>
+        <button type="button" @onclick="OnCancel">Annuleren</button>
+    </section>
+</EditForm>
+
+@code {
+    [Parameter, EditorRequired]
+    public CreateCategoryRequest Model { get; set; } = new();
+
+    [Parameter]
+    public bool IsSaving { get; set; }
+
+    [Parameter]
+    public EventCallback<CreateCategoryRequest> OnSubmit { get; set; }
+
+    [Parameter]
+    public EventCallback OnCancel { get; set; }
+
+    private Dictionary<double, string> RankTitles { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        if (Model?.RankTitles != null && Model.RankTitles.Count > 0)
+        {
+            RankTitles = new Dictionary<double, string>(Model.RankTitles);
+        }
+        else
+        {
+            RankTitles = new Dictionary<double, string>();
+        }
+        base.OnInitialized();
+    }
+
+    private async Task HandleSubmit()
+    {
+        Model.RankTitles = new Dictionary<double, string>(RankTitles);
+        await OnSubmit.InvokeAsync(Model);
+    }
+
+    private async Task OnRankTitlesChanged(Dictionary<double, string> updatedTitles)
+    {
+        RankTitles = updatedTitles;
+        await Task.CompletedTask;
+    }
+}
+

@@ -1,0 +1,70 @@
+<h3>Rang Titels</h3>
+
+<div style="margin-bottom: 20px;">
+    <p>Definieer aangepaste rangtitels voor ELO-waarderingsbereiken. Voeg bijvoorbeeld "Bronze" toe voor 800+, "Silver" voor 1200+, enz.</p>
+
+    @if (RankTitles != null && RankTitles.Any())
+    {
+        <table style="width: 100%; margin-bottom: 10px;">
+            <thead>
+                <tr>
+                    <th>Minimale ELO</th>
+                    <th>Titel</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var kvp in RankTitles.OrderBy(x => x.Key))
+                {
+                    <tr>
+                        <td>@kvp.Key.ToString("F0")</td>
+                        <td>@kvp.Value</td>
+                        <td>
+                            <button type="button" @onclick="@(() => RemoveRankTitle(kvp.Key))">Verwijderen</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p style="font-style: italic;">Geen rangtitels gedefinieerd.</p>
+    }
+
+    <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <input type="number" @bind="_newEloThreshold" placeholder="Min ELO (bijv. 800)" style="flex: 0 0 150px;" />
+        <input type="text" @bind="_newRankTitle" placeholder="Titel (bijv. Bronze)" style="flex: 1;" />
+        <button type="button" @onclick="AddRankTitle">Toevoegen</button>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Dictionary<double, string> RankTitles { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Dictionary<double, string>> RankTitlesChanged { get; set; }
+
+    private double _newEloThreshold;
+    private string _newRankTitle = "";
+
+    private async Task AddRankTitle()
+    {
+        if (_newEloThreshold < 0 || string.IsNullOrWhiteSpace(_newRankTitle))
+        {
+            return;
+        }
+
+        RankTitles[_newEloThreshold] = _newRankTitle;
+        _newEloThreshold = 0;
+        _newRankTitle = "";
+        await RankTitlesChanged.InvokeAsync(RankTitles);
+    }
+
+    private async Task RemoveRankTitle(double threshold)
+    {
+        RankTitles.Remove(threshold);
+        await RankTitlesChanged.InvokeAsync(RankTitles);
+    }
+}

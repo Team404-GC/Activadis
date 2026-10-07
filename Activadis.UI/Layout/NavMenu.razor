@@ -4,7 +4,7 @@
 <nav class="nm-navbar">
     <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
         <span>
-            <LogoAnimation/>
+            <LogoAnimation />
         </span>
     </NavLink>
 
@@ -23,7 +23,17 @@
                         <NavLink class="nm-link" href="/gebruiker/nieuw">Gebruiker aanmaken</NavLink>
                     </AuthorizeView>
                 </div>
-
+                <div class="nm-dropdown" @onclick:stopPropagation>
+                    <button class="nm-link nm-dropdown-toggle" @onclick="ToggleDropdown"> Elo ranking <i class="bi bi-chevron-down"></i> </button>
+                    @if (dropdownOpen)
+                    {
+                        <div class="nm-dropdown-menu">
+                            <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink>
+                            <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink>
+                            <NavLink class="nm-dropdown-item" href="@($"/speler/{user.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
+                        </div>
+                    }
+                </div>
                 <button class="nm-button" @onclick="HandleLogout">
                     <i class="bi bi-box-arrow-right"></i>
                     <span>Uitloggen</span>
@@ -34,13 +44,24 @@
 </nav>
 
 @code {
+    [CascadingParameter]
+    public Task<AuthenticationState> authState { get; set; }
+    ClaimsPrincipal user = null!;
+
     private bool isOpen = false;
+    private bool dropdownOpen = false;
+
+    protected override async Task OnParametersSetAsync()
+        => user = (await authState).User;
 
     private void ToggleMenu()
         => isOpen = !isOpen;
 
     private void CloseMenu()
         => isOpen = false;
+
+    private void ToggleDropdown()
+        => dropdownOpen = !dropdownOpen;
 
     private async Task HandleLogout()
     {
