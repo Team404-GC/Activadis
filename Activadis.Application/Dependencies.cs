@@ -32,6 +32,8 @@ namespace Activadis.Application
 
             services.AddSingleton<ISignUpStorageService, SignUpStorageService>();
 
+            services.AddSingleton<ISignUpStorageService, SignUpStorageService>();
+
             return services;
         }
     }
