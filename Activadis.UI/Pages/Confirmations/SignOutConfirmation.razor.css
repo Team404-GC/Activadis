@@ -1,0 +1,19 @@
+﻿.container {
+    min-height: calc(100vh - 178px);
+    place-items: center;
+    display: grid;
+}
+
+.small-container {
+    flex-direction: column;
+    align-items: center;
+    display: flex;
+}
+
+.bi {
+    font-size: 1.5rem;
+}
+
+p {
+    margin: 0 !important;
+}

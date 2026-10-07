@@ -118,7 +118,7 @@ namespace Activadis.UnitTests
         [Fact]
         public void CalculateOverallRating_NullDictionary_ReturnsInitialRating()
         {
-            var result = EloCalculationService.CalculateOverallRating(null);
+            var result = EloCalculationService.CalculateOverallRating(null!);
 
             Assert.Equal(EloCalculationService.InitialRating, result);
         }
@@ -196,7 +196,7 @@ namespace Activadis.UnitTests
         [Fact]
         public void CalculateTeamAverageRating_NullList_ReturnsInitialRating()
         {
-            var result = EloCalculationService.CalculateTeamAverageRating(null);
+            var result = EloCalculationService.CalculateTeamAverageRating(null!);
 
             Assert.Equal(EloCalculationService.InitialRating, result);
         }
