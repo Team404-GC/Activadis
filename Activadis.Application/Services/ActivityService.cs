@@ -54,7 +54,7 @@ namespace Activadis.Application.Services
             if (userId == Guid.Empty && !activity.ExternalAllowed)
                 throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
 
-            bool hasSignedUp = userId == Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);
+            bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);
             return activity.ToDetailResponse(hasSignedUp);
         }
 

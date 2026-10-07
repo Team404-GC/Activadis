@@ -40,7 +40,16 @@ namespace Activadis.Application.Services
 
         public async Task UseSignUpConfirmationAsync(string token)
         {
-            byte[] tokenBytes = Convert.FromHexString(token.ToUpper());
+            byte[] tokenBytes = [];
+            try
+            {
+                tokenBytes = Convert.FromHexString(token.ToUpper());
+            }
+            catch (FormatException)
+            {
+                throw new ArgumentException("Er is geen inschrijving gevonden.");
+            }
+
             SignUpRequest? request = SignUps.Remove(string.Join(',', tokenBytes), out ConfirmationDTO<SignUpRequest>? confirmation) && !confirmation.HasExpired()
                 ? confirmation.Request : null;
 
@@ -74,7 +83,16 @@ namespace Activadis.Application.Services
 
         public async Task UseSignOutConfirmationAsync(string token)
         {
-            byte[] tokenBytes = Convert.FromHexString(token.ToUpper());
+            byte[] tokenBytes = [];
+            try
+            {
+                tokenBytes = Convert.FromHexString(token.ToUpper());
+            }
+            catch (FormatException)
+            {
+                throw new ArgumentException("Er is geen uitschrijving gevonden.");
+            }
+
             SignOutRequest? request = SignOuts.Remove(string.Join(',', tokenBytes), out ConfirmationDTO<SignOutRequest>? confirmation) && !confirmation.HasExpired()
                 ? confirmation.Request : null;
 
