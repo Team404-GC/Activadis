@@ -21,4 +21,9 @@
     <ProjectReference Include="..\Activadis.Domain\Activadis.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Persistence\Seeders\Images\*" />
+    <EmbeddedResource Include="Persistence\Seeders\Images\*" />
+  </ItemGroup>
+
 </Project>
