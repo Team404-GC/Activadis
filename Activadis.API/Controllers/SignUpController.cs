@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Activadis.Application.Interfaces;
+﻿using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.SignUp;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Activadis.Shared.DTOs;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Activadis.API.Controllers
 {
@@ -12,13 +10,15 @@ namespace Activadis.API.Controllers
     [Route("[controller]")]
     public class SignUpController : ControllerBase
     {
-        private readonly ISignUpStorageService SignUpStorageService;
+        private readonly IConfirmationService<SignOutRequest> SignOutConfirmationService;
+        private readonly IConfirmationService<SignUpRequest> SignUpConfirmationService;
         private readonly ISignUpService SignUpService;
 
-        public SignUpController(ISignUpService signUpService, ISignUpStorageService signUpStorageService)
+        public SignUpController(ISignUpService signUpService, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService)
         {
             SignUpService = signUpService;
-            SignUpStorageService = signUpStorageService;
+            SignOutConfirmationService = signOutConfirmationService;
+            SignUpConfirmationService = signUpConfirmationService;
         }
 
         [HttpPost]
@@ -52,8 +52,8 @@ namespace Activadis.API.Controllers
         {
             try
             {
-                await SignUpStorageService.UseSignUpConfirmationAsync(token);
-                return Ok(ApiResponse<object>.Ok());
+                await SignUpConfirmationService.UseConfirmationAsync(token);
+                return Ok(ApiResponse<object>.Ok(message: "Je bent succesvol ingeschreven."));
             }
             catch (ArgumentException exception)
             {
@@ -85,8 +85,8 @@ namespace Activadis.API.Controllers
         {
             try
             {
-                await SignUpStorageService.UseSignOutConfirmationAsync(token);
-                return Ok(ApiResponse<object>.Ok());
+                await SignOutConfirmationService.UseConfirmationAsync(token);
+                return Ok(ApiResponse<object>.Ok(message: "Je bent succesvol uitgeschreven."));
             }
             catch (ArgumentException exception)
             {
