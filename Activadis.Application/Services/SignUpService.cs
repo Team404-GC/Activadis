@@ -9,15 +9,17 @@ namespace Activadis.Application.Services
 {
     public class SignUpService : ISignUpService
     {
-        private readonly ISignUpStorageService SignUpStorageService;
+        private readonly IConfirmationService<SignOutRequest> SignOutConfirmationService;
+        private readonly IConfirmationService<SignUpRequest> SignUpConfirmationService;
         private readonly IActivityRepository ActivityRepository;
         private readonly ISignUpRepository SignUpRepository;
 
-        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, ISignUpStorageService signUpStorageService)
+        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService)
         {
             ActivityRepository = activityRepository;
             SignUpRepository = signUpRepository;
-            SignUpStorageService = signUpStorageService;
+            SignOutConfirmationService = signOutConfirmationService;
+            SignUpConfirmationService = signUpConfirmationService;
         }
 
         public async Task SignUpAsync(SignUpRequest request, Guid userId)
@@ -28,7 +30,7 @@ namespace Activadis.Application.Services
 
             if (userId == Guid.Empty)
             {
-                await SignUpStorageService.SendSignUpConfirmationAsync(request);
+                await SignUpConfirmationService.SendConfirmationAsync(request);
                 return;
             }
 
@@ -43,7 +45,7 @@ namespace Activadis.Application.Services
 
             if (userId == Guid.Empty)
             {
-                await SignUpStorageService.SendSignOutConfirmationAsync(request);
+                await SignOutConfirmationService.SendConfirmationAsync(request);
                 return;
             }
 
