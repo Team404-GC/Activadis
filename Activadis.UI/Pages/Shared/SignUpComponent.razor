@@ -13,13 +13,16 @@
                     <InputText @bind-Value="Request.Email" />
                 </section>
             }
-            <section>
-                <label>Zou je een +1 willen meenemen?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="Request.HasPlusOne" />
-                    <span class="slider round"></span>
-                </label>
-            </section>
+            @if (PlusOneAllowed)
+            {
+                <section>
+                    <label>Zou je een +1 willen meenemen?</label>
+                    <label class="switch">
+                        <InputCheckbox @bind-Value="Request.HasPlusOne" />
+                        <span class="slider round"></span>
+                    </label>
+                </section>
+            }
             <section>
                 <button type="submit">Inschrijven</button>
             </section>
@@ -35,6 +38,7 @@
     [Parameter] public required EventCallback<bool> ShouldDisplayChanged { get; set; }
     [Parameter] public required EventCallback OnSubmit { get; set; }
     [Parameter] public required SignUpRequest Request { get; set; }
+    [Parameter] public required bool PlusOneAllowed { get; set; }
     [Parameter] public required bool ShouldDisplay { get; set; }
 
     protected override async Task OnParametersSetAsync()
