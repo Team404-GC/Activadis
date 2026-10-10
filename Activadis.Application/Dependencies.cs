@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Activadis.Application.Interfaces;
 using Activadis.Application.Services;
+using Activadis.Shared.DTOs.SignUp;
+using Activadis.Application.Services.Confirmations;
 
 namespace Activadis.Application
 {
@@ -26,9 +28,8 @@ namespace Activadis.Application
             services.AddScoped<EloCalculationService>();
             services.AddScoped<LeaderboardService>();
 
-            services.AddScoped<IEloService, EloService>();
-            services.AddScoped<EloCalculationService>();
-            services.AddScoped<LeaderboardService>();
+            services.AddSingleton<IConfirmationService<SignUpRequest>, SignUpConfirmationService>();
+            services.AddSingleton<IConfirmationService<SignOutRequest>, SignOutConfirmationService>();
 
             return services;
         }

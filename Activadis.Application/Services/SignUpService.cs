@@ -9,13 +9,17 @@ namespace Activadis.Application.Services
 {
     public class SignUpService : ISignUpService
     {
+        private readonly IConfirmationService<SignOutRequest> SignOutConfirmationService;
+        private readonly IConfirmationService<SignUpRequest> SignUpConfirmationService;
         private readonly IActivityRepository ActivityRepository;
         private readonly ISignUpRepository SignUpRepository;
 
-        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository)
+        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService)
         {
             ActivityRepository = activityRepository;
             SignUpRepository = signUpRepository;
+            SignOutConfirmationService = signOutConfirmationService;
+            SignUpConfirmationService = signUpConfirmationService;
         }
 
         public async Task SignUpAsync(SignUpRequest request, Guid userId)
@@ -24,29 +28,28 @@ namespace Activadis.Application.Services
             int totalSignUps = await SignUpRepository.CountByActivityIdAsync(request.ActivityId);
             request.Validate(activity, userId, totalSignUps);
 
-            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
-            if (signUp is null)
+            if (userId == Guid.Empty)
             {
-                await SignUpRepository.AddAsync(
-                    request.ToSignUp(userId)
-                );
+                await SignUpConfirmationService.SendConfirmationAsync(request);
                 return;
             }
 
-            if (signUp.DeletedAt is null)
-                throw new ArgumentException("Je kan niet 2x inschrijven bij dezelfde activiteit.");
-
-            signUp.HasPlusOne = request.HasPlusOne;
-            signUp.DeletedAt = null;
-            await SignUpRepository.UpdateAsync(signUp);
+            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
+            await SignUpRepository.CreateOrUpdateAsync(signUp, request, userId);
         }
 
-        public async Task SignOutAsync(Guid activityId, Guid userId)
+        public async Task SignOutAsync(SignOutRequest request, Guid userId)
         {
-            Activity? activity = await ActivityRepository.GetByIdAsync(activityId);
+            Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
             SignOutValidation.Validate(activity);
 
-            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, activityId)
+            if (userId == Guid.Empty)
+            {
+                await SignOutConfirmationService.SendConfirmationAsync(request);
+                return;
+            }
+
+            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
                 ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
             await SignUpRepository.DeleteAsync(signUp);

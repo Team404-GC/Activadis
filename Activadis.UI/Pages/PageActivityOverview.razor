@@ -53,13 +53,16 @@ else
     private TimeOnly? time;
 
     [CascadingParameter]
-    private Task<AuthenticationState> AuthState { get; set; } = null!;
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
 
     private bool isAdmin;
 
     protected override async Task OnInitializedAsync()
     {
-        AuthenticationState state = await AuthState;
+        if (AuthenticationState is null)
+            return;
+
+        AuthenticationState state = await AuthenticationState;
         isAdmin = state.User.IsInRole("Admin");
 
         await LoadAsync();
