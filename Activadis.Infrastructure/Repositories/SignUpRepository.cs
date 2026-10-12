@@ -18,11 +18,22 @@ namespace Activadis.Infrastructure.Repositories
         public async Task<SignUp?> GetByUserIdAndActivityIdIncludingDeletedAsync(Guid userId, Guid activityId)
             => await Context.SignUps.SingleOrDefaultAsync(x => x.UserId == userId && x.ActivityId == activityId);
 
+        public async Task<SignUp?> GetByEmailAndActivityIdIncludingDeletedAsync(string email, Guid activityId)
+            => await Context.SignUps.SingleOrDefaultAsync(x => x.Email == email && x.ActivityId == activityId);
+
         public async Task<SignUp?> GetByUserIdAndActivityIdAsync(Guid userId, Guid activityId)
             => await Context.SignUps.SingleOrDefaultAsync(x => x.UserId == userId && x.ActivityId == activityId && x.DeletedAt == null);
 
+        public async Task<SignUp?> GetByEmailAndActivityIdAsync(string email, Guid activityId)
+            => await Context.SignUps.SingleOrDefaultAsync(x => x.Email == email && x.ActivityId == activityId && x.DeletedAt == null);
+
         public async Task<bool> HasSignedUpAsync(Guid userId, Guid activityId)
             => await Context.SignUps.AnyAsync(x => x.UserId == userId && x.ActivityId == activityId && x.DeletedAt == null);
+
+        public async Task<string?> GetFullNameByEmailAndActivityIdAsync(string email, Guid activityId)
+            => await Context.SignUps.Where(x => x.Email == email && x.ActivityId == activityId && x.DeletedAt == null)
+                .Select(x => x.FullName)
+                .SingleOrDefaultAsync();
 
         public async Task<int> CountByActivityIdAsync(Guid activityId)
             => await Context.SignUps.CountAsync(x => x.ActivityId == activityId && x.DeletedAt == null);

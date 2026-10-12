@@ -47,24 +47,27 @@ namespace Activadis.API.Controllers
 			return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
 		}
 
-		[HttpGet("{id:guid}")]
-		[Authorize]
-		public async Task<IActionResult> GetDetailAsync(Guid id)
-		{
-			string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-			if (!Guid.TryParse(nameIdentifier, out Guid userId))
-				return Challenge(JwtBearerDefaults.AuthenticationScheme);
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetDetailAsync(Guid id)
+        {
+            string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(nameIdentifier, out Guid userId))
+                userId = Guid.Empty;
 
-			try
-			{
-				ActivityDetailResponse activity = await ActivityService.GetDetailAsync(id, userId);
-				return Ok(ApiResponse<ActivityDetailResponse>.Ok(activity));
-			}
-			catch (KeyNotFoundException exception)
-			{
-				return NotFound(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
-			}
-		}
+            try
+            {
+                ActivityDetailResponse activity = await ActivityService.GetDetailAsync(id, userId);
+                return Ok(ApiResponse<ActivityDetailResponse>.Ok(activity));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
+            }
+        }
 
 		[HttpPost]
 		[Authorize(Roles = "Admin")]

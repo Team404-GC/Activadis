@@ -1,0 +1,37 @@
+﻿@inject ISignUpService SignUpService
+@page "/confirm-signup/{Token}"
+
+<div class="container">
+    @if (isLoading)
+    {
+        <div class="spinner-border" role="status"></div>
+    }
+    else
+    {
+        <div class="small-container">
+            @if (response.Succeeded)
+            {
+                <i class="bi bi-check-circle-fill"></i>
+            }
+            else
+            {
+                <i class="bi bi-x-circle-fill"></i>
+            }
+            <p>@response.Message</p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string Token { get; set; } = string.Empty;
+
+    private ApiResponse<object> response = null!;
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        response = await SignUpService.ConfirmSignUpAsync(Token);
+        isLoading = false;
+    }
+}
