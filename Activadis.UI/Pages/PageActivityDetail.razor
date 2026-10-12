@@ -193,6 +193,7 @@ else
             return;
         }
 
+        signUpRequest = new SignUpRequest();
         if (User?.Identity?.IsAuthenticated == true)
         {
             activity.AvailableSpots--;
@@ -242,6 +243,7 @@ else
             return;
         }
 
+        signOutRequest = new SignOutRequest();
         if (User?.Identity?.IsAuthenticated == true)
         {
             activity.AvailableSpots++;
