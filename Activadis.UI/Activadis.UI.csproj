@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
@@ -8,6 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Blazor-ApexCharts" Version="7.0.0" />
 		<PackageReference Include="BlazorCalendar" Version="3.2.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.11" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />

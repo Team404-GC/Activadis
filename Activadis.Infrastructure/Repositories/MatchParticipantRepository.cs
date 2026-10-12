@@ -31,5 +31,25 @@ namespace Activadis.Infrastructure.Repositories
                 .Where(mp => mp.UserId == userId && mp.DeletedAt == null)
                 .OrderByDescending(mp => mp.Match!.MatchDate)
                 .ToListAsync();
+
+        public async Task<IEnumerable<MatchParticipant>> GetLastUserParticipationsAsync(Guid userId, int amount = 20)
+                    => await _context.MatchParticipants
+                        .Include(mp => mp.User)
+                        .Include(mp => mp.Match)
+                            .ThenInclude(m => m!.Category)
+                        .Where(mp => mp.UserId == userId && mp.DeletedAt == null)
+                        .OrderByDescending(mp => mp.Match!.MatchDate)
+                        .Take(amount)
+                        .ToListAsync();
+
+        public async Task<IEnumerable<MatchParticipant>> GetParticipationsAsync(Guid? categoryId = null)
+            => await _context.MatchParticipants
+                .Include(mp => mp.User)
+                .Include(mp => mp.Match)
+                    .ThenInclude(m => m!.Category)
+                .Where(mp => mp.DeletedAt == null
+                    && mp.Match!.DeletedAt == null
+                    && (categoryId == null || mp.Match.CategoryId == categoryId))
+                .ToListAsync();
     }
 }

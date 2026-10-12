@@ -31,6 +31,18 @@ else
 
         <dt>Totaal aantal wedstrijden</dt>
         <dd>@profile.TotalMatches</dd>
+
+        <dt>Winstpercentage</dt>
+        <dd>@ToPercentage(profile.WinRate)</dd>
+
+        <dt>Behaalde score</dt>
+        <dd>@ToScore(profile.TotalActualScore)</dd>
+
+        <dt>Verwachte score</dt>
+        <dd>@ToScore(profile.TotalExpectedScore)</dd>
+
+        <dt>Prestatie ten opzichte van verwachting</dt>
+        <dd>@ToChange(profile.Overperformance)</dd>
     </dl>
 
     <section>
@@ -132,4 +144,10 @@ else
         => change > 0
             ? $"+{change.ToString("0.##", CultureInfo.InvariantCulture)}"
             : change.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string ToScore(double score)
+        => score.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string ToPercentage(double fraction)
+        => $"{(fraction * 100).ToString("0.#", CultureInfo.InvariantCulture)}%";
 }

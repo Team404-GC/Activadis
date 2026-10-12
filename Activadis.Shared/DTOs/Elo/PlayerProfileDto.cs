@@ -16,5 +16,10 @@ namespace Activadis.Shared.DTOs.Elo
         public required List<RatingDto> CategoryRatings { get; set; }
 
         public required List<MatchHistoryDto> RecentMatches { get; set; }
+
+        public double WinRate { get; set; }
+        public double TotalActualScore { get; set; }
+        public double TotalExpectedScore { get; set; }
+        public double Overperformance { get; set; }
     }
 }
