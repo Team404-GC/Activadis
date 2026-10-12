@@ -16,7 +16,13 @@ namespace Activadis.UI.Application.Services
         public async Task<ApiResponse<object>> SignUpAsync(SignUpRequest request)
             => await HttpService.PostAsync<object, SignUpRequest>("/SignUp", request);
 
-        public async Task<ApiResponse<object>> SignOutAsync(Guid activityId)
-            => await HttpService.DeleteAsync<object>($"/SignUp/{activityId}");
+        public async Task<ApiResponse<object>> SignOutAsync(SignOutRequest request)
+            => await HttpService.PostAsync<object, SignOutRequest>($"/SignUp/SignOut", request);
+
+        public async Task<ApiResponse<object>> ConfirmSignUpAsync(string token)
+            => await HttpService.PostAsync<object, object>("/SignUp/Confirmation", token);
+
+        public async Task<ApiResponse<object>> ConfirmSignOutAsync(string token)
+            => await HttpService.DeleteAsync<object>($"/SignUp/SignOut/Confirmation/{token}");
     }
 }

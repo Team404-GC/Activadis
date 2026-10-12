@@ -1,11 +1,64 @@
-﻿<div class="signup-container">
-    <div class="form">
-        <p>Zou je een +1 willen meenemen?</p>
-        <button type="submit" @onclick="@(() => OnSubmit.InvokeAsync(true))">Ja</button>
-        <button type="submit" @onclick="@(() => OnSubmit.InvokeAsync(false))">Nee</button>
+﻿@if (ShouldDisplay)
+{
+    <div class="signup-container" @onclick="CloseAsync">
+        <EditForm Model="Request" OnValidSubmit="OnSubmitAsync" class="form" @onclick:stopPropagation="true">
+            @if (User?.Identity?.IsAuthenticated == false)
+            {
+                <section>
+                    <label>Naam</label>
+                    <InputText @bind-Value="Request.FullName" />
+                </section>
+                <section>
+                    <label>Email</label>
+                    <InputText @bind-Value="Request.Email" />
+                </section>
+            }
+            @if (PlusOneAllowed)
+            {
+                <section>
+                    <label>Zou je een +1 willen meenemen?</label>
+                    <label class="switch">
+                        <InputCheckbox @bind-Value="Request.HasPlusOne" />
+                        <span class="slider round"></span>
+                    </label>
+                </section>
+            }
+            <section>
+                <button type="submit">Inschrijven</button>
+            </section>
+        </EditForm>
     </div>
-</div>
+}
 
 @code {
-    [Parameter] public EventCallback<bool> OnSubmit { get; set; }
+    [CascadingParameter] public Task<AuthenticationState>? AuthenticationState { get; set; }
+    private ClaimsPrincipal? User { get; set; }
+
+    [Parameter] public required EventCallback<SignUpRequest> RequestChanged { get; set; }
+    [Parameter] public required EventCallback<bool> ShouldDisplayChanged { get; set; }
+    [Parameter] public required EventCallback OnSubmit { get; set; }
+    [Parameter] public required SignUpRequest Request { get; set; }
+    [Parameter] public required bool PlusOneAllowed { get; set; }
+    [Parameter] public required bool ShouldDisplay { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthenticationState is null)
+            return;
+
+        AuthenticationState state = await AuthenticationState;
+        User = state.User;
+    }
+
+    public async Task OnSubmitAsync()
+    {
+        await RequestChanged.InvokeAsync(Request);
+        await OnSubmit.InvokeAsync();
+    }
+
+    public async Task CloseAsync()
+    {
+        ShouldDisplay = false;
+        await ShouldDisplayChanged.InvokeAsync(ShouldDisplay);
+    }
 }
