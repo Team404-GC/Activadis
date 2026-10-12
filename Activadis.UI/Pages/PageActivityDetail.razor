@@ -150,7 +150,7 @@ else
         signOutRequest.ActivityId = Id;
 
         activity = response.Value;
-        if (activity != null && !activity.ExternalAllowed && User.Identity?.IsAuthenticated != true)
+        if (activity is not null && !activity.ExternalAllowed && User.Identity?.IsAuthenticated != true)
         {
             NavigationManager.NavigateTo("/");
             return;

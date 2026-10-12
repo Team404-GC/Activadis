@@ -38,10 +38,10 @@ namespace Activadis.Application.Services.Confirmations
 
         public async Task UseConfirmationAsync(string token)
         {
-            if (!ConvertExtensions.TryFromHexString(token, out byte[] bytes))
+            if (!ConvertExtensions.TryFromHexString(token.ToUpper(), out byte[] bytes))
                 throw new ArgumentException(TokenError);
 
-            TRequest? request = Confirmations.Remove(string.Join(',', bytes), out var confirmation) && !confirmation.HasExpired()
+            TRequest? request = Confirmations.Remove(string.Join(',', bytes), out ConfirmationDTO<TRequest>? confirmation) && !confirmation.HasExpired()
                 ? confirmation.Request : null;
 
             if (request is null)

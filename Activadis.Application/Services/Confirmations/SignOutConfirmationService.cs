@@ -28,7 +28,7 @@ namespace Activadis.Application.Services.Confirmations
         {
             ISignUpRepository signUpRepository = scope.ServiceProvider.GetRequiredService<ISignUpRepository>();
 
-            SignUp? signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
+            SignUp signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
                 ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
             await signUpRepository.DeleteAsync(signUp);

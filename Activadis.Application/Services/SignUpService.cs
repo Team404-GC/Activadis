@@ -49,7 +49,7 @@ namespace Activadis.Application.Services
                 return;
             }
 
-            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
+            SignUp signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
                 ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
             await SignUpRepository.DeleteAsync(signUp);
