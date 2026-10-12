@@ -337,31 +337,26 @@ else
             ? EloService.GetRatingHistoryAsync(selectedCategoryId.Value, topPlayers)
             : null;
 
-        ApiResponse<EloSummaryDto> summaryResponse = await summaryTask;
-        summary = IsSucceeded(summaryResponse) ? summaryResponse.Value : null;
-
-        ApiResponse<List<LeaderboardEntryDto>> leaderboardResponse = await leaderboardTask;
-        leaderboard = IsSucceeded(leaderboardResponse) ? leaderboardResponse.Value ?? [] : [];
-
-        ApiResponse<List<ActivityPointDto>> activityResponse = await activityTask;
-        activity = IsSucceeded(activityResponse) ? activityResponse.Value ?? [] : [];
-
-        ApiResponse<List<RecentMatchDto>> recentResponse = await recentTask;
-        recentMatches = IsSucceeded(recentResponse) ? recentResponse.Value ?? [] : [];
-
-        ratingHistory = [];
+        List<Task> tasks = [summaryTask, leaderboardTask, activityTask, recentTask];
         if (historyTask is not null)
-        {
-            ApiResponse<List<PlayerRatingHistoryDto>> historyResponse = await historyTask;
-            if (IsSucceeded(historyResponse))
-                ratingHistory = historyResponse.Value ?? [];
-        }
+            tasks.Add(historyTask);
+
+        await Task.WhenAll(tasks);
+
+        summary = GetValue(await summaryTask);
+        leaderboard = GetValue(await leaderboardTask) ?? [];
+        activity = GetValue(await activityTask) ?? [];
+        recentMatches = GetValue(await recentTask) ?? [];
+        ratingHistory = historyTask is null ? [] : GetValue(await historyTask) ?? [];
 
         BuildDerivedData();
 
         chartKey = Guid.NewGuid();
         isLoading = false;
     }
+
+    private T? GetValue<T>(ApiResponse<T> response)
+        => IsSucceeded(response) ? response.Value : default;
 
     private void BuildDerivedData()
     {
