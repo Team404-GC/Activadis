@@ -48,12 +48,13 @@ namespace Activadis.API.Controllers
 		}
 
 		[HttpGet("{id:guid}")]
-		[Authorize]
+		//[Authorize]
 		public async Task<IActionResult> GetDetailAsync(Guid id)
 		{
 			string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (!Guid.TryParse(nameIdentifier, out Guid userId))
-				return Challenge(JwtBearerDefaults.AuthenticationScheme);
+				//return Challenge(JwtBearerDefaults.AuthenticationScheme);
+				userId = Guid.Empty;
 
 			try
 			{

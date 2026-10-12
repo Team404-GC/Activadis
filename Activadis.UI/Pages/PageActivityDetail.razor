@@ -1,7 +1,7 @@
 ﻿@using System.Globalization
 @inject IActivityService ActivityService
 @inject ISignUpService SignUpService
-@attribute [Authorize]
+@* @attribute [Authorize] *@
 @page "/activiteit/{Id:guid}"
 
 <PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>

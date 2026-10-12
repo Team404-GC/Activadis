@@ -15,7 +15,8 @@ namespace Activadis.Application.Extensions
 				Name = string.IsNullOrWhiteSpace(request.Name) ? null : request.Name.Trim(),
 				From = request.From,
 				To = request.To,
-				IncludePast = isAdmin && request.IncludePast
+				IncludePast = isAdmin && request.IncludePast,
+				ExcludeInternal = request.ExcludeInternal
 			};
 		}
 	}
