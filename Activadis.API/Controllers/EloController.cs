@@ -6,6 +6,7 @@ using Activadis.Shared.DTOs;
 using Activadis.Shared.DTOs.Elo.Category;
 using Activadis.Shared.DTOs.Elo.Leaderboard;
 using Activadis.Shared.DTOs.Elo.Match;
+using Activadis.Shared.DTOs.Elo.Stats;
 using Activadis.Shared.DTOs.Elo;
 
 namespace Activadis.API.Controllers
@@ -51,6 +52,37 @@ namespace Activadis.API.Controllers
         {
             var categories = await _eloService.GetCategoriesAsync();
             return Ok(ApiResponse<List<CategoryDto>>.Ok(categories));
+        }
+
+        [HttpGet("stats/rating-history")]
+        public async Task<IActionResult> GetRatingHistory(
+            Guid categoryId,
+            int top = 5,
+            [FromQuery] List<Guid>? userIds = null)
+        {
+            var history = await _eloService.GetRatingHistoryAsync(categoryId, top, userIds);
+            return Ok(ApiResponse<List<PlayerRatingHistoryDto>>.Ok(history));
+        }
+
+        [HttpGet("stats/summary")]
+        public async Task<IActionResult> GetSummary(Guid? categoryId = null)
+        {
+            var summary = await _eloService.GetSummaryAsync(categoryId);
+            return Ok(ApiResponse<EloSummaryDto>.Ok(summary));
+        }
+
+        [HttpGet("stats/activity")]
+        public async Task<IActionResult> GetActivity(Guid? categoryId = null, int months = 12)
+        {
+            var activity = await _eloService.GetActivityAsync(categoryId, months);
+            return Ok(ApiResponse<List<ActivityPointDto>>.Ok(activity));
+        }
+
+        [HttpGet("matches/recent")]
+        public async Task<IActionResult> GetRecentMatches(Guid? categoryId = null, int take = 20)
+        {
+            var matches = await _eloService.GetRecentMatchesAsync(categoryId, take);
+            return Ok(ApiResponse<List<RecentMatchDto>>.Ok(matches));
         }
 
         [HttpPost("match/record")]

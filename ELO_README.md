@@ -1,10 +1,10 @@
 # Activadis ELO Rating System
 
-This module implements a full ELO-based ranking system: rating math, match recording (individual and team), leaderboards with database persistence, custom rank titles, and the API that exposes it all. It's split into four layers, from pure math up to HTTP.
+This module implements a full ELO-based ranking system: rating math, match recording (individual and team), leaderboards with database persistence, custom rank titles, statistics for charts, and the API that exposes it all. It's split into four layers, from pure math up to HTTP.
 
 ```
 EloCalculationService   →  pure math, no dependencies
-EloService               →  orchestrates matches, profiles, categories
+EloService               →  orchestrates matches, profiles, categories, statistics
 LeaderboardService       →  cache-first strategy with DB persistence
 EloController            →  HTTP endpoints
 ```
@@ -17,11 +17,12 @@ A static, framework-free class (no EF Core / ASP.NET / Blazor references) so it 
 
 **Key constants**
 - `InitialRating = 800` — starting rating for new players
-- `MinRatingFloor = 100` / `DefaultMaxRating = 2000` (or `2500` for league tier) — ratings are clamped between these
+- `MinRatingFloor = 100` / `DefaultMaxRating = 2000` (or `LeagueTierMaxRating = 2500` for league tier) — ratings are clamped between these
 - K-factor scales with experience via `GetKFactor(matchCount)`:
   - `< 10` matches → K = 100 (volatile, new players)
-  - `< 30` matches → K = 20
-  - otherwise → K = 10 (stable, experienced players)
+  - `< 30` matches → K = 60
+  - `< 60` matches → K = 45
+  - otherwise → K = 35 (stable, experienced players)
 
 **Core formulas**
 - `CalculateExpectedScore(playerRating, opponentRating)` — standard ELO expected-score formula: `1 / (1 + 10^((opponent - player)/400))`
@@ -74,6 +75,10 @@ Implements `IEloService` and coordinates repositories + the calculation service 
 - Pulls all of a user's category `Rating`s and converts them into `RatingDto`s.
 - Computes an overall rating via the weighted-average formula.
 - Pulls up to 20 recent `MatchParticipant` records and reconstructs before/after ratings for a match history.
+- Also calculates, over all of the player's participations:
+  - `WinRate` — share of participations with placement 1
+  - `TotalActualScore` / `TotalExpectedScore` — sums of the stored scores
+  - `Overperformance` — total actual score minus total expected score (positive = beats expectations)
 
 ### Leaderboards
 - `GetCategoryLeaderboardAsync` / `GetOverallLeaderboardAsync` use a cache-first strategy:
@@ -85,10 +90,23 @@ Implements `IEloService` and coordinates repositories + the calculation service 
 
 ### Categories
 - CRUD operations: `GetCategoriesAsync`, `CreateCategoryAsync`, `UpdateCategoryAsync`
-- Each category now includes a `RankTitles` dictionary mapping ELO rating thresholds to custom rank titles
+- Each category includes a `RankTitles` dictionary mapping ELO rating thresholds to custom rank titles
   - Example: `{ 800: "Bronze", 1200: "Silver", 1600: "Gold" }`
   - Titles are assigned in leaderboard display based on player's current rating
   - Supports both category-specific and overall leaderboard custom titles
+
+### Statistics — `GetRatingHistoryAsync`, `GetSummaryAsync`, `GetActivityAsync`, `GetRecentMatchesAsync`
+Read-only queries that feed the charts on the statistics page. All of them go through one repository method, `IMatchParticipantRepository.GetParticipationsAsync(categoryId?)`, which loads participations with their user, match and category, skipping soft-deleted rows. `EloService` then keeps only participations of **finalized** matches and does the grouping in memory.
+
+- **`GetRatingHistoryAsync(categoryId, top, userIds)`** — rating over time per player
+  - Picks the top N players of the category by current rating (`top` is clamped to 1–20), or only the players in `userIds` when given
+  - Builds each line **backwards** from the player's `CurrentRating` by subtracting each `RatingChange` (newest match first), then reverses it
+  - This way the line always ends on the real current rating. Because `RatingChange` is stored as the actual difference (`new - old`, after clamping to the floor/ceiling), the reconstruction stays exact even where a rating was clamped
+- **`GetSummaryAsync(categoryId?)`** — total matches, matches this month, and number of active players (distinct users with at least one participation)
+- **`GetActivityAsync(categoryId?, months)`** — matches per month for the last N months (`months` is clamped to 1–60). Months without matches are included with a count of 0, so a chart has no gaps
+- **`GetRecentMatchesAsync(categoryId?, take)`** — latest matches first (`take` is clamped to 1–100), each with its category, date, notes and participants ordered by placement with their rating change. Also usable for "biggest gains and losses"
+
+Some visuals need no extra endpoint and are calculated in the UI from the leaderboard data: rating distribution (100-point buckets), scatter plot of match count against rating, rank title spread, and the KPI values for average rating and highest peak rating.
 
 ---
 
@@ -104,17 +122,21 @@ Keeps an in-memory `Dictionary<Guid, LeaderboardCache>` guarded by a single `loc
 
 - **On write** (after match recording):
   1. Invalidate in-memory cache for affected category
-  2. Rebuild leaderboard from current ratings with updated `RankTitles`
+  2. Rebuild leaderboard from current ratings with updated `RankTitles` (`forceRebuild: true`)
   3. Save snapshot to database via `ILeaderboardRepository.SaveLeaderboardAsync`
   4. Automatically invalidates overall leaderboard too (since overall rankings change)
 
 ### Methods
-- `GetCategoryLeaderboardAsync(categoryId, ratings, category, cacheDurationMinutes)` — returns ranked list with optional rank titles
-- `GetOverallLeaderboardAsync(allRatings, overallRankTitles, cacheDurationMinutes)` — groups ratings by user, computes weighted overall rating
+- `GetCategoryLeaderboardAsync(categoryId, ratings, category, cacheDurationMinutes, forceRebuild)` — returns ranked list with optional rank titles
+- `GetOverallLeaderboardAsync(allRatings, overallRankTitles, cacheDurationMinutes, forceRebuild)` — groups ratings by user, computes weighted overall rating
 - `SaveCategoryLeaderboardAsync(categoryId, entries, category)` — persists leaderboard snapshot to DB
 - `SaveOverallLeaderboardAsync(entries)` — persists overall leaderboard snapshot to DB
 - `InvalidateCache(categoryId)` — clears category cache and overall cache
 - `ClearAllCache` — nukes all cached leaderboards (e.g., for admin tooling)
+
+### Overall leaderboard titles
+- When no titles are passed in, the overall leaderboard uses a built-in default tier map (`Nieuweling` from 0, `Groentje` 800, `Strijder` 1200, `Kampioen` 1500, `Opperbaas` 1800, `Legende` 2000)
+- After ranking, the player in first place gets the special title `Ultime Covadiaan`, and the last-placed player (when there is more than one) gets `Subsidie Pakker`. These two override the tier title
 
 ### Database storage
 - `Leaderboard` entity stores a snapshot of rankings at a point in time
@@ -141,7 +163,7 @@ Categories can define custom rank titles to display player achievement levels on
 - Example: A player with 1250 ELO against the above map would receive "Intermediate"
 
 ### Frontend support
-- Category management UI (`Categories.razor`) now includes a `RankTitlesComponent` for adding/editing titles
+- Category management UI (`Categories.razor`) includes a `RankTitlesComponent` for adding/editing titles
 - Leaderboard display (`Leaderboard.razor`) shows rank titles in a dedicated column
 - DTOs (`CategoryDto`, `LeaderboardEntryDto`) include `RankTitles` and `RankTitle` fields respectively
 
@@ -149,19 +171,33 @@ Categories can define custom rank titles to display player achievement levels on
 
 ## 5. `EloController` — HTTP surface
 
-A standard `[Authorize]`-protected ASP.NET Core controller at `/Elo`, thin wrapper over `IEloService` with uniform `ApiResponse<T>` envelopes and try/catch → 500 on unexpected errors.
+A standard `[Authorize]`-protected ASP.NET Core controller at `/Elo`, thin wrapper over `IEloService` with uniform `ApiResponse<T>` envelopes. `RecordMatch` returns 400 with the exception message on an `InvalidOperationException`; missing players and categories return 404.
 
 | Endpoint | Method | Auth | Purpose |
 |---|---|---|---|
 | `/Elo/leaderboard/overall` | GET | any authorized user | Overall leaderboard with rank titles |
 | `/Elo/leaderboard/category/{categoryId}` | GET | any authorized user | Category leaderboard with rank titles |
-| `/Elo/player/{userId}` | GET | any authorized user | Player profile + match history |
+| `/Elo/player/{userId}` | GET | any authorized user | Player profile + match history + win rate and overperformance |
 | `/Elo/categories` | GET | any authorized user | List active categories with rank title definitions |
+| `/Elo/stats/rating-history` | GET | any authorized user | Rating over time per player (`categoryId`, `top`, optional `userIds`) |
+| `/Elo/stats/summary` | GET | any authorized user | Total matches, matches this month, active players (optional `categoryId`) |
+| `/Elo/stats/activity` | GET | any authorized user | Matches per month (optional `categoryId`, `months`) |
+| `/Elo/matches/recent` | GET | any authorized user | Latest matches with participants and rating changes (optional `categoryId`, `take`) |
 | `/Elo/match/record` | POST | **Admin** | Record a match, update ratings, persist leaderboards |
 | `/Elo/categories` | POST | **Admin** | Create a category (optionally with rank titles) |
 | `/Elo/categories/{categoryId}` | PUT | **Admin** | Update a category (name, description, rank titles, etc.) |
 
 Match recording and category management are Admin-only; everything else is readable by any authenticated user.
+
+### Statistics DTOs (`Activadis.Shared.DTOs.Elo.Stats`)
+- `PlayerRatingHistoryDto` — `UserId`, `FullName`, `Points` (list of `RatingHistoryPointDto` with `Date` and `Rating`)
+- `EloSummaryDto` — `TotalMatches`, `MatchesThisMonth`, `ActivePlayers`
+- `ActivityPointDto` — `Year`, `Month`, `MatchCount`
+- `RecentMatchDto` — match id, category, date, notes and a list of `RecentMatchParticipantDto` (`UserId`, `FullName`, `Placement`, `RatingChange`)
+- `PlayerProfileDto` gained `WinRate`, `TotalActualScore`, `TotalExpectedScore` and `Overperformance`
+
+### UI service
+`Activadis.UI.Application.Services.EloService` wraps every endpoint above through `IHttpService`. The statistics methods (`GetRatingHistoryAsync`, `GetSummaryAsync`, `GetActivityAsync`, `GetRecentMatchesAsync`) build the query string and leave out optional parameters that are not set.
 
 ---
 
@@ -205,22 +241,33 @@ GET /Elo/leaderboard/category/{categoryId}
 
 ---
 
+## Data flow summary: Reading statistics
+
+```
+GET /Elo/stats/rating-history | summary | activity   and   GET /Elo/matches/recent
+  → EloController
+    → EloService.GetRatingHistoryAsync / GetSummaryAsync / GetActivityAsync / GetRecentMatchesAsync
+      → IMatchParticipantRepository.GetParticipationsAsync(categoryId?)
+        (skips soft-deleted rows, includes User, Match and Category)
+      → Keep only participations of finalized matches
+      → Group and calculate in memory
+        - rating history: start at CurrentRating, subtract RatingChange per match backwards
+        - activity: distinct matches per month, empty months filled with 0
+      → Map to Stats DTOs
+  → Return API response
+```
+
+---
+
 ## Seeding
 
 The `RatingSeeder` calculates realistic seed ratings by simulating all seeded matches sequentially using the K-factor logic. This ensures:
 - New players (0-9 matches) use K=100 for high volatility
-- Transitioning players (10-29 matches) use K=20 for gradual stabilization  
-- Experienced players (30+ matches) use K=10 for steady-state
+- Transitioning players (10-29 matches) use K=60
+- Established players (30-59 matches) use K=45
+- Experienced players (60+ matches) use K=35 for steady-state
 - Peak ratings reflect the highest rating achieved after the match sequence
 
 Match seeding is defined in `MatchSeeder.cs` and applied in order to generate realistic rating progressions.
-        → EloCalculationService (pure math: expected score, new rating)
-        → RatingRepository / MatchParticipantRepository (persist)
-      → LeaderboardService.InvalidateCache
-  ← MatchResultDto (per-participant old/new rating, rating change)
-```
 
 The separation keeps `EloCalculationService` trivially testable (no mocking needed), while `EloService` owns all the "what data do I need and where does it get saved" logic, and `LeaderboardService` isolates the caching concern from both.
-
-
-last: subsidie vanger

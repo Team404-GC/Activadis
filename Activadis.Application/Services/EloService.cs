@@ -5,6 +5,7 @@ using Activadis.Shared.DTOs.Elo;
 using Activadis.Shared.DTOs.Elo.Category;
 using Activadis.Shared.DTOs.Elo.Leaderboard;
 using Activadis.Shared.DTOs.Elo.Match;
+using Activadis.Shared.DTOs.Elo.Stats;
 
 namespace Activadis.Application.Services
 {
@@ -383,7 +384,7 @@ namespace Activadis.Application.Services
 
             var overallRating = EloCalculationService.CalculateOverallRating(categoryData);
 
-            var participations = await _participantRepository.GetUserParticipationsAsync(userId);
+            var participations = await _participantRepository.GetLastUserParticipationsAsync(userId, 20);
             var matchHistory = new List<MatchHistoryDto>();
             foreach (var p in participations.Take(20))
             {
@@ -403,6 +404,13 @@ namespace Activadis.Application.Services
                 });
             }
 
+            var participationList = participations.ToList();
+            var totalActualScore = participationList.Sum(p => p.ActualScore);
+            var totalExpectedScore = participationList.Sum(p => p.ExpectedScore);
+            var winRate = participationList.Count > 0
+                ? (double)participationList.Count(p => p.Placement == 1) / participationList.Count
+                : 0;
+
             return new PlayerProfileDto
             {
                 UserId = userId,
@@ -412,7 +420,11 @@ namespace Activadis.Application.Services
                 OverallRating = overallRating,
                 TotalMatches = ratingList.Sum(r => r.MatchCount),
                 CategoryRatings = categoryRatings,
-                RecentMatches = matchHistory
+                RecentMatches = matchHistory,
+                WinRate = winRate,
+                TotalActualScore = totalActualScore,
+                TotalExpectedScore = totalExpectedScore,
+                Overperformance = totalActualScore - totalExpectedScore
             };
         }
 
@@ -458,6 +470,147 @@ namespace Activadis.Application.Services
                 Rank = e.Rank,
                 RankTitle = e.RankTitle,
             }).ToList();
+        }
+
+        public async Task<List<PlayerRatingHistoryDto>> GetRatingHistoryAsync(
+            Guid categoryId,
+            int top = 5,
+            List<Guid>? userIds = null)
+        {
+            top = Math.Clamp(top, 1, 20);
+
+            var ratings = await _ratingRepository.GetCategoryRatingsAsync(categoryId);
+            var selectedRatings = ratings
+                .Where(r => r.User != null)
+                .Where(r => userIds == null || userIds.Count == 0 || userIds.Contains(r.UserId))
+                .OrderByDescending(r => r.CurrentRating)
+                .Take(top)
+                .ToList();
+
+            var participations = await GetFinalizedParticipationsAsync(categoryId);
+            var history = new List<PlayerRatingHistoryDto>();
+
+            foreach (var rating in selectedRatings)
+            {
+                var playerParticipations = participations
+                    .Where(p => p.UserId == rating.UserId)
+                    .OrderByDescending(p => p.Match!.MatchDate)
+                    .ThenByDescending(p => p.CreatedAt)
+                    .ToList();
+
+                var points = new List<RatingHistoryPointDto>();
+                var ratingAfter = rating.CurrentRating;
+
+                foreach (var p in playerParticipations)
+                {
+                    points.Add(new RatingHistoryPointDto
+                    {
+                        Date = p.Match!.MatchDate,
+                        Rating = ratingAfter
+                    });
+
+                    ratingAfter -= p.RatingChange;
+                }
+
+                points.Reverse();
+
+                history.Add(new PlayerRatingHistoryDto
+                {
+                    UserId = rating.UserId,
+                    FullName = rating.User!.FullName,
+                    Points = points
+                });
+            }
+
+            return history;
+        }
+
+        public async Task<EloSummaryDto> GetSummaryAsync(Guid? categoryId = null)
+        {
+            var participations = await GetFinalizedParticipationsAsync(categoryId);
+            var matches = participations
+                .Select(p => p.Match!)
+                .DistinctBy(m => m.Id)
+                .ToList();
+
+            var now = DateTime.UtcNow;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1);
+
+            return new EloSummaryDto
+            {
+                TotalMatches = matches.Count,
+                MatchesThisMonth = matches.Count(m => m.MatchDate >= startOfMonth),
+                ActivePlayers = participations.Select(p => p.UserId).Distinct().Count()
+            };
+        }
+
+        public async Task<List<ActivityPointDto>> GetActivityAsync(Guid? categoryId = null, int months = 12)
+        {
+            months = Math.Clamp(months, 1, 60);
+
+            var now = DateTime.UtcNow;
+            var firstMonth = new DateTime(now.Year, now.Month, 1).AddMonths(-(months - 1));
+
+            var participations = await GetFinalizedParticipationsAsync(categoryId);
+            var matchCounts = participations
+                .Select(p => p.Match!)
+                .DistinctBy(m => m.Id)
+                .Where(m => m.MatchDate >= firstMonth)
+                .GroupBy(m => (m.MatchDate.Year, m.MatchDate.Month))
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            return Enumerable.Range(0, months).Select(i =>
+            {
+                var month = firstMonth.AddMonths(i);
+                matchCounts.TryGetValue((month.Year, month.Month), out var count);
+
+                return new ActivityPointDto
+                {
+                    Year = month.Year,
+                    Month = month.Month,
+                    MatchCount = count
+                };
+            }).ToList();
+        }
+
+        public async Task<List<RecentMatchDto>> GetRecentMatchesAsync(Guid? categoryId = null, int take = 20)
+        {
+            take = Math.Clamp(take, 1, 100);
+
+            var participations = await GetFinalizedParticipationsAsync(categoryId);
+
+            return participations
+                .GroupBy(p => p.MatchId)
+                .Select(g => new { Match = g.First().Match!, Participants = g.ToList() })
+                .OrderByDescending(x => x.Match.MatchDate)
+                .ThenByDescending(x => x.Match.CreatedAt)
+                .Take(take)
+                .Select(x => new RecentMatchDto
+                {
+                    MatchId = x.Match.Id,
+                    CategoryId = x.Match.CategoryId,
+                    CategoryName = x.Match.Category?.Name ?? "Onbekend",
+                    MatchDate = x.Match.MatchDate,
+                    Notes = x.Match.Notes,
+                    Participants = x.Participants
+                        .OrderBy(p => p.Placement)
+                        .Select(p => new RecentMatchParticipantDto
+                        {
+                            UserId = p.UserId,
+                            FullName = p.User?.FullName ?? "Onbekend",
+                            Placement = p.Placement,
+                            RatingChange = p.RatingChange
+                        }).ToList()
+                }).ToList();
+        }
+
+        private async Task<List<MatchParticipant>> GetFinalizedParticipationsAsync(Guid? categoryId)
+        {
+            var participations = await _participantRepository.GetParticipationsAsync(categoryId);
+
+            return participations
+                .Where(p => p.Match is { IsFinalized: true })
+                .ToList();
         }
 
         public async Task<List<CategoryDto>> GetCategoriesAsync()

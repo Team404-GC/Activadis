@@ -2,6 +2,7 @@ using Activadis.Shared.DTOs.Elo;
 using Activadis.Shared.DTOs.Elo.Category;
 using Activadis.Shared.DTOs.Elo.Leaderboard;
 using Activadis.Shared.DTOs.Elo.Match;
+using Activadis.Shared.DTOs.Elo.Stats;
 
 namespace Activadis.Application.Interfaces
 {
@@ -20,5 +21,13 @@ namespace Activadis.Application.Interfaces
         Task CreateCategoryAsync(CreateCategoryRequest request);
 
         Task<CategoryDto?> UpdateCategoryAsync(UpdateCategoryRequest request);
+
+        Task<List<PlayerRatingHistoryDto>> GetRatingHistoryAsync(Guid categoryId, int top = 5, List<Guid>? userIds = null);
+
+        Task<EloSummaryDto> GetSummaryAsync(Guid? categoryId = null);
+
+        Task<List<ActivityPointDto>> GetActivityAsync(Guid? categoryId = null, int months = 12);
+
+        Task<List<RecentMatchDto>> GetRecentMatchesAsync(Guid? categoryId = null, int take = 20);
     }
 }
