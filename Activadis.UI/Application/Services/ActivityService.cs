@@ -1,5 +1,6 @@
 ﻿using Activadis.Shared.DTOs;
 using Activadis.Shared.DTOs.Activity;
+using Activadis.Shared.DTOs.Elo.Stats;
 using Activadis.UI.Application.DTOs.Activity;
 using Activadis.UI.Application.Interfaces;
 
@@ -23,6 +24,21 @@ namespace Activadis.UI.Application.Services
 
 		public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync()
 			=> await HttpService.GetAsync<IEnumerable<ActivityOverviewResponse>>("/Activity/SignedUp");
+
+		public async Task<ApiResponse<object>> UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request)
+			=> await HttpService.PutAsync<object, UpdateActivityCategoriesRequest>($"/Activity/{id}/categories", request);
+
+		public async Task<ApiResponse<IEnumerable<ActivityParticipantResponse>>> GetParticipantsAsync(Guid id)
+			=> await HttpService.GetAsync<IEnumerable<ActivityParticipantResponse>>($"/Activity/{id}/participants");
+
+		public async Task<ApiResponse<IEnumerable<RecentMatchDto>>> GetLinkableMatchesAsync(Guid id)
+			=> await HttpService.GetAsync<IEnumerable<RecentMatchDto>>($"/Activity/{id}/matches/linkable");
+
+		public async Task<ApiResponse<object>> LinkMatchAsync(Guid id, LinkMatchRequest request)
+			=> await HttpService.PostAsync<object, LinkMatchRequest>($"/Activity/{id}/matches", request);
+
+		public async Task<ApiResponse<object>> UnlinkMatchAsync(Guid id, Guid matchId)
+			=> await HttpService.DeleteAsync<object>($"/Activity/{id}/matches/{matchId}");
 
 	}
 }

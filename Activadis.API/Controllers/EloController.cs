@@ -101,6 +101,10 @@ namespace Activadis.API.Controllers
             {
                 return BadRequest(ApiResponse<MatchResultDto>.Fail(ex.Message));
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ApiResponse<MatchResultDto>.Fail(ex.Message));
+            }
         }
 
         [HttpPost("categories")]

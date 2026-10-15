@@ -15,5 +15,8 @@ namespace Activadis.UI.Application.Services
 
         public async Task<ApiResponse<object>> CreateAsync(CreateUserRequest request)
             => await HttpService.PostAsync<object, CreateUserRequest>("/User", request);
+
+        public async Task<ApiResponse<IEnumerable<UserResponse>>> GetAllAsync()
+            => await HttpService.GetAsync<IEnumerable<UserResponse>>("/User");
     }
 }

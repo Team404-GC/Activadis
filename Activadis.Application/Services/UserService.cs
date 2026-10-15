@@ -51,5 +51,13 @@ namespace Activadis.Application.Services
 
             return $"{baseUrl.TrimEnd('/')}/wachtwoord-instellen?token={token}";
         }
+
+        public async Task<IEnumerable<UserResponse>> GetAllAsync()
+        {
+            IEnumerable<User> users = await UserRepository.GetAllAsync();
+            return users
+                .OrderBy(x => x.FullName)
+                .Select(x => x.ToResponse());
+        }
     }
 }

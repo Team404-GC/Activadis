@@ -1,5 +1,6 @@
 ﻿using Activadis.Application.DTOs.Activity;
 using Activadis.Shared.DTOs.Activity;
+using Activadis.Shared.DTOs.Elo.Stats;
 using Activadis.Domain.Enums;
 
 namespace Activadis.Application.Interfaces
@@ -11,5 +12,11 @@ namespace Activadis.Application.Interfaces
 
 		Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId);
 		Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId);
+
+		Task UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request);
+		Task<IEnumerable<ActivityParticipantResponse>> GetParticipantsAsync(Guid id);
+		Task<IEnumerable<RecentMatchDto>> GetLinkableMatchesAsync(Guid id);
+		Task LinkMatchAsync(Guid id, LinkMatchRequest request);
+		Task UnlinkMatchAsync(Guid id, Guid matchId);
 	}
 }

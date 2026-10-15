@@ -12,5 +12,7 @@ namespace Activadis.Domain.Interfaces.Repositories
         Task<IEnumerable<Match>> GetUserMatchesAsync(Guid userId);
 
         Task<IEnumerable<Match>> GetRecentMatchesAsync(Guid categoryId, int limit = 10);
+
+        Task<IEnumerable<Match>> GetUnlinkedMatchesAsync(IEnumerable<Guid> categoryIds);
     }
 }

@@ -18,5 +18,6 @@ namespace Activadis.Domain.Entities
 
         public ICollection<Rating> Ratings { get; set; } = [];
         public ICollection<Match> Matches { get; set; } = [];
+        public ICollection<Activity> Activities { get; set; } = [];
     }
 }

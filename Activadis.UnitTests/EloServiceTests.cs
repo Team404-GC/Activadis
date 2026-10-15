@@ -20,6 +20,7 @@ namespace Activadis.UnitTests
         private readonly Mock<IMatchRepository> _matchRepositoryMock;
         private readonly Mock<IMatchParticipantRepository> _participantRepositoryMock;
         private readonly Mock<IUserRepository> _userRepositoryMock;
+        private readonly Mock<IActivityRepository> _activityRepositoryMock;
         private readonly Mock<ILeaderboardRepository> _leaderboardRepositoryMock;
         private readonly LeaderboardService _leaderboardService;
         private readonly EloService _eloServiceMock;
@@ -31,6 +32,7 @@ namespace Activadis.UnitTests
             _matchRepositoryMock = new Mock<IMatchRepository>();
             _participantRepositoryMock = new Mock<IMatchParticipantRepository>();
             _userRepositoryMock = new Mock<IUserRepository>();
+            _activityRepositoryMock = new Mock<IActivityRepository>();
             _leaderboardRepositoryMock = new Mock<ILeaderboardRepository>();
 
             // LeaderboardService has no interface and is a lightweight in-memory cache,
@@ -43,6 +45,7 @@ namespace Activadis.UnitTests
                 _matchRepositoryMock.Object,
                 _participantRepositoryMock.Object,
                 _userRepositoryMock.Object,
+                _activityRepositoryMock.Object,
                 _leaderboardService);
         }
 

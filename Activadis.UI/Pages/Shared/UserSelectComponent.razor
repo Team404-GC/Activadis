@@ -1,0 +1,39 @@
+﻿<input type="text" placeholder="Zoek op naam of e-mail" @bind="search" @bind:event="oninput" />
+<select value="@Value" @onchange="OnChangeAsync">
+    <option value="">Kies een speler</option>
+    @foreach (UserResponse user in FilteredUsers)
+    {
+        <option value="@user.Id">@ToDescription(user)</option>
+    }
+</select>
+
+@code {
+    [Parameter, EditorRequired]
+    public List<UserResponse> Users { get; set; } = [];
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    private string search = string.Empty;
+
+    // The selected user stays in the list, so the select keeps showing it while searching.
+    private IEnumerable<UserResponse> FilteredUsers
+        => Users.Where(x => string.IsNullOrWhiteSpace(search)
+            || x.FullName.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)
+            || x.Email.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)
+            || x.Id.ToString() == Value);
+
+    private async Task OnChangeAsync(ChangeEventArgs args)
+    {
+        Value = args.Value?.ToString() ?? string.Empty;
+        await ValueChanged.InvokeAsync(Value);
+    }
+
+    private static string ToDescription(UserResponse user)
+        => string.IsNullOrWhiteSpace(user.Email)
+            ? user.FullName
+            : $"{user.FullName} ({user.Email})";
+}

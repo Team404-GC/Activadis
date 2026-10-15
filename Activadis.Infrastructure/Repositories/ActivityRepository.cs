@@ -25,6 +25,21 @@ namespace Activadis.Infrastructure.Repositories
 		public async Task<Activity?> GetDetailAsync(Guid id)
 			=> await Context.Activities
 				.Include(x => x.SignUps.Where(signUp => signUp.DeletedAt == null))
+				.Include(x => x.Categories)
+				.Include(x => x.Matches)
+					.ThenInclude(match => match.Category)
+				.Include(x => x.Matches)
+					.ThenInclude(match => match.Participants)
+						.ThenInclude(participant => participant.User)
+				.AsSplitQuery()
+				.SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+
+		public async Task<Activity?> GetWithCategoriesAndMatchesAsync(Guid id)
+			=> await Context.Activities
+				.Include(x => x.Categories)
+				.Include(x => x.Matches)
+					.ThenInclude(match => match.Category)
+				.AsSplitQuery()
 				.SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
 		public async Task<IEnumerable<Activity>> GetSignedUpByUserIdAsync(Guid userId)
