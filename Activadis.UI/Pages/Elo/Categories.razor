@@ -83,7 +83,18 @@ else
     private void OpenCreate()
     {
         editingId = null;
-        formModel = new CreateCategoryRequest() { IsActive = true };
+        formModel = new CreateCategoryRequest()
+        {
+            IsActive = true,
+            RankTitles = new Dictionary<double, string>()
+            {
+                [0] = "Beginner",
+                [550] = "Amateur",
+                [750] = "Gevorderde",
+                [950] = "Expert",
+                [1100] = "Meester"
+            }
+        };
         isFormOpen = true;
     }
 

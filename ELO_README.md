@@ -164,6 +164,7 @@ Categories can define custom rank titles to display player achievement levels on
 
 ### Frontend support
 - Category management UI (`Categories.razor`) includes a `RankTitlesComponent` for adding/editing titles
+- When creating a new category the form is pre-filled with default titles: 0 "Beginner", 550 "Amateur", 750 "Gevorderde", 950 "Expert", 1100 "Meester" (they can still be removed or changed before saving)
 - Leaderboard display (`Leaderboard.razor`) shows rank titles in a dedicated column
 - DTOs (`CategoryDto`, `LeaderboardEntryDto`) include `RankTitles` and `RankTitle` fields respectively
 
