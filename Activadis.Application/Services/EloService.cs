@@ -1,4 +1,5 @@
 using Activadis.Application.Interfaces;
+using Activadis.Application.Validations.Activity;
 using Activadis.Domain.Entities;
 using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Shared.DTOs.Elo;
@@ -16,6 +17,7 @@ namespace Activadis.Application.Services
         private readonly IMatchRepository _matchRepository;
         private readonly IMatchParticipantRepository _participantRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IActivityRepository _activityRepository;
         private readonly LeaderboardService _leaderboardService;
 
         public EloService(
@@ -24,6 +26,7 @@ namespace Activadis.Application.Services
             IMatchRepository matchRepository,
             IMatchParticipantRepository participantRepository,
             IUserRepository userRepository,
+            IActivityRepository activityRepository,
             LeaderboardService leaderboardService)
         {
             _categoryRepository = categoryRepository;
@@ -31,6 +34,7 @@ namespace Activadis.Application.Services
             _matchRepository = matchRepository;
             _participantRepository = participantRepository;
             _userRepository = userRepository;
+            _activityRepository = activityRepository;
             _leaderboardService = leaderboardService;
         }
 
@@ -40,10 +44,20 @@ namespace Activadis.Application.Services
             if (category == null)
                 throw new InvalidOperationException($"Category {request.CategoryId} not found");
 
+            if (request.ActivityId.HasValue)
+            {
+                var activity = await _activityRepository.GetWithCategoriesAndMatchesAsync(request.ActivityId.Value);
+                if (activity == null)
+                    throw new InvalidOperationException($"Activity {request.ActivityId} not found");
+
+                activity.ValidateCategory(request.CategoryId);
+            }
+
             var match = new Match
             {
                 Id = Guid.NewGuid(),
                 CategoryId = request.CategoryId,
+                ActivityId = request.ActivityId,
                 MatchDate = request.MatchDate,
                 Notes = request.Notes,
                 IsFinalized = false,
@@ -392,10 +406,14 @@ namespace Activadis.Application.Services
                     ? await _ratingRepository.GetUserCategoryRatingAsync(userId, p.Match.CategoryId)
                     : null;
 
+                var activity = p.Match?.Activity?.DeletedAt == null ? p.Match?.Activity : null;
+
                 matchHistory.Add(new MatchHistoryDto
                 {
                     MatchId = p.MatchId,
                     CategoryName = p.Match?.Category?.Name ?? "Onbekend",
+                    ActivityId = activity?.Id,
+                    ActivityName = activity?.Name,
                     MatchDate = p.Match?.MatchDate ?? DateTime.MinValue,
                     Placement = p.Placement,
                     RatingBefore = (rating?.CurrentRating ?? 0) - p.RatingChange,

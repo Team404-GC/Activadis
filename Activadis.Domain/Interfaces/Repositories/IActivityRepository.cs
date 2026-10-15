@@ -7,6 +7,7 @@ namespace Activadis.Domain.Interfaces.Repositories
 	{
 		Task<IEnumerable<Activity>> GetListAsync(bool isAdmin, ActivityFilter filter);
 		Task<Activity?> GetDetailAsync(Guid id);
+		Task<Activity?> GetWithCategoriesAndMatchesAsync(Guid id);
 		Task<IEnumerable<Activity>> GetSignedUpByUserIdAsync(Guid userId);
 	}
 }

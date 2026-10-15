@@ -92,6 +92,7 @@ else
                     <tr>
                         <th>Datum</th>
                         <th>Categorie</th>
+                        <th>Activiteit</th>
                         <th>Plaats</th>
                         <th>Rating voor</th>
                         <th>Rating na</th>
@@ -104,6 +105,12 @@ else
                         <tr>
                             <td>@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
                             <td>@match.CategoryName</td>
+                            <td>
+                                @if (match.ActivityId is not null)
+                                {
+                                    <NavLink href="@($"/activiteit/{match.ActivityId}")">@match.ActivityName</NavLink>
+                                }
+                            </td>
                             <td>@match.Placement</td>
                             <td>@match.RatingBefore</td>
                             <td>@match.RatingAfter</td>

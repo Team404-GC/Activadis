@@ -24,5 +24,10 @@ namespace Activadis.Infrastructure.Repositories
         public async Task<Category?> GetByNameAsync(string name)
             => await _context.Categories
                 .FirstOrDefaultAsync(c => c.Name == name && c.DeletedAt == null);
+
+        public async Task<IEnumerable<Category>> GetByIdsAsync(IEnumerable<Guid> ids)
+            => await _context.Categories
+                .Where(c => ids.Contains(c.Id) && c.DeletedAt == null)
+                .ToListAsync();
     }
 }

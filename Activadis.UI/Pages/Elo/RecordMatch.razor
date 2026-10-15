@@ -1,11 +1,18 @@
 ﻿@using System.Globalization
 @inject IEloService EloService
+@inject IActivityService ActivityService
+@inject IUserService UserService
 @attribute [Authorize(Roles = "Admin")]
 @page "/wedstrijd/nieuw"
 
 <PageTitle>Wedstrijd registreren</PageTitle>
 
 <h1>Wedstrijd registreren</h1>
+
+@if (activity is not null)
+{
+    <NavLink href="@($"/activiteit/{activity.Id}")">Terug naar @activity.Name</NavLink>
+}
 
 @if (isLoading)
 {
@@ -25,6 +32,10 @@ else
             }
         </select>
         <InfoBubbleComponent Text="Kies de categorie waarin de wedstrijd is gespeeld. De ratings veranderen alleen in deze categorie." />
+        @if (activity is not null && !categories.Any())
+        {
+            <p>Deze activiteit heeft geen ELO-categorieën. Koppel eerst een categorie aan de activiteit.</p>
+        }
     </section>
     <section>
         <label>Datum en tijd</label>
@@ -52,8 +63,8 @@ else
         <thead>
             <tr>
                 <th>
-                    Speler-ID
-                    <InfoBubbleComponent Text="Het ID van de speler, bijvoorbeeld 3fa85f64-5717-4562-b3fc-2c963f66afa6. Je vindt het in de URL van de spelerspagina (/speler/...)." />
+                    Speler
+                    <InfoBubbleComponent Text="Zoek de speler op naam of e-mail en kies hem in de lijst. Bij een wedstrijd vanuit een activiteit staan alleen de deelnemers van de activiteit in de lijst." />
                 </th>
                 <th>
                     Plaats
@@ -76,8 +87,8 @@ else
         <tbody>
             @foreach (ParticipantRow participant in participants)
             {
-                <tr>
-                    <td><input type="text" @bind="participant.UserId" /></td>
+                <tr @key="participant">
+                    <td><UserSelectComponent Users="users" @bind-Value="participant.UserId" /></td>
                     <td><input type="number" min="1" @bind="participant.Placement" /></td>
                     <td><input type="checkbox" @bind="participant.IsTie" /></td>
                     @if (IsTeamMatch)
@@ -140,6 +151,12 @@ else
 }
 
 @code {
+    [SupplyParameterFromQuery(Name = "activiteit")]
+    public Guid? ActivityId { get; set; }
+
+    private ActivityDetailResponse? activity;
+    private List<UserResponse> users = [];
+
     private List<CategoryDto> categories = [];
     private List<ParticipantRow> participants = [new(), new()];
     private MatchResultDto? result;
@@ -156,6 +173,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        if (ActivityId is not null)
+        {
+            await LoadActivityAsync(ActivityId.Value);
+            isLoading = false;
+            return;
+        }
+
         ApiResponse<List<CategoryDto>> response = await EloService.GetCategoriesAsync();
         if (!response.Succeeded)
         {
@@ -164,8 +188,41 @@ else
             return;
         }
 
+        ApiResponse<IEnumerable<UserResponse>> userResponse = await UserService.GetAllAsync();
+        if (!userResponse.Succeeded)
+        {
+            Notifications.AddNotification(userResponse.Message, true);
+            isLoading = false;
+            return;
+        }
+
         categories = response.Value ?? [];
+        users = userResponse.Value?.ToList() ?? [];
         isLoading = false;
+    }
+
+    private async Task LoadActivityAsync(Guid activityId)
+    {
+        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(activityId);
+        if (!activityResponse.Succeeded || activityResponse.Value is null)
+        {
+            Notifications.AddNotification(activityResponse.Message, true);
+            return;
+        }
+
+        ApiResponse<IEnumerable<ActivityParticipantResponse>> participantResponse = await ActivityService.GetParticipantsAsync(activityId);
+        if (!participantResponse.Succeeded)
+        {
+            Notifications.AddNotification(participantResponse.Message, true);
+            return;
+        }
+
+        activity = activityResponse.Value;
+        users = participantResponse.Value?
+            .Select(x => new UserResponse() { Id = x.UserId, FullName = x.FullName })
+            .ToList() ?? [];
+        categories = activity.Categories;
+        matchDate = activity.StartDate.ToLocalTime();
     }
 
     private void AddParticipant()
@@ -184,7 +241,7 @@ else
 
         if (participants.Any(x => !Guid.TryParse(x.UserId, out _)))
         {
-            Notifications.AddNotification("Een of meer speler-ID's zijn ongeldig.", true);
+            Notifications.AddNotification("Kies voor elke deelnemer een speler.", true);
             return;
         }
 
@@ -200,6 +257,7 @@ else
         RecordMatchRequest request = new RecordMatchRequest()
         {
             CategoryId = categoryId,
+            ActivityId = activity?.Id,
             MatchDate = matchDate.ToUniversalTime(),
             Notes = string.IsNullOrWhiteSpace(notes) ? null : notes,
             MatchType = matchType,

@@ -3,6 +3,7 @@ namespace Activadis.Shared.DTOs.Elo.Match
     public class RecordMatchRequest
     {
         public Guid CategoryId { get; set; }
+        public Guid? ActivityId { get; set; }
         public DateTime MatchDate { get; set; }
         public string? Notes { get; set; }
 

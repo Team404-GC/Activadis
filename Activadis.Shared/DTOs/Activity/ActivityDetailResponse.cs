@@ -1,4 +1,7 @@
-﻿namespace Activadis.Shared.DTOs.Activity
+﻿using Activadis.Shared.DTOs.Elo.Category;
+using Activadis.Shared.DTOs.Elo.Stats;
+
+namespace Activadis.Shared.DTOs.Activity
 {
     public class ActivityDetailResponse
     {
@@ -32,5 +35,8 @@
         public bool SignUpDeadlinePassed { get; set; }
         public bool IsOpenForSignUp { get; set; }
         public bool HasSignedUp { get; set; }
+
+        public List<CategoryDto> Categories { get; set; } = [];
+        public List<RecentMatchDto> Matches { get; set; } = [];
     }
 }

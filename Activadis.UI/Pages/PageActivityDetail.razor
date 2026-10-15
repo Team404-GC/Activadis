@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject IActivityService ActivityService
 @inject ISignUpService SignUpService
+@inject IEloService EloService
 @page "/activiteit/{Id:guid}"
 
 <PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>
@@ -92,6 +93,110 @@ else
                     </button>
                 }
             </div>
+
+            @if (User?.Identity?.IsAuthenticated == true)
+            {
+                <section class="ad-section">
+                    <h2>ELO-categorieën</h2>
+
+                    @if (!activity.Categories.Any())
+                    {
+                        <p>Er zijn geen ELO-categorieën gekoppeld aan deze activiteit.</p>
+                    }
+                    else
+                    {
+                        <ul>
+                            @foreach (CategoryDto category in activity.Categories)
+                            {
+                                <li><NavLink href="@($"/ranglijst?categorie={category.Id}")">@category.Name</NavLink></li>
+                            }
+                        </ul>
+                    }
+
+                    @if (IsAdmin)
+                    {
+                        @foreach (CategoryDto category in SelectableCategories)
+                        {
+                            <label>
+                                <input type="checkbox" checked="@selectedCategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
+                                @category.Name
+                            </label>
+                        }
+                        <button type="button" @onclick="SaveCategoriesAsync" disabled="@isSavingCategories">
+                            @(!isSavingCategories ? "Categorieën opslaan" : "Aan het laden..")
+                        </button>
+                    }
+                </section>
+
+                <section class="ad-section">
+                    <h2>Wedstrijden</h2>
+
+                    @if (IsAdmin)
+                    {
+                        <button type="button" @onclick="@(() => NavigationManager.NavigateTo($"/wedstrijd/nieuw?activiteit={Id}"))">Wedstrijd aanmaken</button>
+                    }
+
+                    @if (!activity.Matches.Any())
+                    {
+                        <p>Er zijn geen wedstrijden gekoppeld aan deze activiteit.</p>
+                    }
+                    else
+                    {
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Categorie</th>
+                                    <th>Uitslag</th>
+                                    @if (IsAdmin)
+                                    {
+                                        <th></th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (RecentMatchDto match in activity.Matches)
+                                {
+                                    <tr>
+                                        <td>@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
+                                        <td><NavLink href="@($"/ranglijst?categorie={match.CategoryId}")">@match.CategoryName</NavLink></td>
+                                        <td>
+                                            @foreach (RecentMatchParticipantDto participant in match.Participants)
+                                            {
+                                                <div>
+                                                    @(participant.Placement).
+                                                    <NavLink href="@($"/speler/{participant.UserId}")">@participant.FullName</NavLink>
+                                                    (@(ToChange(participant.RatingChange)))
+                                                </div>
+                                            }
+                                        </td>
+                                        @if (IsAdmin)
+                                        {
+                                            <td>
+                                                <button type="button" @onclick="@(() => UnlinkMatchAsync(match))" disabled="@isLinkingMatch">Ontkoppelen</button>
+                                            </td>
+                                        }
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
+                    @if (IsAdmin)
+                    {
+                        <select @bind="selectedMatchId">
+                            <option value="@Guid.Empty">Kies een wedstrijd</option>
+                            @foreach (RecentMatchDto match in linkableMatches)
+                            {
+                                <option value="@match.MatchId">@ToMatchDescription(match)</option>
+                            }
+                        </select>
+                        <button type="button" @onclick="LinkMatchAsync" disabled="@isLinkingMatch">
+                            @(!isLinkingMatch ? "Wedstrijd koppelen" : "Aan het laden..")
+                        </button>
+                    }
+                </section>
+            }
         </div>
 
         @if (activity.Image is { Length: > 0 })
@@ -123,6 +228,21 @@ else
 
     private SignUpRequest signUpRequest = new SignUpRequest();
     private SignOutRequest signOutRequest = new SignOutRequest();
+
+    private List<CategoryDto> activeCategories = [];
+    private List<Guid> selectedCategoryIds = [];
+    private bool isSavingCategories = false;
+
+    private List<RecentMatchDto> linkableMatches = [];
+    private Guid selectedMatchId = Guid.Empty;
+    private bool isLinkingMatch = false;
+
+    private bool IsAdmin => User?.IsInRole("Admin") == true;
+
+    private IEnumerable<CategoryDto> SelectableCategories
+        => activeCategories
+            .Concat(activity?.Categories.Where(x => !activeCategories.Any(y => y.Id == x.Id)) ?? [])
+            .OrderBy(x => x.DisplayOrder);
 
     protected override async Task OnParametersSetAsync()
     {
@@ -156,7 +276,125 @@ else
             return;
         }
 
+        if (activity is not null && IsAdmin)
+            await LoadAdminDataAsync();
+
         isLoading = false;
+    }
+
+    private async Task LoadAdminDataAsync()
+    {
+        if (activity is null)
+            return;
+
+        selectedCategoryIds = activity.Categories.Select(x => x.Id).ToList();
+
+        ApiResponse<List<CategoryDto>> categoryResponse = await EloService.GetCategoriesAsync();
+        if (!categoryResponse.Succeeded)
+        {
+            Notifications.AddNotification(categoryResponse.Message, true);
+            return;
+        }
+
+        activeCategories = categoryResponse.Value ?? [];
+
+        await LoadLinkableMatchesAsync();
+    }
+
+    private async Task LoadLinkableMatchesAsync()
+    {
+        ApiResponse<IEnumerable<RecentMatchDto>> response = await ActivityService.GetLinkableMatchesAsync(Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            return;
+        }
+
+        linkableMatches = response.Value?.ToList() ?? [];
+        selectedMatchId = Guid.Empty;
+    }
+
+    private async Task ReloadActivityAsync()
+    {
+        ApiResponse<ActivityDetailResponse> response = await ActivityService.GetDetailAsync(Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            return;
+        }
+
+        activity = response.Value;
+        await LoadAdminDataAsync();
+    }
+
+    public void OnCategoryChange(ChangeEventArgs args, Guid categoryId)
+    {
+        if (args.Value is true)
+            selectedCategoryIds.Add(categoryId);
+        else
+            selectedCategoryIds.Remove(categoryId);
+    }
+
+    public async Task SaveCategoriesAsync()
+    {
+        isSavingCategories = true;
+
+        UpdateActivityCategoriesRequest request = new UpdateActivityCategoriesRequest()
+        {
+            CategoryIds = selectedCategoryIds
+        };
+
+        ApiResponse<object> response = await ActivityService.UpdateCategoriesAsync(Id, request);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSavingCategories = false;
+            return;
+        }
+
+        await ReloadActivityAsync();
+        Notifications.AddNotification("De ELO-categorieën zijn met succes opgeslagen.", false);
+        isSavingCategories = false;
+    }
+
+    public async Task LinkMatchAsync()
+    {
+        if (selectedMatchId == Guid.Empty)
+        {
+            Notifications.AddNotification("Kies eerst een wedstrijd.", true);
+            return;
+        }
+
+        isLinkingMatch = true;
+
+        ApiResponse<object> response = await ActivityService.LinkMatchAsync(Id, new LinkMatchRequest() { MatchId = selectedMatchId });
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLinkingMatch = false;
+            return;
+        }
+
+        await ReloadActivityAsync();
+        Notifications.AddNotification("De wedstrijd is met succes gekoppeld.", false);
+        isLinkingMatch = false;
+    }
+
+    public async Task UnlinkMatchAsync(RecentMatchDto match)
+    {
+        isLinkingMatch = true;
+
+        ApiResponse<object> response = await ActivityService.UnlinkMatchAsync(Id, match.MatchId);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLinkingMatch = false;
+            return;
+        }
+
+        await ReloadActivityAsync();
+        Notifications.AddNotification("De wedstrijd is met succes ontkoppeld.", false);
+        isLinkingMatch = false;
     }
 
     public async Task OpenSignUpAsync()
@@ -279,6 +517,14 @@ else
 
     private static string ToAnswer(bool value)
         => value ? "Ja" : "Nee";
+
+    private static string ToChange(double change)
+        => change > 0
+            ? $"+{change.ToString("0.##", CultureInfo.InvariantCulture)}"
+            : change.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string ToMatchDescription(RecentMatchDto match)
+        => $"{match.MatchDate.ToLocalTime():dd-MM-yyyy HH:mm} - {match.CategoryName} - {string.Join(", ", match.Participants.Select(x => $"{x.Placement}. {x.FullName}"))}";
 
     private static string ToSignUpState(ActivityDetailResponse activity)
     {
