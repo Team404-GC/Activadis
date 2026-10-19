@@ -15,6 +15,9 @@ namespace Activadis.Application.Services
             EmailSender = emailSender;
         }
 
+        public async Task<bool> SendAddWaitlistAsync(string email, string fullName, int position)
+            => await EmailSender.SendAsync(EmailTemplates.AddWaitlist(email, fullName, position));
+
         public async Task<bool> SendSignUpConfirmationAsync(string email, string fullName, string token)
             => await EmailSender.SendAsync(EmailTemplates.SignUpConfirmation(email, fullName, token));
 

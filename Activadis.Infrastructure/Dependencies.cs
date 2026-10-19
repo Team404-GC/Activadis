@@ -38,6 +38,7 @@ namespace Activadis.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IActivityRepository, ActivityRepository>();
             services.AddScoped<ISignUpRepository, SignUpRepository>();
+            services.AddScoped<IWaitlistRepository, WaitlistRepository>();
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IMatchParticipantRepository, MatchParticipantRepository>();
