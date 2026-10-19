@@ -2,6 +2,7 @@
 using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.SignUp;
 using Activadis.Domain.Entities;
+using Activadis.Application.Extensions;
 
 namespace Activadis.Application.Services
 {
@@ -18,25 +19,19 @@ namespace Activadis.Application.Services
             ResignUpConfirmationService = resignUpConfirmationService;
         }
 
-        public async Task AddToWaitlistAsync(SignUpRequest request)
+        public async Task AddToWaitlistAsync(SignUpRequest request, SignUp? signUp)
         {
             int position = await SignUpRepository.GetLastPositionAsync(request.ActivityId) + 1;
-            if (!await EmailService.SendAddWaitlistAsync(request.Email!, request.FullName!, position))
+            if (!await EmailService.SendAddWaitlistConfirmationAsync(request.Email!, request.FullName!, position))
                 throw new ArgumentException("Er is een onverwachte fout opgetreden. Schrijf je alsjeblieft opnieuw in bij de activiteit.");
 
-            await SignUpRepository.AddAsync(new SignUp()
-            {
-                WaitlistPosition = position,
-                FullName = request.FullName!,
-                Email = request.Email!,
-                ActivityId = request.ActivityId
-            });
+            await SignUpRepository.CreateOrUpdateAsync(signUp, request, Guid.Empty, position);
         }
 
         public async Task NotifyWaitlistAsync(Guid activityId)
         {
             SignUp? signUp = await SignUpRepository.GetFirstPositionAsync(activityId);
-            if (signUp is null)
+            if (signUp is null || signUp.WaitlistPosition is null)
                 return;
 
             await ResignUpConfirmationService.SendConfirmationAsync(new ResignUpRequest()
@@ -46,17 +41,6 @@ namespace Activadis.Application.Services
                 HasPlusOne = signUp.HasPlusOne,
                 ActivityId = activityId
             });
-        }
-
-        public async Task RemoveFromWaitlistAsync(SignOutRequest request)
-        {
-            SignUp? signUp = await SignUpRepository.GetByEmailAndActivityIdFromWaitlistAsync(request.Email!, request.ActivityId)
-                ?? throw new ArgumentException("Je staat niet onze wachtlijst voor deze activiteit.");
-
-            //if (!await EmailService.SendAddWaitlistAsync(signUp.Email, signUp.FullName))
-            //    throw new ArgumentException("De uitschrijvingsmail is niet succesvol doorgestuurd. Probeer de uitschrijving later opnieuw.");
-
-            await SignUpRepository.DeleteAsync(signUp);
         }
     }
 }

@@ -1,0 +1,6 @@
+Hallo {{FullName}},
+
+Goed nieuws! Er is een plek vrijgekomen voor de activiteit waar je voor op de wachtlijst stond. Kopieer de onderstaande link in je browser om je inschrijving direct te bevestigen:
+{{Link}}
+
+Wil je de status van je inschrijvingen bekijken? Dit kan op https://localhost:4200 met je e-mailadres: {{Email}}.

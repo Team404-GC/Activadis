@@ -1,7 +1,7 @@
-﻿using Activadis.Domain.Interfaces.Repositories;
-using Activadis.Application.Validations.SignUp;
-using Activadis.Application.Interfaces;
+﻿using Activadis.Application.Validations.SignUp;
+using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Application.Extensions;
+using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.SignUp;
 using Activadis.Domain.Entities;
 
@@ -13,13 +13,15 @@ namespace Activadis.Application.Services
         private readonly IConfirmationService<SignUpRequest> SignUpConfirmationService;
         private readonly IActivityRepository ActivityRepository;
         private readonly ISignUpRepository SignUpRepository;
+        private readonly IWaitlistService WaitlistService;
 
-        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService)
+        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService, IWaitlistService waitlistService)
         {
             ActivityRepository = activityRepository;
             SignUpRepository = signUpRepository;
             SignOutConfirmationService = signOutConfirmationService;
             SignUpConfirmationService = signUpConfirmationService;
+            WaitlistService = waitlistService;
         }
 
         public async Task SignUpAsync(SignUpRequest request, Guid userId)
@@ -28,14 +30,12 @@ namespace Activadis.Application.Services
             int totalSignUps = await SignUpRepository.CountByActivityIdAsync(request.ActivityId);
             request.Validate(activity, userId, totalSignUps);
 
-            if (userId == Guid.Empty)
+            if (userId != Guid.Empty)
             {
-                await SignUpConfirmationService.SendConfirmationAsync(request);
-                return;
+                SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
+                await SignUpRepository.CreateOrUpdateAsync(signUp, request, userId);
             }
-
-            SignUp? signUp = await SignUpRepository.GetByUserIdAndActivityIdIncludingDeletedAsync(userId, request.ActivityId);
-            await SignUpRepository.CreateOrUpdateAsync(signUp, request, userId);
+            else await SignUpConfirmationService.SendConfirmationAsync(request);
         }
 
         public async Task SignOutAsync(SignOutRequest request, Guid userId)
@@ -43,16 +43,16 @@ namespace Activadis.Application.Services
             Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
             SignOutValidation.Validate(activity);
 
-            if (userId == Guid.Empty)
+            if (userId != Guid.Empty)
             {
-                await SignOutConfirmationService.SendConfirmationAsync(request);
-                return;
+                SignUp signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
+                    ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
+
+                await SignUpRepository.DeleteAsync(signUp);
             }
+            else await SignOutConfirmationService.SendConfirmationAsync(request);
 
-            SignUp signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
-                ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
-
-            await SignUpRepository.DeleteAsync(signUp, request, userId);
+            await WaitlistService.NotifyWaitlistAsync(request.ActivityId);
         }
     }
 }

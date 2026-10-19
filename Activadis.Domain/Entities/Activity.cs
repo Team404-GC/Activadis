@@ -26,8 +26,6 @@ namespace Activadis.Domain.Entities
         public DateTime SignUpDeadline { get; set; }
         public DateTime SignOutDeadline { get; set; }
 
-        public int TotalSignUps => SignUps.Count;
-
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }

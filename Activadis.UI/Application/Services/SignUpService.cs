@@ -24,5 +24,11 @@ namespace Activadis.UI.Application.Services
 
         public async Task<ApiResponse<object>> ConfirmSignOutAsync(string token)
             => await HttpService.DeleteAsync<object>($"/SignUp/SignOut/Confirmation/{token}");
+
+        public async Task<ApiResponse<ResignUpRequest>> GetResignUpRequestAsync(string token)
+            => await HttpService.GetAsync<ResignUpRequest>($"/SignUp/ResignUp/{token}");
+
+        public async Task<ApiResponse<object>> ResignUpRequestAsync(string token, ResignUpRequest request)
+            => await HttpService.PostAsync<object, ResignUpRequest>($"/SignUp/ResignUp/{token}", request);
     }
 }

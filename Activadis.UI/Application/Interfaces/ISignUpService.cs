@@ -9,5 +9,7 @@ namespace Activadis.UI.Application.Interfaces
         Task<ApiResponse<object>> SignOutAsync(SignOutRequest request);
         Task<ApiResponse<object>> ConfirmSignUpAsync(string token);
         Task<ApiResponse<object>> ConfirmSignOutAsync(string token);
+        Task<ApiResponse<ResignUpRequest>> GetResignUpRequestAsync(string token);
+        Task<ApiResponse<object>> ResignUpRequestAsync(string token, ResignUpRequest request);
     }
 }

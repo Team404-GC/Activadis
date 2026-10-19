@@ -22,6 +22,7 @@ namespace Activadis.Infrastructure.Repositories
 				.ApplyFilter(isAdmin, filter)
 				.OrderBy(x => x.StartDate)
 				.ToListAsync();
+
 		public async Task<Activity?> GetDetailAsync(Guid id)
 			=> await Context.Activities
 				.Include(x => x.SignUps.Where(signUp => signUp.DeletedAt == null))
