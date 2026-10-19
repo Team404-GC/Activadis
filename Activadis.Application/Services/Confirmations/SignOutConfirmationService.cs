@@ -1,6 +1,7 @@
 ﻿using Activadis.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Activadis.Application.Interfaces;
+using Activadis.Application.Extensions;
 using Activadis.Shared.DTOs.SignUp;
 using Activadis.Domain.Entities;
 
@@ -20,8 +21,10 @@ namespace Activadis.Application.Services.Confirmations
             IEmailService emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
             ISignUpRepository signUpRepository = scope.ServiceProvider.GetRequiredService<ISignUpRepository>();
 
-            string? fullName = await signUpRepository.GetFullNameByEmailAndActivityIdAsync(request.Email!, request.ActivityId) ?? "?";
-            return await emailService.SendSignOutConfirmationAsync(request.Email!, fullName, $"https://localhost:4200/confirm-signout/{token}"); ;
+            SignUp? signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
+                ?? throw new ArgumentException(MailError);
+
+            return await emailService.SendSignOutConfirmationAsync(signUp.Email!, signUp.FullName!, $"https://localhost:4200/confirm-signout/{token}"); ;
         }
 
         protected override async Task ProcessConfirmationAsync(AsyncServiceScope scope, SignOutRequest request)
@@ -38,7 +41,7 @@ namespace Activadis.Application.Services.Confirmations
             SignUp signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
                 ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
-            await signUpRepository.DeleteAsync(signUp);
+            await signUpRepository.DeleteAsync(signUp, request, Guid.Empty);
         }
     }
 }
