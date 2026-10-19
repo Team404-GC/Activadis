@@ -5,6 +5,26 @@ namespace Activadis.Application.Templates
 {
     public static class EmailTemplates
     {
+        public static EmailMessage AddWaitlist(string email, string fullName, int position)
+        {
+            Dictionary<string, string> values = new Dictionary<string, string>()
+            {
+                ["FullName"] = fullName,
+                ["Email"] = email,
+                ["Position"] = position.ToString()
+            };
+
+            return new EmailMessage()
+            {
+                ToEmail = email,
+                ToName = fullName,
+
+                Subject = "Bevestig je inschrijving voor de activiteit",
+                HtmlBody = RenderHtml("AddWaitlist.html", "Bevestig je inschrijving", values),
+                TextBody = Fill(Read("AddWaitlist.txt"), values, false)
+            };
+        }
+
         public static EmailMessage SignUpConfirmation(string email, string fullName, string link)
         {
             Dictionary<string, string> values = new Dictionary<string, string>()

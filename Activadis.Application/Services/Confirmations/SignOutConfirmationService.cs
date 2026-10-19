@@ -27,6 +27,13 @@ namespace Activadis.Application.Services.Confirmations
         protected override async Task ProcessConfirmationAsync(AsyncServiceScope scope, SignOutRequest request)
         {
             ISignUpRepository signUpRepository = scope.ServiceProvider.GetRequiredService<ISignUpRepository>();
+            IActivityRepository activityRepository = scope.ServiceProvider.GetRequiredService<IActivityRepository>();
+
+            Activity activity = await activityRepository.GetByIdAsync(request.ActivityId)
+                ?? throw new ArgumentException("De activiteit is niet gevonden.");
+
+            if (DateTime.UtcNow >= activity.SignOutDeadline)
+                throw new ArgumentException("De uitschrijfdatum is al geweest.");
 
             SignUp signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
                 ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
