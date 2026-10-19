@@ -43,15 +43,16 @@ namespace Activadis.Application.Services
             Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
             SignOutValidation.Validate(activity);
 
-            if (userId != Guid.Empty)
+            if (userId == Guid.Empty)
             {
-                SignUp signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
+                await SignOutConfirmationService.SendConfirmationAsync(request);
+                return;
+            }
+
+            SignUp signUp = await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId)
                     ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
-                await SignUpRepository.DeleteAsync(signUp);
-            }
-            else await SignOutConfirmationService.SendConfirmationAsync(request);
-
+            await SignUpRepository.DeleteAsync(signUp);
             await WaitlistService.NotifyWaitlistAsync(request.ActivityId);
         }
     }

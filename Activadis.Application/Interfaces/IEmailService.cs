@@ -3,8 +3,8 @@
     public interface IEmailService
     {
         Task<bool> SendAddWaitlistConfirmationAsync(string email, string fullName, int position);
-        Task<bool> SendRemoveWaitlistConfirmationAsync(string email, string fullName, string link);
-        Task<bool> SendResignUpConfirmationAsync(string email, string fullName, string link);
+        Task<bool> SendRemoveWaitlistConfirmationAsync(string email, string fullName, string token);
+        Task<bool> SendResignUpConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendSignUpConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendSignOutConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendPasswordSetupAsync(string email, string fullName, string link);

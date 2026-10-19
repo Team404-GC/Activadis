@@ -6,6 +6,7 @@ using Activadis.Application;
 using Microsoft.AspNetCore.Localization;
 using System.Globalization;
 using Activadis.API.Converters;
+using Activadis.Application.DTOs;
 
 namespace Activadis.API
 {
@@ -33,7 +34,11 @@ namespace Activadis.API
             {
                 options.AddDefaultPolicy(policy =>
                 {
-                    policy.WithOrigins("https://localhost:4200")
+                    string baseUrl = builder.Configuration["Frontend:BaseUrl"]
+                        ?? throw new InvalidOperationException("De frontend basisurl is niet ingevuld.");
+
+                    ApplicationConfiguration.BaseUrl = baseUrl;
+                    policy.WithOrigins(baseUrl)
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });

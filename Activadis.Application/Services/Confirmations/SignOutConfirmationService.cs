@@ -24,15 +24,16 @@ namespace Activadis.Application.Services.Confirmations
                 ?? throw new ArgumentException(MailError);
 
             if (signUp.WaitlistPosition is not null)
-                return await emailService.SendRemoveWaitlistConfirmationAsync(signUp.Email!, signUp.FullName!, $"https://localhost:4200/confirm-signout/{token}");
+                return await emailService.SendRemoveWaitlistConfirmationAsync(signUp.Email!, signUp.FullName!, token);
 
-            return await emailService.SendSignOutConfirmationAsync(signUp.Email!, signUp.FullName!, $"https://localhost:4200/confirm-signout/{token}"); ;
+            return await emailService.SendSignOutConfirmationAsync(signUp.Email!, signUp.FullName!, token);
         }
 
         protected override async Task ProcessConfirmationAsync(AsyncServiceScope scope, SignOutRequest request)
         {
             ISignUpRepository signUpRepository = scope.ServiceProvider.GetRequiredService<ISignUpRepository>();
             IActivityRepository activityRepository = scope.ServiceProvider.GetRequiredService<IActivityRepository>();
+            IWaitlistService waitlistService = scope.ServiceProvider.GetRequiredService<IWaitlistService>();
 
             Activity activity = await activityRepository.GetByIdAsync(request.ActivityId)
                 ?? throw new ArgumentException("De activiteit is niet gevonden.");
@@ -48,6 +49,7 @@ namespace Activadis.Application.Services.Confirmations
                 return;
 
             await signUpRepository.AdvanceWaitlistAsync(signUp.WaitlistPosition ?? 1, request.ActivityId);
+            await waitlistService.NotifyWaitlistAsync(request.ActivityId);
         }
     }
 }

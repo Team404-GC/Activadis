@@ -19,7 +19,7 @@ namespace Activadis.Application.Services.Confirmations
         protected override async Task<bool> SendEmailAsync(AsyncServiceScope scope, SignUpRequest request, string token)
         {
             IEmailService emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-            return await emailService.SendSignUpConfirmationAsync(request.Email!, request.FullName!, $"https://localhost:4200/confirm-signup/{token}"); ;
+            return await emailService.SendSignUpConfirmationAsync(request.Email!, request.FullName!, token);
         }
 
         protected override async Task ProcessConfirmationAsync(AsyncServiceScope scope, SignUpRequest request)

@@ -18,20 +18,20 @@ namespace Activadis.Application.Services
         public async Task<bool> SendAddWaitlistConfirmationAsync(string email, string fullName, int position)
             => await EmailSender.SendAsync(EmailTemplates.AddWaitlistConfirmation(email, fullName, position));
 
-        public async Task<bool> SendRemoveWaitlistConfirmationAsync(string email, string fullName, string link)
-            => await EmailSender.SendAsync(EmailTemplates.RemoveWaitlistConfirmation(email, fullName, link));
+        public async Task<bool> SendRemoveWaitlistConfirmationAsync(string email, string fullName, string token)
+            => await EmailSender.SendAsync(EmailTemplates.RemoveWaitlistConfirmation(email, fullName, token));
 
-        public async Task<bool> SendResignUpConfirmationAsync(string email, string fullName, string link)
-            => await EmailSender.SendAsync(EmailTemplates.ResignUpConfirmation(email, fullName, link));
+        public async Task<bool> SendResignUpConfirmationAsync(string email, string fullName, string token)
+            => await EmailSender.SendAsync(EmailTemplates.ResignUpConfirmation(email, fullName, token));
 
-        public async Task<bool> SendSignUpConfirmationAsync(string email, string fullName, string link)
-            => await EmailSender.SendAsync(EmailTemplates.SignUpConfirmation(email, fullName, link));
+        public async Task<bool> SendSignUpConfirmationAsync(string email, string fullName, string token)
+            => await EmailSender.SendAsync(EmailTemplates.SignUpConfirmation(email, fullName, token));
 
-        public async Task<bool> SendSignOutConfirmationAsync(string email, string fullName, string link)
-            => await EmailSender.SendAsync(EmailTemplates.SignOutConfirmation(email, fullName, link));
+        public async Task<bool> SendSignOutConfirmationAsync(string email, string fullName, string token)
+            => await EmailSender.SendAsync(EmailTemplates.SignOutConfirmation(email, fullName, token));
 
-        public async Task<bool> SendPasswordSetupAsync(string email, string fullName, string link)
-            => await EmailSender.SendAsync(EmailTemplates.PasswordSetup(email, fullName, link));
+        public async Task<bool> SendPasswordSetupAsync(string email, string fullName, string token)
+            => await EmailSender.SendAsync(EmailTemplates.PasswordSetup(email, fullName, token));
 
         public async Task<bool> SendTestAsync(string email, string fullName)
             => await SendPasswordSetupAsync(email, fullName, ExampleLink);

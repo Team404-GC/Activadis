@@ -3,6 +3,6 @@ Hallo {{FullName}},
 Je hebt je succesvol uitgeschreven uit de wachtrij voor de activiteit. Dit betekent dat je niet meer op de wachtlijst staat en we je geen e-mails meer sturen als er een plek vrijkomt.
 
 Gebruik de onderstaande link om je uitschrijving te bevestigen:
-{{Link}}
+{{BaseUrl}}{{Token}}
 
-Wil je je in de toekomst toch weer inschrijven voor deze of een andere activiteit? Dan kun je dit regelen op https://localhost:4200 met je e-mailadres: {{Email}}.
+Wil je je in de toekomst toch weer inschrijven voor deze of een andere activiteit? Dan kun je dit regelen op {{BaseUrl}} met je e-mailadres: {{Email}}.

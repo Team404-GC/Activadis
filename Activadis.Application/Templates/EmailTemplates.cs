@@ -1,4 +1,5 @@
-﻿using Activadis.Domain.Models;
+﻿using Activadis.Application.DTOs;
+using Activadis.Domain.Models;
 using System.Net;
 
 namespace Activadis.Application.Templates
@@ -19,7 +20,7 @@ namespace Activadis.Application.Templates
                    }
                );
 
-        public static EmailMessage RemoveWaitlistConfirmation(string email, string fullName, string link)
+        public static EmailMessage RemoveWaitlistConfirmation(string email, string fullName, string token)
             => CreateEmailMessage(
                    email, fullName,
                    "RemoveWaitlistConfirmation",
@@ -29,11 +30,11 @@ namespace Activadis.Application.Templates
                    {
                        ["FullName"] = fullName,
                        ["Email"] = email,
-                       ["Link"] = link
+                       ["Token"] = $"{ApplicationConfiguration.RedirectLinks.ConfirmSignOut}/{token}"
                    }
                );
 
-        public static EmailMessage ResignUpConfirmation(string email, string fullName, string link)
+        public static EmailMessage ResignUpConfirmation(string email, string fullName, string token)
             => CreateEmailMessage(
                    email, fullName,
                    "ResignUpConfirmation",
@@ -43,11 +44,11 @@ namespace Activadis.Application.Templates
                    {
                        ["FullName"] = fullName,
                        ["Email"] = email,
-                       ["Link"] = link
+                       ["Token"] = $"{ApplicationConfiguration.RedirectLinks.ConfirmResignUp}/{token}"
                    }
                );
 
-        public static EmailMessage SignUpConfirmation(string email, string fullName, string link)
+        public static EmailMessage SignUpConfirmation(string email, string fullName, string token)
              => CreateEmailMessage(
                    email, fullName,
                    "SignUpConfirmation",
@@ -57,11 +58,11 @@ namespace Activadis.Application.Templates
                    {
                        ["FullName"] = fullName,
                        ["Email"] = email,
-                       ["Link"] = link
+                       ["Token"] = $"{ApplicationConfiguration.RedirectLinks.ConfirmSignUp}/{token}"
                    }
                );
 
-        public static EmailMessage SignOutConfirmation(string email, string fullName, string link)
+        public static EmailMessage SignOutConfirmation(string email, string fullName, string token)
             => CreateEmailMessage(
                    email, fullName,
                    "SignOutConfirmation",
@@ -71,11 +72,11 @@ namespace Activadis.Application.Templates
                    {
                        ["FullName"] = fullName,
                        ["Email"] = email,
-                       ["Link"] = link
+                       ["Token"] = $"{ApplicationConfiguration.RedirectLinks.ConfirmSignOut}/{token}"
                    }
                );
 
-        public static EmailMessage PasswordSetup(string email, string fullName, string link)
+        public static EmailMessage PasswordSetup(string email, string fullName, string token)
             => CreateEmailMessage(
                    email, fullName,
                    "PasswordSetup",
@@ -85,12 +86,15 @@ namespace Activadis.Application.Templates
                    {
                        ["FullName"] = fullName,
                        ["Email"] = email,
-                       ["Link"] = link
+                       ["Token"] = $"{ApplicationConfiguration.RedirectLinks.SetupPassword}/{token}"
                    }
                );
 
         private static EmailMessage CreateEmailMessage(string email, string fullName, string fileName, string subject, string title, Dictionary<string, string> values)
-            => new EmailMessage()
+        {
+            values["BaseUrl"] = ApplicationConfiguration.BaseUrl;
+
+            return new EmailMessage()
             {
                 ToEmail = email,
                 ToName = fullName,
@@ -98,6 +102,7 @@ namespace Activadis.Application.Templates
                 HtmlBody = RenderHtml($"{fileName}.html", title, values),
                 TextBody = Fill(Read($"{fileName}.txt"), values, false)
             };
+        }
 
         private static string RenderHtml(string fileName, string title, Dictionary<string, string> values)
         {

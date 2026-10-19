@@ -18,12 +18,19 @@ namespace Activadis.Application.Services.Confirmations
         protected override async Task<bool> SendEmailAsync(AsyncServiceScope scope, ResignUpRequest request, string token)
         {
             IEmailService emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-            return await emailService.SendResignUpConfirmationAsync(request.Email, request.FullName, $"https://localhost:4200/confirm-resignup/{token}");
+            return await emailService.SendResignUpConfirmationAsync(request.Email, request.FullName, token);
         }
 
         protected override async Task ProcessConfirmationAsync(AsyncServiceScope scope, ResignUpRequest request)
         {
             ISignUpRepository signUpRepository = scope.ServiceProvider.GetRequiredService<ISignUpRepository>();
+            IActivityRepository activityRepository = scope.ServiceProvider.GetRequiredService<IActivityRepository>();
+
+            Activity activity = await activityRepository.GetDetailAsync(request.ActivityId)
+                ?? throw new ArgumentException("De activiteit is niet gevonden.");
+
+            if (activity.SignUps.Count >= activity.MaxParticipants)
+                throw new ArgumentException("Deze activiteit heeft al het maximum aantal deelnemers.");
 
             SignUp signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email, request.ActivityId)
                 ?? throw new ArgumentException("De inschrijving is niet gevonden.");

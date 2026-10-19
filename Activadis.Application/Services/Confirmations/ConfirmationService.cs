@@ -28,7 +28,7 @@ namespace Activadis.Application.Services.Confirmations
             string token = Convert.ToHexString(bytes).ToLower();
 
             if (ExpiryMinutes <= 0)
-                throw new InvalidOperationException("De ongeldigeheidsminuten zitten onder de nul.");
+                throw new InvalidOperationException("De vervaltijd in minuten zitten onder de nul.");
 
             DateTime expires = DateTime.MinValue;
             try
@@ -63,8 +63,12 @@ namespace Activadis.Application.Services.Confirmations
 
         public async Task UseConfirmationAsync(string token, TRequest? request)
         {
-            request ??= TakeRequestByToken(token)
-                ?? throw new ArgumentException(TokenError);
+            if (request is null)
+            {
+                request = TakeRequestByToken(token)
+                    ?? throw new ArgumentException(TokenError);
+            }
+            else Confirmations.TryRemove(token, out _);
 
             using AsyncServiceScope scope = ServiceScopeFactory.CreateAsyncScope();
             await ProcessConfirmationAsync(scope, request);
@@ -74,7 +78,12 @@ namespace Activadis.Application.Services.Confirmations
         {
             ConfirmationDTO<TRequest>? confirmation = Confirmations.GetValueOrDefault(token);
             if (confirmation is null || confirmation.HasExpired())
+            {
+                if (confirmation?.HasExpired() ?? false)
+                    Confirmations.TryRemove(token, out _);
+
                 return null;
+            }
 
             return confirmation.Request;
         }
