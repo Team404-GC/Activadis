@@ -30,7 +30,7 @@
                         <div class="nm-dropdown-menu">
                             <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink>
                             <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink>
-                            <NavLink class="nm-dropdown-item" href="@($"/speler/{user.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
+                            <NavLink class="nm-dropdown-item" href="@($"/speler/{User.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
                         </div>
                     }
                 </div>
@@ -45,14 +45,20 @@
 
 @code {
     [CascadingParameter]
-    public Task<AuthenticationState> authState { get; set; }
-    ClaimsPrincipal user = null!;
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
+    ClaimsPrincipal User = null!;
 
     private bool isOpen = false;
     private bool dropdownOpen = false;
 
     protected override async Task OnParametersSetAsync()
-        => user = (await authState).User;
+    {
+        if (AuthenticationState is null)
+            return;
+
+        AuthenticationState authenticationState = await AuthenticationState;
+        User = authenticationState.User;
+    }
 
     private void ToggleMenu()
         => isOpen = !isOpen;

@@ -36,5 +36,10 @@ namespace Activadis.Application.Extensions
             signUp.DeletedAt = null;
             await signUpRepository.UpdateAsync(signUp);
         }
+
+        public async static Task DeleteAsync(this ISignUpRepository signUpRepository, SignUp signUp, SignOutRequest request, Guid userId)
+        {
+            await signUpRepository.DeleteAsync(signUp);
+        }
     }
 }

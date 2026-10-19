@@ -38,17 +38,21 @@ namespace Activadis.Application.Services.Confirmations
 
         public async Task UseConfirmationAsync(string token)
         {
-            if (!ConvertExtensions.TryFromHexString(token.ToUpper(), out byte[] bytes))
-                throw new ArgumentException(TokenError);
-
-            TRequest? request = Confirmations.Remove(string.Join(',', bytes), out ConfirmationDTO<TRequest>? confirmation) && !confirmation.HasExpired()
-                ? confirmation.Request : null;
-
+            TRequest? request = GetRequestByToken(token);
             if (request is null)
                 throw new ArgumentException(TokenError);
 
             using AsyncServiceScope scope = ServiceScopeFactory.CreateAsyncScope();
             await ProcessConfirmationAsync(scope, request);
+        }
+
+        public TRequest? GetRequestByToken(string token)
+        {
+            if (!ConvertExtensions.TryFromHexString(token.ToUpper(), out byte[] bytes))
+                throw new ArgumentException(TokenError);
+
+            return Confirmations.Remove(string.Join(',', bytes), out ConfirmationDTO<TRequest>? confirmation) && !confirmation.HasExpired()
+                ? confirmation.Request : null;
         }
 
         protected abstract Task<bool> SendEmailAsync(AsyncServiceScope scope, TRequest request, string token);

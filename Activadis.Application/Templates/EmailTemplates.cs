@@ -19,8 +19,8 @@ namespace Activadis.Application.Templates
                 ToEmail = email,
                 ToName = fullName,
 
-                Subject = "Bevestig je inschrijving voor de activiteit",
-                HtmlBody = RenderHtml("AddWaitlist.html", "Bevestig je inschrijving", values),
+                Subject = "Je activiteit zit helaas vol",
+                HtmlBody = RenderHtml("AddWaitlist.html", "Je activiteit zit helaas vol", values),
                 TextBody = Fill(Read("AddWaitlist.txt"), values, false)
             };
         }

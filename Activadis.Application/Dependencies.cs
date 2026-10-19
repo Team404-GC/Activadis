@@ -23,6 +23,7 @@ namespace Activadis.Application
             services.AddScoped<ISignUpService, SignUpService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IWaitlistService, WaitlistService>();
 
             services.AddScoped<IEloService, EloService>();
             services.AddScoped<EloCalculationService>();
@@ -30,6 +31,7 @@ namespace Activadis.Application
 
             services.AddSingleton<IConfirmationService<SignUpRequest>, SignUpConfirmationService>();
             services.AddSingleton<IConfirmationService<SignOutRequest>, SignOutConfirmationService>();
+            services.AddSingleton<IConfirmationService<ResignUpRequest>, ResignUpConfirmationService>();
 
             return services;
         }

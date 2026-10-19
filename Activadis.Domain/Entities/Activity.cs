@@ -35,6 +35,5 @@ namespace Activadis.Domain.Entities
 
         // Navigation Properties
         public ICollection<SignUp> SignUps { get; set; } = [];
-        public ICollection<WaitlistEntry> Waitlist { get; set; } = [];
     }
 }

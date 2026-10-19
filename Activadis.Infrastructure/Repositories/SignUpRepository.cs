@@ -37,5 +37,26 @@ namespace Activadis.Infrastructure.Repositories
 
         public async Task<int> CountByActivityIdAsync(Guid activityId)
             => await Context.SignUps.CountAsync(x => x.ActivityId == activityId && x.DeletedAt == null);
+
+        public async Task<int> GetLastPositionAsync(Guid activityId)
+            => await Context.SignUps
+                .Where(x => x.ActivityId == activityId && x.DeletedAt == null)
+                .OrderByDescending(we => we.WaitlistPosition)
+                .Select(x => x.WaitlistPosition)
+                .SingleOrDefaultAsync() ?? 0;
+
+        public async Task<SignUp?> GetFirstPositionAsync(Guid activityId)
+            => await Context.SignUps
+                .Where(x => x.ActivityId == activityId && x.DeletedAt == null)
+                .OrderBy(we => we.WaitlistPosition)
+                .FirstOrDefaultAsync();
+
+        public async Task<SignUp?> GetByEmailAndActivityIdFromWaitlistAsync(string email, Guid activityId)
+            => await Context.SignUps.SingleOrDefaultAsync(x => x.Email == email && x.ActivityId == activityId && x.WaitlistPosition != null && x.DeletedAt == null);
+
+        public Task AdvanceWaitlistAsync(int position, Guid activityId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

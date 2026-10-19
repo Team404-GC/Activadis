@@ -11,5 +11,9 @@ namespace Activadis.Domain.Interfaces.Repositories
         Task<bool> HasSignedUpAsync(Guid userId, Guid activityId);
         Task<string?> GetFullNameByEmailAndActivityIdAsync(string email, Guid activityId);
         Task<int> CountByActivityIdAsync(Guid activityId);
+        Task<int> GetLastPositionAsync(Guid activityId);
+        Task<SignUp?> GetFirstPositionAsync(Guid activityId);
+        Task<SignUp?> GetByEmailAndActivityIdFromWaitlistAsync(string email, Guid activityId);
+        Task AdvanceWaitlistAsync(int positionToRemove, Guid activityId);
     }
 }
