@@ -1,4 +1,5 @@
 ﻿using Activadis.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Activadis.Infrastructure.Persistence.Configurations
@@ -18,6 +19,10 @@ namespace Activadis.Infrastructure.Persistence.Configurations
 
             builder.Property(a => a.ImageContentType)
                 .IsRequired(true);
+
+            builder.HasMany(a => a.Categories)
+                .WithMany(c => c.Activities)
+                .UsingEntity(j => j.ToTable("ActivityCategories"));
         }
     }
 }

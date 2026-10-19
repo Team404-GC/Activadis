@@ -6,7 +6,7 @@ namespace Activadis.Application.Extensions
 {
     public static class ActivityExtensions
     {
-        public static Activity ToActivity(this CreateActivityRequest request, byte[] image)
+        public static Activity ToActivity(this CreateActivityRequest request, byte[] image, IEnumerable<Category> categories)
         {
             return new Activity()
             {
@@ -17,6 +17,7 @@ namespace Activadis.Application.Extensions
                 Location = request.Location,
                 Image = image,
                 ImageContentType = request.Image.ContentType,
+                Categories = categories.ToList(),
 
                 MinParticipants = request.MinParticipants,
                 MaxParticipants = request.MaxParticipants,
@@ -31,6 +32,15 @@ namespace Activadis.Application.Extensions
 
                 SignUpDeadline = request.SignUpDeadline,
                 SignOutDeadline = request.SignOutDeadline
+            };
+        }
+
+        public static ActivityParticipantResponse ToParticipantResponse(this SignUp signUp)
+        {
+            return new ActivityParticipantResponse()
+            {
+                UserId = signUp.UserId ?? Guid.Empty,
+                FullName = signUp.User?.FullName ?? signUp.FullName
             };
         }
 
@@ -52,7 +62,7 @@ namespace Activadis.Application.Extensions
             };
         }
 
-        public static ActivityDetailResponse ToDetailResponse(this Activity activity, bool hasSignedUp)
+        public static ActivityDetailResponse ToDetailResponse(this Activity activity, bool hasSignedUp, bool includeElo)
         {
             return new ActivityDetailResponse()
             {
@@ -85,7 +95,14 @@ namespace Activadis.Application.Extensions
                 IsFull = activity.IsFull(),
                 SignUpDeadlinePassed = activity.SignUpDeadlinePassed(),
                 IsOpenForSignUp = activity.IsOpenForSignUp(),
-                HasSignedUp = hasSignedUp
+                HasSignedUp = hasSignedUp,
+
+                Categories = includeElo
+                    ? activity.Categories.OrderBy(x => x.DisplayOrder).Select(x => x.ToDto()).ToList()
+                    : [],
+                Matches = includeElo
+                    ? activity.Matches.OrderByDescending(x => x.MatchDate).Select(x => x.ToRecentMatchDto()).ToList()
+                    : []
             };
         }
     }

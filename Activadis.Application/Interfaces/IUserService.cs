@@ -5,5 +5,6 @@ namespace Activadis.Application.Interfaces
     public interface IUserService
     {
         Task CreateAsync(CreateUserRequest request);
+        Task<IEnumerable<UserResponse>> GetAllAsync();
     }
 }

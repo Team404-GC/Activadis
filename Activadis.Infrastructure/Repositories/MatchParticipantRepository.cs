@@ -37,6 +37,8 @@ namespace Activadis.Infrastructure.Repositories
                         .Include(mp => mp.User)
                         .Include(mp => mp.Match)
                             .ThenInclude(m => m!.Category)
+                        .Include(mp => mp.Match)
+                            .ThenInclude(m => m!.Activity)
                         .Where(mp => mp.UserId == userId && mp.DeletedAt == null)
                         .OrderByDescending(mp => mp.Match!.MatchDate)
                         .Take(amount)

@@ -24,5 +24,7 @@ namespace Activadis.Application.DTOs.Activity
 
         public DateTime SignUpDeadline { get; set; }
         public DateTime SignOutDeadline { get; set; }
+
+        public List<Guid> CategoryIds { get; set; } = [];
     }
 }

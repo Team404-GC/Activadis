@@ -1,5 +1,6 @@
 ﻿using Activadis.Shared.DTOs;
 using Activadis.Shared.DTOs.Activity;
+using Activadis.Shared.DTOs.Elo.Stats;
 using Activadis.UI.Application.DTOs.Activity;
 
 namespace Activadis.UI.Application.Interfaces
@@ -10,5 +11,11 @@ namespace Activadis.UI.Application.Interfaces
 		Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter);
 		Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id);
 		Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync();
+
+		Task<ApiResponse<object>> UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request);
+		Task<ApiResponse<IEnumerable<ActivityParticipantResponse>>> GetParticipantsAsync(Guid id);
+		Task<ApiResponse<IEnumerable<RecentMatchDto>>> GetLinkableMatchesAsync(Guid id);
+		Task<ApiResponse<object>> LinkMatchAsync(Guid id, LinkMatchRequest request);
+		Task<ApiResponse<object>> UnlinkMatchAsync(Guid id, Guid matchId);
 	}
 }

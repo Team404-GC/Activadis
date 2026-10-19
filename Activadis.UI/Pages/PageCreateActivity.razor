@@ -1,4 +1,5 @@
 ﻿@inject IActivityService ActivityService
+@inject IEloService EloService
 @inject NavigationManager NavigationManager
 @attribute [Authorize(Roles = "Admin")]
 @page "/activiteit/nieuw"
@@ -93,6 +94,18 @@
     </section>
     <br />
     <section>
+        <label>ELO-categorieën</label>
+        @foreach (CategoryDto category in categories)
+        {
+            <label>
+                <input type="checkbox" checked="@request.CategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
+                @category.Name
+            </label>
+        }
+        <InfoBubbleComponent Text="Optioneel. Kies de ELO-categorieën waarvoor wedstrijden op deze activiteit meetellen." />
+    </section>
+    <br />
+    <section>
         <label>Is draft?</label>
         <label class="switch">
             <InputCheckbox @bind-Value="request.IsDraft" />
@@ -106,10 +119,30 @@
 @code {
     CreateActivityRequest request = new CreateActivityRequest();
     EditContext context = null!;
+    List<CategoryDto> categories = [];
     bool isLoading = false;
 
-    protected override void OnInitialized()
-        => context = new EditContext(request);
+    protected override async Task OnInitializedAsync()
+    {
+        context = new EditContext(request);
+
+        ApiResponse<List<CategoryDto>> response = await EloService.GetCategoriesAsync();
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            return;
+        }
+
+        categories = response.Value ?? [];
+    }
+
+    public void OnCategoryChange(ChangeEventArgs args, Guid categoryId)
+    {
+        if (args.Value is true)
+            request.CategoryIds.Add(categoryId);
+        else
+            request.CategoryIds.Remove(categoryId);
+    }
 
     public void OnFileChange(InputFileChangeEventArgs args)
     {

@@ -7,6 +7,7 @@ using Activadis.Domain.Enums;
 using Activadis.Domain.Filters;
 using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Shared.DTOs.Activity;
+using Activadis.Shared.DTOs.Elo.Stats;
 
 namespace Activadis.Application.Services
 {
@@ -14,21 +15,28 @@ namespace Activadis.Application.Services
     {
         private readonly IActivityRepository ActivityRepository;
         private readonly ISignUpRepository SignUpRepository;
+        private readonly ICategoryRepository CategoryRepository;
+        private readonly IMatchRepository MatchRepository;
 
-        public ActivityService(IActivityRepository activityRepository, ISignUpRepository signUpRepository)
+        public ActivityService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, ICategoryRepository categoryRepository, IMatchRepository matchRepository)
         {
             ActivityRepository = activityRepository;
             SignUpRepository = signUpRepository;
+            CategoryRepository = categoryRepository;
+            MatchRepository = matchRepository;
         }
 
         public async Task CreateAsync(CreateActivityRequest request)
         {
             request.Validate();
 
+            IEnumerable<Category> categories = await CategoryRepository.GetByIdsAsync(request.CategoryIds);
+            request.CategoryIds.ValidateCategories(categories, []);
+
             MemoryStream image = new MemoryStream();
             await request.Image.CopyToAsync(image);
 
-            Activity activity = request.ToActivity(image.ToArray());
+            Activity activity = request.ToActivity(image.ToArray(), categories);
             activity = await ActivityRepository.AddAsync(activity);
         }
 		public async Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role, ActivityFilterRequest request)
@@ -55,7 +63,7 @@ namespace Activadis.Application.Services
                 throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
 
             bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);
-            return activity.ToDetailResponse(hasSignedUp);
+            return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty);
         }
 
         public async Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId)
@@ -70,6 +78,67 @@ namespace Activadis.Application.Services
             }
 
             return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
+        }
+
+        public async Task UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request)
+        {
+            Activity activity = await ActivityRepository.GetWithCategoriesAndMatchesAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            IEnumerable<Category> categories = await CategoryRepository.GetByIdsAsync(request.CategoryIds);
+            request.CategoryIds.ValidateCategories(categories, activity.Categories.Select(x => x.Id));
+            activity.ValidateCategoryRemoval(request.CategoryIds);
+
+            activity.Categories.Clear();
+            foreach (Category category in categories)
+                activity.Categories.Add(category);
+
+            await ActivityRepository.UpdateAsync(activity);
+        }
+
+        public async Task<IEnumerable<ActivityParticipantResponse>> GetParticipantsAsync(Guid id)
+        {
+            Activity activity = await ActivityRepository.GetDetailAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            return activity.SignUps
+                .Where(x => x.UserId is not null)
+                .Select(x => x.ToParticipantResponse())
+                .OrderBy(x => x.FullName);
+        }
+
+        public async Task<IEnumerable<RecentMatchDto>> GetLinkableMatchesAsync(Guid id)
+        {
+            Activity activity = await ActivityRepository.GetWithCategoriesAndMatchesAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            IEnumerable<Match> matches = await MatchRepository.GetUnlinkedMatchesAsync(activity.Categories.Select(x => x.Id).ToList());
+            return matches.Select(x => x.ToRecentMatchDto());
+        }
+
+        public async Task LinkMatchAsync(Guid id, LinkMatchRequest request)
+        {
+            Activity activity = await ActivityRepository.GetWithCategoriesAndMatchesAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            Match match = await MatchRepository.GetByIdAsync(request.MatchId)
+                ?? throw new KeyNotFoundException("De wedstrijd is niet gevonden.");
+
+            match.ValidateLink(activity);
+
+            match.ActivityId = activity.Id;
+            await MatchRepository.UpdateAsync(match);
+        }
+
+        public async Task UnlinkMatchAsync(Guid id, Guid matchId)
+        {
+            Match match = await MatchRepository.GetByIdAsync(matchId)
+                ?? throw new KeyNotFoundException("De wedstrijd is niet gevonden.");
+
+            match.ValidateUnlink(id);
+
+            match.ActivityId = null;
+            await MatchRepository.UpdateAsync(match);
         }
     }
 }

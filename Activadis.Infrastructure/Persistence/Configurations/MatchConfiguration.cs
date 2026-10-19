@@ -15,7 +15,14 @@ namespace Activadis.Infrastructure.Persistence.Configurations
                 .HasForeignKey(m => m.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(m => m.Activity)
+                .WithMany(a => a.Matches)
+                .HasForeignKey(m => m.ActivityId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
+
             builder.HasIndex(m => m.CategoryId);
+            builder.HasIndex(m => m.ActivityId);
             builder.HasIndex(m => m.MatchDate);
 
             builder.HasQueryFilter(m => m.DeletedAt == null);

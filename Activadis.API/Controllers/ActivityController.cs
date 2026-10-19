@@ -3,6 +3,7 @@ using Activadis.Application.DTOs.Activity;
 using Microsoft.AspNetCore.Authorization;
 using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.Activity;
+using Activadis.Shared.DTOs.Elo.Stats;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Activadis.Shared.DTOs;
@@ -81,6 +82,93 @@ namespace Activadis.API.Controllers
 			catch (ArgumentException exception)
 			{
 				return BadRequest(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
+		[HttpPut("{id:guid}/categories")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> UpdateCategoriesAsync(Guid id, [FromBody] UpdateActivityCategoriesRequest request)
+		{
+			try
+			{
+				await ActivityService.UpdateCategoriesAsync(id, request);
+				return Ok(ApiResponse<object>.Ok());
+			}
+			catch (ArgumentException exception)
+			{
+				return BadRequest(ApiResponse<object>.Fail(exception.Message));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
+		[HttpGet("{id:guid}/participants")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> GetParticipantsAsync(Guid id)
+		{
+			try
+			{
+				IEnumerable<ActivityParticipantResponse> participants = await ActivityService.GetParticipantsAsync(id);
+				return Ok(ApiResponse<IEnumerable<ActivityParticipantResponse>>.Ok(participants));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<IEnumerable<ActivityParticipantResponse>>.Fail(exception.Message));
+			}
+		}
+
+		[HttpGet("{id:guid}/matches/linkable")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> GetLinkableMatchesAsync(Guid id)
+		{
+			try
+			{
+				IEnumerable<RecentMatchDto> matches = await ActivityService.GetLinkableMatchesAsync(id);
+				return Ok(ApiResponse<IEnumerable<RecentMatchDto>>.Ok(matches));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<IEnumerable<RecentMatchDto>>.Fail(exception.Message));
+			}
+		}
+
+		[HttpPost("{id:guid}/matches")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> LinkMatchAsync(Guid id, [FromBody] LinkMatchRequest request)
+		{
+			try
+			{
+				await ActivityService.LinkMatchAsync(id, request);
+				return Ok(ApiResponse<object>.Ok());
+			}
+			catch (ArgumentException exception)
+			{
+				return BadRequest(ApiResponse<object>.Fail(exception.Message));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
+		[HttpDelete("{id:guid}/matches/{matchId:guid}")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> UnlinkMatchAsync(Guid id, Guid matchId)
+		{
+			try
+			{
+				await ActivityService.UnlinkMatchAsync(id, matchId);
+				return Ok(ApiResponse<object>.Ok());
+			}
+			catch (ArgumentException exception)
+			{
+				return BadRequest(ApiResponse<object>.Fail(exception.Message));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
 			}
 		}
 	}

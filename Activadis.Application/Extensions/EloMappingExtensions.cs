@@ -3,6 +3,7 @@ using Activadis.Application.Services;
 using Activadis.Shared.DTOs.Elo;
 using Activadis.Shared.DTOs.Elo.Leaderboard;
 using Activadis.Shared.DTOs.Elo.Category;
+using Activadis.Shared.DTOs.Elo.Stats;
 
 namespace Activadis.Application.Extensions
 {
@@ -46,6 +47,27 @@ namespace Activadis.Application.Extensions
                 PeakRating = entry.PeakRating,
                 Rank = entry.Rank,
                 RankTitle = entry.RankTitle,
+            };
+        }
+
+        public static RecentMatchDto ToRecentMatchDto(this Match match)
+        {
+            return new RecentMatchDto
+            {
+                MatchId = match.Id,
+                CategoryId = match.CategoryId,
+                CategoryName = match.Category?.Name ?? "Onbekend",
+                MatchDate = match.MatchDate,
+                Notes = match.Notes,
+                Participants = match.Participants
+                    .OrderBy(p => p.Placement)
+                    .Select(p => new RecentMatchParticipantDto
+                    {
+                        UserId = p.UserId,
+                        FullName = p.User?.FullName ?? "Onbekend",
+                        Placement = p.Placement,
+                        RatingChange = p.RatingChange
+                    }).ToList()
             };
         }
 

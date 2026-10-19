@@ -176,6 +176,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("ActivityId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -199,6 +202,8 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActivityId");
 
                     b.HasIndex("CategoryId");
 
@@ -381,6 +386,21 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("ActivityCategory", b =>
+                {
+                    b.Property<Guid>("ActivitiesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoriesId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("ActivitiesId", "CategoriesId");
+
+                    b.HasIndex("CategoriesId");
+
+                    b.ToTable("ActivityCategories");
+                });
+
             modelBuilder.Entity("Activadis.Domain.Entities.Leaderboard", b =>
                 {
                     b.HasOne("Activadis.Domain.Entities.Category", "Category")
@@ -393,11 +413,18 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("Activadis.Domain.Entities.Match", b =>
                 {
+                    b.HasOne("Activadis.Domain.Entities.Activity", "Activity")
+                        .WithMany("Matches")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Activadis.Domain.Entities.Category", "Category")
                         .WithMany("Matches")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Activity");
 
                     b.Navigation("Category");
                 });
@@ -457,8 +484,25 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ActivityCategory", b =>
+                {
+                    b.HasOne("Activadis.Domain.Entities.Activity", null)
+                        .WithMany()
+                        .HasForeignKey("ActivitiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Activadis.Domain.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Activadis.Domain.Entities.Activity", b =>
                 {
+                    b.Navigation("Matches");
+
                     b.Navigation("SignUps");
                 });
 

@@ -35,5 +35,7 @@ namespace Activadis.Domain.Entities
 
         // Navigation Properties
         public ICollection<SignUp> SignUps { get; set; } = [];
+        public ICollection<Category> Categories { get; set; } = [];
+        public ICollection<Match> Matches { get; set; } = [];
     }
 }

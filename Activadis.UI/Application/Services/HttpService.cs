@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Activadis.UI.Application.Interfaces;
+using System.Collections;
 using System.Linq.Expressions;
 using System.Net.Http.Headers;
 using Activadis.Shared.DTOs;
@@ -93,6 +94,14 @@ namespace Activadis.UI.Application.Services
 						continue;
 
 					object? value = propertyInfo.GetValue(request);
+					if (value is IEnumerable values and not string)
+					{
+						foreach (object? item in values)
+							content.Add(new StringContent(item?.ToString() ?? string.Empty), propertyInfo.Name);
+
+						continue;
+					}
+
 					string actualValue = value switch
 					{
 						null => string.Empty,

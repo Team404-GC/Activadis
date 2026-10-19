@@ -47,8 +47,8 @@ A static, framework-free class (no EF Core / ASP.NET / Blazor references) so it 
 Implements `IEloService` and coordinates repositories + the calculation service to actually record matches and answer queries.
 
 ### Recording a match — `RecordMatchAsync`
-1. Looks up the `Category`.
-2. Creates a `Match` row (unfinalized).
+1. Looks up the `Category`. When the request has an `ActivityId`, it also loads that activity and checks (in `ActivityCategoriesValidation.ValidateCategory`) that the category is one of the activity's ELO categories.
+2. Creates a `Match` row (unfinalized), linked to the activity when an `ActivityId` was given.
 3. Branches on `request.MatchType`:
    - `"team"` → `ProcessTeamMatchAsync`
    - anything else → `ProcessIndividualMatchAsync`
@@ -74,7 +74,7 @@ Implements `IEloService` and coordinates repositories + the calculation service 
 ### Player profile — `GetPlayerProfileAsync`
 - Pulls all of a user's category `Rating`s and converts them into `RatingDto`s.
 - Computes an overall rating via the weighted-average formula.
-- Pulls up to 20 recent `MatchParticipant` records and reconstructs before/after ratings for a match history.
+- Pulls up to 20 recent `MatchParticipant` records and reconstructs before/after ratings for a match history. Each history row also carries the `ActivityId` and `ActivityName` of the activity the match was played at, when there is one (soft-deleted activities are left out).
 - Also calculates, over all of the player's participations:
   - `WinRate` — share of participations with placement 1
   - `TotalActualScore` / `TotalExpectedScore` — sums of the stored scores
@@ -164,6 +164,7 @@ Categories can define custom rank titles to display player achievement levels on
 
 ### Frontend support
 - Category management UI (`Categories.razor`) includes a `RankTitlesComponent` for adding/editing titles
+- When creating a new category the form is pre-filled with default titles: 0 "Beginner", 550 "Amateur", 750 "Gevorderde", 950 "Expert", 1100 "Meester" (they can still be removed or changed before saving)
 - Leaderboard display (`Leaderboard.razor`) shows rank titles in a dedicated column
 - DTOs (`CategoryDto`, `LeaderboardEntryDto`) include `RankTitles` and `RankTitle` fields respectively
 
@@ -183,7 +184,7 @@ A standard `[Authorize]`-protected ASP.NET Core controller at `/Elo`, thin wrapp
 | `/Elo/stats/summary` | GET | any authorized user | Total matches, matches this month, active players (optional `categoryId`) |
 | `/Elo/stats/activity` | GET | any authorized user | Matches per month (optional `categoryId`, `months`) |
 | `/Elo/matches/recent` | GET | any authorized user | Latest matches with participants and rating changes (optional `categoryId`, `take`) |
-| `/Elo/match/record` | POST | **Admin** | Record a match, update ratings, persist leaderboards |
+| `/Elo/match/record` | POST | **Admin** | Record a match, update ratings, persist leaderboards (optional `activityId` links it to an activity) |
 | `/Elo/categories` | POST | **Admin** | Create a category (optionally with rank titles) |
 | `/Elo/categories/{categoryId}` | PUT | **Admin** | Update a category (name, description, rank titles, etc.) |
 
@@ -198,6 +199,48 @@ Match recording and category management are Admin-only; everything else is reada
 
 ### UI service
 `Activadis.UI.Application.Services.EloService` wraps every endpoint above through `IHttpService`. The statistics methods (`GetRatingHistoryAsync`, `GetSummaryAsync`, `GetActivityAsync`, `GetRecentMatchesAsync`) build the query string and leave out optional parameters that are not set.
+
+---
+
+## 6. Activities and the ELO ranking
+
+An activity can be linked to one or more ELO categories (for example a bowling evening counts for "Bowlen"), and matches can be attached to the activity they were played at.
+
+### Data model
+- Many-to-many between `Activity` and `Category` (`Activity.Categories` / `Category.Activities`), stored in the join table `ActivityCategories`.
+- `Match.ActivityId` is a nullable foreign key to `Activities`, so a match belongs to at most one activity. The foreign key uses `ON DELETE SET NULL`, and activities are soft-deleted anyway: cancelling or deleting an activity never deletes its matches or changes ratings.
+- Both are added in the migration `AddedActivityCategoriesAndMatchActivity`.
+
+### Rules (validation classes, not entities)
+- `ActivityCategoriesValidation`
+  - `ValidateCategories` — every chosen category must exist, and only active categories can be chosen (a category that is already linked may stay linked after it was deactivated).
+  - `ValidateCategoryRemoval` — a category cannot be removed from an activity while a match in that category is still attached.
+  - `ValidateCategory` — a match's category must be one of the activity's categories.
+- `LinkMatchValidation`
+  - `ValidateLink` — the match is not attached to this or another activity yet, and its category belongs to the activity.
+  - `ValidateUnlink` — the match is attached to this activity.
+
+An activity without categories can still be saved.
+
+### Endpoints (`ActivityController`)
+| Endpoint | Method | Auth | Purpose |
+|---|---|---|---|
+| `/Activity` | POST | **Admin** | Create an activity; `CategoryIds` (form field, repeated) picks its ELO categories |
+| `/Activity/{id}` | GET | anyone | Activity detail; for logged-in users it includes `Categories` and the attached `Matches` (date, category, participants with placement and rating change) |
+| `/Activity/{id}/categories` | PUT | **Admin** | Replace the activity's ELO categories |
+| `/Activity/{id}/participants` | GET | **Admin** | Signed-up employees (external sign-ups have no account and are left out), used to pick players |
+| `/Activity/{id}/matches/linkable` | GET | **Admin** | Finalized matches in one of the activity's categories that are not attached to any activity |
+| `/Activity/{id}/matches` | POST | **Admin** | Attach an existing match (`MatchId`) |
+| `/Activity/{id}/matches/{matchId}` | DELETE | **Admin** | Detach a match; the match and its ratings stay unchanged |
+
+Non-admins get a 403 on every admin endpoint, also when calling it directly.
+
+### UI
+- `PageCreateActivity` — checkboxes for the active ELO categories.
+- `PageActivityDetail` — shows the linked categories (each links to its leaderboard) and the attached matches. Administrators can change the categories, attach and detach matches, and use **Wedstrijd aanmaken**.
+- **Wedstrijd aanmaken** opens `RecordMatch` at `/wedstrijd/nieuw?activiteit={id}`: the date is taken from the activity's start date, the categories are limited to the activity's categories (the administrator still picks one), players are chosen from a list of the activity's participants, and the saved match is linked to the activity.
+- `RecordMatch` picks players with `UserSelectComponent`: a search box (name or e-mail) above a select. Without an activity the list holds every user, loaded from `GET /User` (Admin only, returns `UserResponse`: id, name, e-mail); with an activity it holds only the activity's participants.
+- `Player` — the match history shows the activity a match was played at, linking to the activity.
 
 ---
 

@@ -8,5 +8,7 @@ namespace Activadis.Domain.Interfaces.Repositories
         Task<IEnumerable<Category>> GetActiveCategoriesAsync();
 
         Task<Category?> GetByNameAsync(string name);
+
+        Task<IEnumerable<Category>> GetByIdsAsync(IEnumerable<Guid> ids);
     }
 }

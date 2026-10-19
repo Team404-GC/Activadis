@@ -6,6 +6,7 @@ namespace Activadis.Domain.Entities
     {
         public Guid Id { get; set; }
         public Guid CategoryId { get; set; }
+        public Guid? ActivityId { get; set; }
         public DateTime MatchDate { get; set; }
 
         public string? Notes { get; set; }
@@ -17,6 +18,7 @@ namespace Activadis.Domain.Entities
         public DateTime? DeletedAt { get; set; }
 
         public Category? Category { get; set; }
+        public Activity? Activity { get; set; }
         public ICollection<MatchParticipant> Participants { get; set; } = [];
     }
 }

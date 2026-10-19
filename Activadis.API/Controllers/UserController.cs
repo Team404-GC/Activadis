@@ -17,6 +17,14 @@ namespace Activadis.API.Controllers
             UserService = userService;
         }
 
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetAllAsync()
+        {
+            IEnumerable<UserResponse> users = await UserService.GetAllAsync();
+            return Ok(ApiResponse<IEnumerable<UserResponse>>.Ok(users));
+        }
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAsync(CreateUserRequest request)
