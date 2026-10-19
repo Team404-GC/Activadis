@@ -22,9 +22,10 @@ namespace Activadis.Infrastructure.Repositories
 				.ApplyFilter(isAdmin, filter)
 				.OrderBy(x => x.StartDate)
 				.ToListAsync();
+
 		public async Task<Activity?> GetDetailAsync(Guid id)
 			=> await Context.Activities
-				.Include(x => x.SignUps.Where(signUp => signUp.DeletedAt == null))
+				.Include(x => x.SignUps.Where(signUp => signUp.WaitlistPosition == null && signUp.DeletedAt == null))
 				.SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
 
 		public async Task<IEnumerable<Activity>> GetSignedUpByUserIdAsync(Guid userId)

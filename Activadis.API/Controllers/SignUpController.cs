@@ -10,15 +10,17 @@ namespace Activadis.API.Controllers
     [Route("[controller]")]
     public class SignUpController : ControllerBase
     {
+        private readonly IConfirmationService<ResignUpRequest> ResignUpConfirmationService;
         private readonly IConfirmationService<SignOutRequest> SignOutConfirmationService;
         private readonly IConfirmationService<SignUpRequest> SignUpConfirmationService;
         private readonly ISignUpService SignUpService;
 
-        public SignUpController(ISignUpService signUpService, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService)
+        public SignUpController(ISignUpService signUpService, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService, IConfirmationService<ResignUpRequest> resignUpConfirmationService)
         {
             SignUpService = signUpService;
             SignOutConfirmationService = signOutConfirmationService;
             SignUpConfirmationService = signUpConfirmationService;
+            ResignUpConfirmationService = resignUpConfirmationService;
         }
 
         [HttpPost]
@@ -79,7 +81,6 @@ namespace Activadis.API.Controllers
             }
         }
 
-
         [HttpDelete("SignOut/Confirmation/{token}")]
         public async Task<IActionResult> ConfirmSignOutAsync(string token)
         {
@@ -87,6 +88,30 @@ namespace Activadis.API.Controllers
             {
                 await SignOutConfirmationService.UseConfirmationAsync(token);
                 return Ok(ApiResponse<object>.Ok(message: "Je bent succesvol uitgeschreven."));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpGet("ResignUp/{token}")]
+        public async Task<IActionResult> GetResignUpAsync(string token)
+        {
+            ResignUpRequest? request = ResignUpConfirmationService.GetRequestByToken(token);
+            if (request is null)
+                return BadRequest(ApiResponse<ResignUpRequest>.Fail("Er is geen herinschrijving gevonden"));
+
+            return Ok(ApiResponse<ResignUpRequest>.Ok(request));
+        }
+
+        [HttpPost("ResignUp/{token}")]
+        public async Task<IActionResult> ResignUpAsync(string token, ResignUpRequest request)
+        {
+            try
+            {
+                await ResignUpConfirmationService.UseConfirmationAsync(token, request);
+                return Ok(ApiResponse<object>.Ok(message: "Je bent succesvol ingeschreven."));
             }
             catch (ArgumentException exception)
             {

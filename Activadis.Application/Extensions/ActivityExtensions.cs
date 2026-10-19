@@ -68,7 +68,7 @@ namespace Activadis.Application.Extensions
                 MinParticipants = activity.MinParticipants,
                 MaxParticipants = activity.MaxParticipants,
                 HasParticipantLimit = activity.HasParticipantLimit(),
-                TotalSignUps = activity.TotalSignUps,
+                TotalSignUps = activity.SignUps.Count,
                 AvailableSpots = activity.AvailableSpots(),
 
                 FoodIncluded = activity.FoodIncluded,

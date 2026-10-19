@@ -1,0 +1,30 @@
+﻿@if (ShouldDisplay)
+{
+    <div class="signup-container">
+        <EditForm Model="Request" OnValidSubmit="OnSubmitAsync" class="form">
+            <section>
+                <label>Zou je een +1 willen meenemen?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="Request.HasPlusOne" />
+                    <span class="slider round"></span>
+                </label>
+            </section>
+            <section>
+                <button type="submit">Inschrijven</button>
+            </section>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter] public required EventCallback<ResignUpRequest> RequestChanged { get; set; }
+    [Parameter] public required EventCallback OnSubmit { get; set; }
+    [Parameter] public required ResignUpRequest Request { get; set; }
+    [Parameter] public required bool ShouldDisplay { get; set; }
+
+    public async Task OnSubmitAsync()
+    {
+        await RequestChanged.InvokeAsync(Request);
+        await OnSubmit.InvokeAsync();
+    }
+}

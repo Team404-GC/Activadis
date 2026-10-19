@@ -27,20 +27,44 @@ namespace Activadis.Application.Services.Confirmations
             byte[] bytes = RandomNumberGenerator.GetBytes(16);
             string token = Convert.ToHexString(bytes).ToLower();
 
-            using AsyncServiceScope scope = ServiceScopeFactory.CreateAsyncScope();
-            if (!await SendEmailAsync(scope, request, token))
-                throw new ArgumentException(MailError);
+            if (ExpiryMinutes <= 0)
+                throw new InvalidOperationException("De ongeldigeheidsminuten zitten onder de nul.");
 
-            Confirmations.AddOrUpdate(string.Join(',', bytes),
-                _ => new ConfirmationDTO<TRequest>(request, DateTime.UtcNow.AddMinutes(ExpiryMinutes)),
-                (_, _) => new ConfirmationDTO<TRequest>(request, DateTime.UtcNow.AddMinutes(ExpiryMinutes)));
+            DateTime expires = DateTime.MinValue;
+            try
+            {
+                expires = DateTime.UtcNow.AddMinutes(ExpiryMinutes);
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                expires = DateTime.MaxValue;
+            }
+
+            Confirmations.AddOrUpdate(token,
+                _ => new ConfirmationDTO<TRequest>(request, expires),
+                (_, _) => new ConfirmationDTO<TRequest>(request, expires));
+
+            try
+            {
+                using AsyncServiceScope scope = ServiceScopeFactory.CreateAsyncScope();
+
+                if (!await SendEmailAsync(scope, request, token))
+                    throw new ArgumentException(MailError);
+            }
+            catch (Exception)
+            {
+                Confirmations.TryRemove(token, out _);
+                return;
+            }
         }
 
         public async Task UseConfirmationAsync(string token)
+            => await UseConfirmationAsync(token, null);
+
+        public async Task UseConfirmationAsync(string token, TRequest? request)
         {
-            TRequest? request = GetRequestByToken(token);
-            if (request is null)
-                throw new ArgumentException(TokenError);
+            request ??= TakeRequestByToken(token)
+                ?? throw new ArgumentException(TokenError);
 
             using AsyncServiceScope scope = ServiceScopeFactory.CreateAsyncScope();
             await ProcessConfirmationAsync(scope, request);
@@ -48,10 +72,16 @@ namespace Activadis.Application.Services.Confirmations
 
         public TRequest? GetRequestByToken(string token)
         {
-            if (!ConvertExtensions.TryFromHexString(token.ToUpper(), out byte[] bytes))
-                throw new ArgumentException(TokenError);
+            ConfirmationDTO<TRequest>? confirmation = Confirmations.GetValueOrDefault(token);
+            if (confirmation is null || confirmation.HasExpired())
+                return null;
 
-            return Confirmations.Remove(string.Join(',', bytes), out ConfirmationDTO<TRequest>? confirmation) && !confirmation.HasExpired()
+            return confirmation.Request;
+        }
+
+        private TRequest? TakeRequestByToken(string token)
+        {
+            return Confirmations.Remove(token, out ConfirmationDTO<TRequest>? confirmation) && !confirmation.HasExpired()
                 ? confirmation.Request : null;
         }
 

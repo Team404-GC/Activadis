@@ -19,7 +19,6 @@ namespace Activadis.Application.Services.Confirmations
         protected override async Task<bool> SendEmailAsync(AsyncServiceScope scope, SignUpRequest request, string token)
         {
             IEmailService emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-
             return await emailService.SendSignUpConfirmationAsync(request.Email!, request.FullName!, $"https://localhost:4200/confirm-signup/{token}"); ;
         }
 
@@ -36,13 +35,13 @@ namespace Activadis.Application.Services.Confirmations
                 throw new ArgumentException("De inschrijfdatum is al geweest.");
 
             int totalSignedUp = await signUpRepository.CountByActivityIdAsync(request.ActivityId);
+            SignUp? signUp = await signUpRepository.GetByEmailAndActivityIdIncludingDeletedAsync(request.Email!, request.ActivityId);
             if (totalSignedUp >= activity.MaxParticipants)
             {
-                await waitlistService.AddToWaitlistAsync(request);
-                throw new ArgumentException("Deze activiteit heeft al het maximum aantal deelnemers. We hebben een nieuwe e-mail verstuurd ter informatie over wat er nu gaat gebeuren.");
+                await waitlistService.AddToWaitlistAsync(request, signUp);
+                throw new ArgumentException("Deze activiteit heeft helaas geen plek meer. We hebben een nieuwe e-mail verstuurd ter informatie over wat er nu gaat gebeuren.");
             }
 
-            SignUp? signUp = await signUpRepository.GetByEmailAndActivityIdIncludingDeletedAsync(request.Email!, request.ActivityId);
             await signUpRepository.CreateOrUpdateAsync(signUp, request, Guid.Empty);
         }
     }

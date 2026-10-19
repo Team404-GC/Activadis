@@ -1,7 +1,6 @@
 ﻿using Activadis.Domain.Interfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Activadis.Application.Interfaces;
-using Activadis.Application.Extensions;
 using Activadis.Shared.DTOs.SignUp;
 using Activadis.Domain.Entities;
 
@@ -24,6 +23,9 @@ namespace Activadis.Application.Services.Confirmations
             SignUp? signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
                 ?? throw new ArgumentException(MailError);
 
+            if (signUp.WaitlistPosition is not null)
+                return await emailService.SendRemoveWaitlistConfirmationAsync(signUp.Email!, signUp.FullName!, $"https://localhost:4200/confirm-signout/{token}");
+
             return await emailService.SendSignOutConfirmationAsync(signUp.Email!, signUp.FullName!, $"https://localhost:4200/confirm-signout/{token}"); ;
         }
 
@@ -41,7 +43,11 @@ namespace Activadis.Application.Services.Confirmations
             SignUp signUp = await signUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
                 ?? throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
-            await signUpRepository.DeleteAsync(signUp, request, Guid.Empty);
+            await signUpRepository.DeleteAsync(signUp);
+            if (signUp.WaitlistPosition is null)
+                return;
+
+            await signUpRepository.AdvanceWaitlistAsync(signUp.WaitlistPosition ?? 1, request.ActivityId);
         }
     }
 }
