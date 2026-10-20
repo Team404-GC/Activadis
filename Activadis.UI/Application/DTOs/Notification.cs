@@ -19,7 +19,7 @@
             OnNotification?.Invoke(new Notification()
             {
                 Id = Guid.NewGuid(),
-                Message = message ?? "Er is een onverwachte fout opgetreden.",
+                Message = string.IsNullOrWhiteSpace(message) ? "Er is een onverwachte fout opgetreden." : message,
                 HasErrored = hasErrored,
                 DurationInMs = durationInMs,
                 SendOn = DateTime.UtcNow

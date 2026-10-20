@@ -1,0 +1,16 @@
+﻿.form-container ::deep form {
+    flex-direction: column;
+    display: flex;
+    gap: 5px;
+}
+
+.form-container ::deep section {
+    display: flex;
+    gap: 10px;
+}
+
+.form-container ::deep textarea {
+    resize: both;
+    width: 225px;
+    height: 32px;
+}

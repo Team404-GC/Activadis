@@ -6,7 +6,7 @@ namespace Activadis.Application.Validations.Activity
     {
         private static readonly List<string> ValidImageTypes = ["image/png", "image/jpeg", "image/webp"];
 
-        public static void Validate(this CreateActivityRequest request)
+        public static void Validate(this ActivityRequest request)
         {
             if (request.Name is null || string.IsNullOrWhiteSpace(request.Name))
                 throw new ArgumentException("De naam moet ingevuld worden.");
@@ -17,11 +17,14 @@ namespace Activadis.Application.Validations.Activity
             if (request.Location is null || string.IsNullOrWhiteSpace(request.Location))
                 throw new ArgumentException("De locatie moet ingevuld worden.");
 
-            if (request.Image.Length <= 0)
-                throw new ArgumentException("De foto heeft een ongeldige bestandsgrootte.");
+            if (request.Image is not null)
+            {
+                if (request.Image.Length <= 0)
+                    throw new ArgumentException("De foto heeft een ongeldige bestandsgrootte.");
 
-            if (!ValidImageTypes.Contains(request.Image.ContentType, StringComparer.OrdinalIgnoreCase))
-                throw new ArgumentException("De foto heeft een ongeldig bestandstype.");
+                if (!ValidImageTypes.Contains(request.Image.ContentType, StringComparer.OrdinalIgnoreCase))
+                    throw new ArgumentException("De foto heeft een ongeldig bestandstype.");
+            }
 
             if (request.CostPerPerson < 0)
                 throw new ArgumentException("De kosten per persoon kan niet negatief zijn.");

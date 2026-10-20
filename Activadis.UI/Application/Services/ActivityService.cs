@@ -17,8 +17,13 @@ namespace Activadis.UI.Application.Services
 
 		public async Task<ApiResponse<object>> CreateAsync(CreateActivityRequest request)
 			=> await HttpService.PostIncludeFileAsync<object, CreateActivityRequest>("/Activity", request, x => x.Image);
-		public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter)
+
+        public async Task<ApiResponse<object>> EditAsync(EditActivityRequest request)
+            => await HttpService.PutIncludeFileAsync<object, EditActivityRequest>("/Activity", request, x => x.Image);
+
+        public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter)
 			=> await HttpService.QueryAsync<IEnumerable<ActivityOverviewResponse>, ActivityFilterRequest>("/Activity", filter);
+
 		public async Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id)
 			=> await HttpService.GetAsync<ActivityDetailResponse>($"/Activity/{id}");
 
