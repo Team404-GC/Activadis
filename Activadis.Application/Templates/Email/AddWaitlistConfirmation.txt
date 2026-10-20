@@ -1,0 +1,6 @@
+Hallo {{FullName}},
+
+Helaas zit de activiteit waar je voor hebt ingeschreven al vol, wat betekent dit voor jou? Wij hebben jou in een wachtrij gezet, waar jij op dit moment op positie {{Position}} zit.
+Zit je op positie 1 en is er weer een plek vrij? Dan sturen we nogmaals een e-mail naar jou om aan te geven dat je weer de inschrijving kunt bevestigen.
+
+Wil je toch niet inschrijven voor deze activiteit? Dan kan jij je uit de wachtrij door jezelf uit te schrijven bij de activiteit op {{BaseUrl}} met je e-mailadres: {{Email}}.

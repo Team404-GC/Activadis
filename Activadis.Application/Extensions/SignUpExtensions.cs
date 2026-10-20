@@ -6,7 +6,7 @@ namespace Activadis.Application.Extensions
 {
     public static class SignUpExtensions
     {
-        public static SignUp ToSignUp(this SignUpRequest request, Guid userId)
+        public static SignUp ToSignUp(this SignUpRequest request, Guid userId, int? position = null)
         {
             return new SignUp()
             {
@@ -15,17 +15,18 @@ namespace Activadis.Application.Extensions
 
                 HasPlusOne = request.HasPlusOne,
                 IsExternal = userId == Guid.Empty,
+                WaitlistPosition = position,
 
                 UserId = userId == Guid.Empty ? null : userId,
                 ActivityId = request.ActivityId
             };
         }
 
-        public async static Task CreateOrUpdateAsync(this ISignUpRepository signUpRepository, SignUp? signUp, SignUpRequest request, Guid userId)
+        public async static Task CreateOrUpdateAsync(this ISignUpRepository signUpRepository, SignUp? signUp, SignUpRequest request, Guid userId, int? position = null)
         {
             if (signUp is null)
             {
-                await signUpRepository.AddAsync(request.ToSignUp(userId));
+                await signUpRepository.AddAsync(request.ToSignUp(userId, position));
                 return;
             }
 
@@ -34,6 +35,7 @@ namespace Activadis.Application.Extensions
 
             signUp.HasPlusOne = request.HasPlusOne;
             signUp.DeletedAt = null;
+            signUp.WaitlistPosition = position;
             await signUpRepository.UpdateAsync(signUp);
         }
     }

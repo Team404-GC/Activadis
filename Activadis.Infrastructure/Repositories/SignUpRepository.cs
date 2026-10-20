@@ -36,6 +36,27 @@ namespace Activadis.Infrastructure.Repositories
                 .SingleOrDefaultAsync();
 
         public async Task<int> CountByActivityIdAsync(Guid activityId)
-            => await Context.SignUps.CountAsync(x => x.ActivityId == activityId && x.DeletedAt == null);
+            => await Context.SignUps.CountAsync(x => x.ActivityId == activityId && x.WaitlistPosition == null && x.DeletedAt == null);
+
+        public async Task<int> GetLastPositionAsync(Guid activityId)
+            => await Context.SignUps
+                .Where(x => x.ActivityId == activityId && x.DeletedAt == null)
+                .OrderByDescending(x => x.WaitlistPosition)
+                .Select(x => x.WaitlistPosition)
+                .FirstOrDefaultAsync() ?? 0;
+
+        public async Task<SignUp?> GetFirstPositionAsync(Guid activityId)
+            => await Context.SignUps
+                .Where(x => x.ActivityId == activityId && x.WaitlistPosition != null && x.DeletedAt == null)
+                .OrderBy(x => x.WaitlistPosition)
+                .FirstOrDefaultAsync();
+
+        public async Task<SignUp?> GetByEmailAndActivityIdFromWaitlistAsync(string email, Guid activityId)
+            => await Context.SignUps.SingleOrDefaultAsync(x => x.Email == email && x.ActivityId == activityId && x.WaitlistPosition != null && x.DeletedAt == null);
+
+        public async Task AdvanceWaitlistAsync(int position, Guid activityId)
+            => await Context.SignUps
+                .Where(x => x.WaitlistPosition > position && x.ActivityId == activityId && x.DeletedAt == null)
+                .ExecuteUpdateAsync(property => property.SetProperty(x => x.WaitlistPosition, x => x.WaitlistPosition - 1));
     }
 }

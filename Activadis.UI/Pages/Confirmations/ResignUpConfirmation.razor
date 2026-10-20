@@ -1,0 +1,75 @@
+﻿@inject IActivityService ActivityService
+@inject ISignUpService SignUpService
+@page "/confirm-resignup/{Token}"
+
+<div class="container">
+    @if (isLoading)
+    {
+        <div class="spinner-border" role="status"></div>
+    }
+    else
+    {
+        <div class="small-container">
+            @if (response.Succeeded)
+            {
+                <i class="bi bi-check-circle-fill"></i>
+            }
+            else
+            {
+                <i class="bi bi-x-circle-fill"></i>
+            }
+            <p>@response.Message</p>
+        </div>
+    }
+</div>
+<ResignUpComponent OnSubmit="OnSubmitAsync" @bind-Request="request" ShouldDisplay="shouldDisplay" />
+
+@code {
+    [Parameter] public string Token { get; set; } = string.Empty;
+
+    private ActivityDetailResponse activity = new ActivityDetailResponse();
+    private ApiResponse<object> response = new ApiResponse<object>();
+    private ResignUpRequest request = new ResignUpRequest();
+    private bool shouldDisplay = false;
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+
+        ApiResponse<ResignUpRequest> resignUpResponse = await SignUpService.GetResignUpRequestAsync(Token);
+        if (!resignUpResponse.Succeeded || resignUpResponse.Value is null)
+        {
+            response.Succeeded = false;
+            response.Message = resignUpResponse.Message;
+            isLoading = false;
+            return;
+        }
+
+        request = resignUpResponse.Value;
+        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(request.ActivityId);
+        if (!activityResponse.Succeeded || activityResponse.Value is null)
+        {
+            response.Succeeded = false;
+            response.Message = activityResponse.Message;
+            isLoading = false;
+            return;
+        }
+
+        activity = activityResponse.Value;
+        if (activity.PlusOneAllowed)
+        {
+            shouldDisplay = true;
+            return;
+        }
+
+        await OnSubmitAsync();
+    }
+
+    public async Task OnSubmitAsync()
+    {
+        shouldDisplay = false;
+        response = await SignUpService.ResignUpRequestAsync(Token, request);
+        isLoading = false;
+    }
+}

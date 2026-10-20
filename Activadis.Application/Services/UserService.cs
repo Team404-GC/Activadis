@@ -36,20 +36,11 @@ namespace Activadis.Application.Services
 
             User user = request.ToUser(tokenHash, tokenExpiresAt);
 
-            bool sent = await EmailService.SendPasswordSetupAsync(user.Email, user.FullName, ToPasswordSetupLink(token));
+            bool sent = await EmailService.SendPasswordSetupAsync(user.Email, user.FullName, token);
             if (!sent)
                 throw new ArgumentException("De uitnodigingsmail kon niet worden verstuurd. Het account is niet aangemaakt.");
 
             await UserRepository.AddAsync(user);
-        }
-
-        private string ToPasswordSetupLink(string token)
-        {
-            string? baseUrl = Configuration["Frontend:BaseUrl"];
-            if (string.IsNullOrWhiteSpace(baseUrl))
-                throw new InvalidOperationException("The frontend base url is empty!");
-
-            return $"{baseUrl.TrimEnd('/')}/wachtwoord-instellen?token={token}";
         }
 
         public async Task<IEnumerable<UserResponse>> GetAllAsync()

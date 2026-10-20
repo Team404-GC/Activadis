@@ -431,12 +431,14 @@ else
             return;
         }
 
-        signUpRequest = new SignUpRequest();
+        signUpRequest = new SignUpRequest() { ActivityId = activity.Id };
         if (User?.Identity?.IsAuthenticated == true)
         {
             activity.AvailableSpots--;
             activity.TotalSignUps++;
             activity.HasSignedUp = true;
+            activity.IsFull = activity.HasParticipantLimit && activity.AvailableSpots <= 0;
+            activity.IsOpenForSignUp = DateTime.UtcNow < activity.SignUpDeadline && !activity.IsFull;
             Notifications.AddNotification("Je bent succesvol ingeschreven bij deze activiteit.", false);
         }
         else
@@ -481,12 +483,14 @@ else
             return;
         }
 
-        signOutRequest = new SignOutRequest();
+        signOutRequest = new SignOutRequest() { ActivityId = activity.Id };
         if (User?.Identity?.IsAuthenticated == true)
         {
             activity.AvailableSpots++;
             activity.TotalSignUps--;
             activity.HasSignedUp = false;
+            activity.IsFull = activity.HasParticipantLimit && activity.AvailableSpots <= 0;
+            activity.IsOpenForSignUp = DateTime.UtcNow < activity.SignUpDeadline && !activity.IsFull;
             Notifications.AddNotification("Je bent succesvol uitgeschreven bij deze activiteit.", false);
         }
         else

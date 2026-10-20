@@ -19,15 +19,29 @@ namespace Activadis.Application.Services.Confirmations
         protected override async Task<bool> SendEmailAsync(AsyncServiceScope scope, SignUpRequest request, string token)
         {
             IEmailService emailService = scope.ServiceProvider.GetRequiredService<IEmailService>();
-
-            return await emailService.SendSignUpConfirmationAsync(request.Email!, request.FullName!, $"https://localhost:4200/confirm-signup/{token}"); ;
+            return await emailService.SendSignUpConfirmationAsync(request.Email!, request.FullName!, token);
         }
 
         protected override async Task ProcessConfirmationAsync(AsyncServiceScope scope, SignUpRequest request)
         {
             ISignUpRepository signUpRepository = scope.ServiceProvider.GetRequiredService<ISignUpRepository>();
+            IActivityRepository activityRepository = scope.ServiceProvider.GetRequiredService<IActivityRepository>();
+            IWaitlistService waitlistService = scope.ServiceProvider.GetRequiredService<IWaitlistService>();
 
+            Activity activity = await activityRepository.GetByIdAsync(request.ActivityId)
+                ?? throw new ArgumentException("De activiteit is niet gevonden.");
+
+            if (DateTime.UtcNow >= activity.SignUpDeadline)
+                throw new ArgumentException("De inschrijfdatum is al geweest.");
+
+            int totalSignedUp = await signUpRepository.CountByActivityIdAsync(request.ActivityId);
             SignUp? signUp = await signUpRepository.GetByEmailAndActivityIdIncludingDeletedAsync(request.Email!, request.ActivityId);
+            if (totalSignedUp >= activity.MaxParticipants)
+            {
+                await waitlistService.AddToWaitlistAsync(request, signUp);
+                throw new ArgumentException("Deze activiteit heeft helaas geen plek meer. We hebben een nieuwe e-mail verstuurd ter informatie over wat er nu gaat gebeuren.");
+            }
+
             await signUpRepository.CreateOrUpdateAsync(signUp, request, Guid.Empty);
         }
     }

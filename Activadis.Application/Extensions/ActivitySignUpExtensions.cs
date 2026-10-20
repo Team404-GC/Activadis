@@ -8,11 +8,11 @@ namespace Activadis.Application.Extensions
             => activity.MaxParticipants > 0;
 
         public static int AvailableSpots(this Activity activity)
-            => activity.MaxParticipants - activity.TotalSignUps;
+            => activity.MaxParticipants - activity.SignUps.Count;
 
         public static bool IsFull(this Activity activity)
             => activity.HasParticipantLimit()
-                && activity.TotalSignUps >= activity.MaxParticipants;
+                && activity.SignUps.Count >= activity.MaxParticipants;
 
         public static bool HasTakenPlace(this Activity activity)
             => DateTime.UtcNow > activity.EndDate;
