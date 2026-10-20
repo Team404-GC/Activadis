@@ -4,124 +4,134 @@
 @attribute [Authorize(Roles = "Admin")]
 @page "/activiteit/nieuw"
 
-<div class="form-container">
-    <h3>Creëer activiteit</h3>
-    <EditForm EditContext="context" OnValidSubmit="CreateAsync">
-        <DataAnnotationsValidator />
-        <section>
-            <label>Naam</label>
-            <InputText @bind-Value="request.Name" />
-            <ValidationMessage For="@(() => request.Name)" />
-        </section>
-        <section>
-            <label>Beschrijving</label>
-            <InputTextArea @bind-Value="request.Description" />
-            <ValidationMessage For="@(() => request.Description)" />
-        </section>
-        <section>
-            <label>Kosten per persoon</label>
-            <InputNumber step="0.01" @bind-Value="request.CostPerPerson" />
-            <ValidationMessage For="@(() => request.CostPerPerson)" />
-        </section>
-        <br />
-        <section>
-            <label>Locatie</label>
-            <InputText @bind-Value="request.Location" />
-            <ValidationMessage For="@(() => request.Location)" />
-        </section>
-        <section>
-            <label>Foto</label>
-            <InputFile OnChange="OnFileChange" accept="image/png,image/jpeg,image/webp" />
-            <ValidationMessage For="@(() => request.Image)" />
-        </section>
-        <br />
-        <section>
-            <label>Minimaal aantal deelnemers</label>
-            <InputNumber @bind-Value="request.MinParticipants" />
-            <ValidationMessage For="@(() => request.MinParticipants)" />
-        </section>
-        <section>
-            <label>Maximaal aantal deelnemers</label>
-            <InputNumber @bind-Value="request.MaxParticipants" />
-            <ValidationMessage For="@(() => request.MaxParticipants)" />
-        </section>
-        <br />
-        <section>
-            <label>Bevat eten & drinken?</label>
-            <label class="switch">
-                <InputCheckbox @bind-Value="request.FoodIncluded" />
-                <span class="slider round"></span>
-            </label>
-            <ValidationMessage For="@(() => request.FoodIncluded)" />
-        </section>
-        <section>
-            <label>Is een externe activiteit?</label>
-            <label class="switch">
-                <InputCheckbox @bind-Value="request.ExternalAllowed" />
-                <span class="slider round"></span>
-            </label>
-            <ValidationMessage For="@(() => request.ExternalAllowed)" />
-        </section>
-        <section>
-            <label>Mag +1 meenemen?</label>
-            <label class="switch">
-                <InputCheckbox @bind-Value="request.PlusOneAllowed" />
-                <span class="slider round"></span>
-            </label>
-            <ValidationMessage For="@(() => request.PlusOneAllowed)" />
-        </section>
-        <br />
-        <section>
-            <label>Startdatum</label>
-            <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
-            <ValidationMessage For="@(() => request.StartDate)" />
-        </section>
-        <section>
-            <label>Einddatum</label>
-            <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
-            <ValidationMessage For="@(() => request.EndDate)" />
-        </section>
-        <br />
-        <section>
-            <label>Inschrijfdeadline</label>
-            <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
-            <ValidationMessage For="@(() => request.SignUpDeadline)" />
-        </section>
-        <section>
-            <label>Uitschrijfdeadline</label>
-            <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
-            <ValidationMessage For="@(() => request.SignOutDeadline)" />
-        </section>
-        <br />
-        <section>
-            <label>ELO-categorieën</label>
-            @foreach (CategoryDto category in categories)
-            {
-                <label>
-                    <input type="checkbox" checked="@request.CategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
-                    @category.Name
+@if (isLoading)
+{
+    <div class="ad-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (context is not null)
+{
+    <div class="form-container">
+        <h3>Creëer activiteit</h3>
+        <EditForm EditContext="context" OnValidSubmit="CreateAsync">
+            <DataAnnotationsValidator />
+            <section>
+                <label>Naam</label>
+                <InputText @bind-Value="request.Name" />
+                <ValidationMessage For="@(() => request.Name)" />
+            </section>
+            <section>
+                <label>Beschrijving</label>
+                <InputTextArea @bind-Value="request.Description" />
+                <ValidationMessage For="@(() => request.Description)" />
+            </section>
+            <section>
+                <label>Kosten per persoon</label>
+                <InputNumber step="0.01" @bind-Value="request.CostPerPerson" />
+                <ValidationMessage For="@(() => request.CostPerPerson)" />
+            </section>
+            <br />
+            <section>
+                <label>Locatie</label>
+                <InputText @bind-Value="request.Location" />
+                <ValidationMessage For="@(() => request.Location)" />
+            </section>
+            <section>
+                <label>Foto</label>
+                <InputFile OnChange="OnFileChange" accept="image/png,image/jpeg,image/webp" />
+                <ValidationMessage For="@(() => request.Image)" />
+            </section>
+            <br />
+            <section>
+                <label>Minimaal aantal deelnemers</label>
+                <InputNumber @bind-Value="request.MinParticipants" />
+                <ValidationMessage For="@(() => request.MinParticipants)" />
+            </section>
+            <section>
+                <label>Maximaal aantal deelnemers</label>
+                <InputNumber @bind-Value="request.MaxParticipants" />
+                <ValidationMessage For="@(() => request.MaxParticipants)" />
+            </section>
+            <br />
+            <section>
+                <label>Bevat eten & drinken?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="request.FoodIncluded" />
+                    <span class="slider round"></span>
                 </label>
-            }
-            <InfoBubbleComponent Text="Optioneel. Kies de ELO-categorieën waarvoor wedstrijden op deze activiteit meetellen." />
-        </section>
-        <br />
-        <section>
-            <label>Is draft?</label>
-            <label class="switch">
-                <InputCheckbox @bind-Value="request.IsDraft" />
-                <span class="slider round"></span>
-            </label>
-            <ValidationMessage For="@(() => request.IsDraft)" />
-            <button type="submit" disabled="@isLoading">Aanmaken</button>
-        </section>
-    </EditForm>
-</div>
+                <ValidationMessage For="@(() => request.FoodIncluded)" />
+            </section>
+            <section>
+                <label>Is een externe activiteit?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="request.ExternalAllowed" />
+                    <span class="slider round"></span>
+                </label>
+                <ValidationMessage For="@(() => request.ExternalAllowed)" />
+            </section>
+            <section>
+                <label>Mag +1 meenemen?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="request.PlusOneAllowed" />
+                    <span class="slider round"></span>
+                </label>
+                <ValidationMessage For="@(() => request.PlusOneAllowed)" />
+            </section>
+            <br />
+            <section>
+                <label>Startdatum</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
+                <ValidationMessage For="@(() => request.StartDate)" />
+            </section>
+            <section>
+                <label>Einddatum</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
+                <ValidationMessage For="@(() => request.EndDate)" />
+            </section>
+            <br />
+            <section>
+                <label>Inschrijfdeadline</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
+                <ValidationMessage For="@(() => request.SignUpDeadline)" />
+            </section>
+            <section>
+                <label>Uitschrijfdeadline</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
+                <ValidationMessage For="@(() => request.SignOutDeadline)" />
+            </section>
+            <br />
+            <section>
+                <label>ELO-categorieën</label>
+                @foreach (CategoryDto category in categories)
+                {
+                    <label>
+                        <input type="checkbox" checked="@request.CategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
+                        @category.Name
+                    </label>
+                }
+                <InfoBubbleComponent Text="Optioneel. Kies de ELO-categorieën waarvoor wedstrijden op deze activiteit meetellen." />
+            </section>
+            <br />
+            <section>
+                <label>Is draft?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="request.IsDraft" />
+                    <span class="slider round"></span>
+                </label>
+                <ValidationMessage For="@(() => request.IsDraft)" />
+                <button type="submit" disabled="@isCreating">Aanmaken</button>
+            </section>
+        </EditForm>
+    </div>
+}
 
 @code {
     CreateActivityRequest request = new CreateActivityRequest();
     List<CategoryDto> categories = [];
     EditContext? context = null;
-    bool isLoading = false;
+    bool isCreating = false;
+    bool isLoading = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -129,11 +139,13 @@
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
+            isLoading = false;
             return;
         }
 
         categories = response.Value ?? [];
         context = new EditContext(request);
+        isLoading = false;
     }
 
     public void OnCategoryChange(ChangeEventArgs args, Guid categoryId)
@@ -173,7 +185,7 @@
 
     public async Task CreateAsync()
     {
-        isLoading = true;
+        isCreating = true;
 
         CreateActivityRequest realRequest = new CreateActivityRequest();
         foreach (PropertyInfo property in typeof(CreateActivityRequest).GetProperties())
@@ -192,12 +204,12 @@
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
-            isLoading = false;
+            isCreating = false;
             return;
         }
 
         Notifications.AddNotification("De activiteit is met succes aangemaakt.", false);
         NavigationManager.NavigateTo("/");
-        isLoading = false;
+        isCreating = false;
     }
 }

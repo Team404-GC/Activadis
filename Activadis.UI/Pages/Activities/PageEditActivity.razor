@@ -18,7 +18,7 @@ else if (activity is null)
 {
     <p class="ad-state">Deze activiteit is niet gevonden.</p>
 }
-else
+else if (context is not null)
 {
     <div class="form-container">
         <h3>Bewerk activiteit: @request.Name</h3>

@@ -111,10 +111,10 @@ namespace Activadis.UI.Application.Services
             {
                 return ApiResponse<TResponse>.Fail(exception.Message);
             }
-			//catch
-			//{
-			//	return Error<TResponse>();
-			//}
+			catch
+			{
+				return Error<TResponse>();
+			}
 		}
 
         public async Task<ApiResponse<TResponse>> DeleteAsync<TResponse>(string url)

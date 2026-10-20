@@ -2,7 +2,7 @@
 
 namespace Activadis.Application.Validations.Activity
 {
-    public static class CreateActivityRequestValidation
+    public static class ActivityRequestValidation
     {
         private static readonly List<string> ValidImageTypes = ["image/png", "image/jpeg", "image/webp"];
 
@@ -16,6 +16,9 @@ namespace Activadis.Application.Validations.Activity
 
             if (request.Location is null || string.IsNullOrWhiteSpace(request.Location))
                 throw new ArgumentException("De locatie moet ingevuld worden.");
+
+            if (request.Image is null && request is CreateActivityRequest)
+                throw new ArgumentException("Een foto moet geupload worden.");
 
             if (request.Image is not null)
             {
