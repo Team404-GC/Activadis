@@ -7,8 +7,6 @@ using Activadis.Infrastructure;
 using Activadis.Application;
 using Activadis.Shared.DTOs;
 using System.Globalization;
-using Activadis.API.Converters;
-using Activadis.Application.DTOs;
 
 namespace Activadis.API
 {

@@ -1,4 +1,4 @@
-﻿using Activadis.Application.DTOs;
+﻿using Activadis.Shared.DTOs;
 using Activadis.Domain.Models;
 using System.Net;
 
