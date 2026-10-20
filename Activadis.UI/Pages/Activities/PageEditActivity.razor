@@ -1,0 +1,194 @@
+﻿@inject NavigationManager NavigationManager
+@inject IActivityService ActivityService
+@attribute [Authorize(Roles = "Admin")]
+@page "/activiteit/bewerk/{Id:guid}"
+
+<NavLink class="ad-back" href="@($"/activiteit/{Id}")" Match="NavLinkMatch.Prefix">
+    <i class="bi bi-arrow-left"></i>
+    <span>Terug naar de activiteit</span>
+</NavLink>
+
+@if (isLoading)
+{
+    <div class="ad-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (activity is null)
+{
+    <p class="ad-state">Deze activiteit is niet gevonden.</p>
+}
+else if (context is not null)
+{
+    <div class="form-container">
+        <h3>Bewerk activiteit: @request.Name</h3>
+        <EditForm EditContext="context" OnValidSubmit="EditAsync">
+            <DataAnnotationsValidator />
+            <section>
+                <label>Naam</label>
+                <InputText @bind-Value="request.Name" />
+                <ValidationMessage For="@(() => request.Name)" />
+            </section>
+            <section>
+                <label>Beschrijving</label>
+                <InputTextArea @bind-Value="request.Description" />
+                <ValidationMessage For="@(() => request.Description)" />
+            </section>
+            <section>
+                <label>Kosten per persoon</label>
+                <InputNumber step="0.01" @bind-Value="request.CostPerPerson" />
+                <ValidationMessage For="@(() => request.CostPerPerson)" />
+            </section>
+            <br />
+            <section>
+                <label>Locatie</label>
+                <InputText @bind-Value="request.Location" />
+                <ValidationMessage For="@(() => request.Location)" />
+            </section>
+            <section>
+                <label>Foto</label>
+                <InputFile OnChange="OnFileChange" accept="image/png,image/jpeg,image/webp" />
+                <ValidationMessage For="@(() => request.Image)" />
+            </section>
+            <br />
+            <section>
+                <label>Minimaal aantal deelnemers</label>
+                <InputNumber @bind-Value="request.MinParticipants" />
+                <ValidationMessage For="@(() => request.MinParticipants)" />
+            </section>
+            <section>
+                <label>Maximaal aantal deelnemers</label>
+                <InputNumber @bind-Value="request.MaxParticipants" />
+                <ValidationMessage For="@(() => request.MaxParticipants)" />
+            </section>
+            <br />
+            <section>
+                <label>Bevat eten & drinken?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="request.FoodIncluded" />
+                    <span class="slider round"></span>
+                </label>
+                <ValidationMessage For="@(() => request.FoodIncluded)" />
+            </section>
+            <br />
+            <section>
+                <label>Startdatum</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
+                <ValidationMessage For="@(() => request.StartDate)" />
+            </section>
+            <section>
+                <label>Einddatum</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
+                <ValidationMessage For="@(() => request.EndDate)" />
+            </section>
+            <br />
+            <section>
+                <label>Inschrijfdeadline</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
+                <ValidationMessage For="@(() => request.SignUpDeadline)" />
+            </section>
+            <section>
+                <label>Uitschrijfdeadline</label>
+                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
+                <ValidationMessage For="@(() => request.SignOutDeadline)" />
+            </section>
+            <br />
+            <section>
+                <label>Is draft?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="request.IsDraft" />
+                    <span class="slider round"></span>
+                </label>
+                <ValidationMessage For="@(() => request.IsDraft)" />
+                <button type="submit" disabled="@isEditing">Bewerken</button>
+            </section>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    EditActivityRequest request = new EditActivityRequest();
+    ActivityDetailResponse? activity = null;
+    EditContext? context = null;
+    bool isEditing = false;
+    bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(Id);
+        if (!activityResponse.Succeeded || activityResponse.Value is null)
+        {
+            Notifications.AddNotification(activityResponse.Message, false);
+            NavigationManager.NavigateTo($"/activiteit/{Id}");
+            isLoading = false;
+            return;
+        }
+
+        activity = activityResponse.Value;
+        request = activity.ToEditActivityRequest();
+        context = new EditContext(request);
+        isLoading = false;
+    }
+
+    public void OnFileChange(InputFileChangeEventArgs args)
+    {
+        request.Image = args.File;
+        if (context is null)
+            return;
+
+        FieldIdentifier field = FieldIdentifier.Create(() => request.Image);
+        context.NotifyFieldChanged(field);
+    }
+
+    public void OnDateChange(ChangeEventArgs args, Expression<Func<EditActivityRequest, DateTime>> selector)
+    {
+        if (selector.Body is not MemberExpression expression || expression.Member is not PropertyInfo property)
+            return;
+
+        if (args.Value is not string dateString || !DateTimeOffset.TryParse(dateString, out DateTimeOffset date))
+            date = DateTimeOffset.MinValue;
+
+        property.SetValue(request, date.UtcDateTime);
+    }
+
+    public string GetDateValue(Expression<Func<EditActivityRequest, DateTime>> selector)
+    {
+        DateTime date = selector.Compile()(request);
+        return date.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
+    }
+
+    public async Task EditAsync()
+    {
+        isEditing = true;
+
+        foreach (PropertyInfo property in typeof(EditActivityRequest).GetProperties())
+        {
+            if (property.Name == nameof(EditActivityRequest.Image))
+                continue;
+
+            object? value = property.GetValue(request);
+            if (property.PropertyType == typeof(decimal?))
+                property.SetValue(request, value ?? 0.0m);
+
+            if (property.PropertyType == typeof(int?))
+                property.SetValue(request, value ?? 0);
+        }
+
+        ApiResponse<object> response = await ActivityService.EditAsync(request);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isEditing = false;
+            return;
+        }
+
+        Notifications.AddNotification("De activiteit is met succes bijgewerkt.", false);
+        NavigationManager.NavigateTo($"/activiteit/{Id}");
+        isEditing = false;
+    }
+}

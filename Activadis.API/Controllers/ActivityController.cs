@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Activadis.Application.DTOs.Activity;
 using Microsoft.AspNetCore.Authorization;
+using Swashbuckle.AspNetCore.Annotations;
 using Activadis.Application.Interfaces;
-using Activadis.Shared.DTOs.Activity;
 using Activadis.Shared.DTOs.Elo.Stats;
+using Activadis.Shared.DTOs.Activity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Activadis.Shared.DTOs;
 using Activadis.Domain.Enums;
-using Swashbuckle.AspNetCore.Annotations;
+using Activadis.Shared.DTOs;
 
 namespace Activadis.API.Controllers
 {
@@ -85,7 +85,22 @@ namespace Activadis.API.Controllers
 			}
 		}
 
-		[HttpPut("{id:guid}/categories")]
+        [HttpPut]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> EditAsync([FromForm] EditActivityRequest request)
+        {
+            try
+            {
+                await ActivityService.EditAsync(request);
+                return Ok(ApiResponse<object>.Ok());
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpPut("{id:guid}/categories")]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> UpdateCategoriesAsync(Guid id, [FromBody] UpdateActivityCategoriesRequest request)
 		{

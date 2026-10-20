@@ -1,12 +1,12 @@
 using Activadis.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Localization;
 using Activadis.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
+using Activadis.API.Converters;
 using Activadis.Infrastructure;
 using Activadis.Application;
-using Microsoft.AspNetCore.Localization;
+using Activadis.Shared.DTOs;
 using System.Globalization;
-using Activadis.API.Converters;
-using Activadis.Application.DTOs;
 
 namespace Activadis.API
 {
@@ -42,6 +42,11 @@ namespace Activadis.API
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
+            });
+
+            builder.WebHost.ConfigureKestrel(options =>
+            {
+                options.Limits.MaxRequestBodySize = ApplicationConfiguration.AllowedSizeInMB;
             });
 
             var app = builder.Build();

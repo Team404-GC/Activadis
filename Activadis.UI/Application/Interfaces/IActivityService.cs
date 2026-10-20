@@ -8,7 +8,9 @@ namespace Activadis.UI.Application.Interfaces
 	public interface IActivityService
 	{
 		Task<ApiResponse<object>> CreateAsync(CreateActivityRequest request);
-		Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter);
+		Task<ApiResponse<object>> EditAsync(EditActivityRequest request);
+
+        Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter);
 		Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id);
 		Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync();
 

@@ -11,6 +11,7 @@ namespace Activadis.UI.Application.Interfaces
 		Task<ApiResponse<TResponse>> PostAsync<TResponse, TRequest>(string url, TRequest request);
         Task<ApiResponse<TResponse>> PostIncludeFileAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, IBrowserFile?>> property);
         Task<ApiResponse<TResponse>> PutAsync<TResponse, TRequest>(string url, TRequest request);
+        Task<ApiResponse<TResponse>> PutIncludeFileAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, IBrowserFile?>> property);
         Task<ApiResponse<TResponse>> DeleteAsync<TResponse>(string url);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Activadis.Application.DTOs.Activity;
-using Activadis.Shared.DTOs.Activity;
 using Activadis.Shared.DTOs.Elo.Stats;
+using Activadis.Shared.DTOs.Activity;
 using Activadis.Domain.Enums;
 
 namespace Activadis.Application.Interfaces
@@ -8,7 +8,9 @@ namespace Activadis.Application.Interfaces
 	public interface IActivityService
 	{
 		Task CreateAsync(CreateActivityRequest request);
-		Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role, ActivityFilterRequest request);
+		Task EditAsync(EditActivityRequest request);
+
+        Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role, ActivityFilterRequest request);
 
 		Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId);
 		Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId);
