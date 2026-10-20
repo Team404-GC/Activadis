@@ -16,7 +16,7 @@ namespace Activadis.Application.Extensions
 
                 Location = request.Location,
                 Image = image,
-                ImageContentType = request.Image.ContentType,
+                ImageContentType = request.Image!.ContentType,
                 Categories = categories.ToList(),
 
                 MinParticipants = request.MinParticipants,
@@ -84,6 +84,7 @@ namespace Activadis.Application.Extensions
                 FoodIncluded = activity.FoodIncluded,
                 ExternalAllowed = activity.ExternalAllowed,
                 PlusOneAllowed = activity.PlusOneAllowed,
+                IsDraft = activity.PublishedOn is null,
 
                 StartDate = activity.StartDate,
                 EndDate = activity.EndDate,

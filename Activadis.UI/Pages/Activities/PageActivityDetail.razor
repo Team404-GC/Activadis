@@ -24,8 +24,15 @@ else if (activity is null)
 }
 else
 {
-    <h1>@activity.Name</h1>
-
+    <div class="ad-header">
+        <h1>@activity.Name</h1>
+        @if (User?.IsInRole("Admin") ?? false)
+        {
+            <NavLink class="ad-edit" href="@($"/activiteit/bewerk/{Id}")">
+                <i class="bi bi-pencil-fill"></i>
+            </NavLink>
+        }
+    </div>
     <div class="ad-layout">
         <div class="ad-content">
             <div class="ad-status @(activity.IsOpenForSignUp ? "ad-status-open" : "ad-status-closed")">

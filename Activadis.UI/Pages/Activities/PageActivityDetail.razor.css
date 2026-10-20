@@ -1,4 +1,26 @@
-﻿::deep .ad-back {
+﻿.ad-header {
+    justify-content: space-between;
+    align-items: center;
+    display: flex;
+}
+
+    .ad-header ::deep .ad-edit {
+        background-color: var(--AccentColor);
+        color: var(--TextColor);
+        justify-content: center;
+        align-items: center;
+        aspect-ratio: 1 / 1;
+        border-radius: 10px;
+        display: flex;
+        height: 40px;
+        border: none;
+    }
+
+        .ad-header ::deep .ad-edit:hover {
+            background-color: var(--AccentColorHover);
+        }
+
+::deep .ad-back {
     display: inline-flex;
     align-items: center;
     gap: 8px;

@@ -31,5 +31,10 @@ namespace Activadis.UI.Application.DTOs.Activity
         public DateTime SignOutDeadline { get; set; }
 
         public List<Guid> CategoryIds { get; set; } = [];
+
+        public CreateActivityRequest()
+        {
+            StartDate = EndDate = SignUpDeadline = SignOutDeadline = DateTime.UtcNow;
+        }
     }
 }

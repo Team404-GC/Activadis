@@ -1,13 +1,12 @@
-﻿using Activadis.Application.DTOs.Activity;
+﻿using Activadis.Application.Validations.Activity;
+using Activadis.Domain.Interfaces.Repositories;
+using Activadis.Application.DTOs.Activity;
 using Activadis.Application.Extensions;
 using Activadis.Application.Interfaces;
-using Activadis.Application.Validations.Activity;
+using Activadis.Shared.DTOs.Elo.Stats;
+using Activadis.Shared.DTOs.Activity;
 using Activadis.Domain.Entities;
 using Activadis.Domain.Enums;
-using Activadis.Domain.Filters;
-using Activadis.Domain.Interfaces.Repositories;
-using Activadis.Shared.DTOs.Activity;
-using Activadis.Shared.DTOs.Elo.Stats;
 
 namespace Activadis.Application.Services
 {
@@ -33,12 +32,55 @@ namespace Activadis.Application.Services
             IEnumerable<Category> categories = await CategoryRepository.GetByIdsAsync(request.CategoryIds);
             request.CategoryIds.ValidateCategories(categories, []);
 
-            MemoryStream image = new MemoryStream();
-            await request.Image.CopyToAsync(image);
+            using MemoryStream image = new MemoryStream();
+            await request.Image!.CopyToAsync(image);
 
             Activity activity = request.ToActivity(image.ToArray(), categories);
             activity = await ActivityRepository.AddAsync(activity);
         }
+
+        public async Task EditAsync(EditActivityRequest request)
+        {
+            request.Validate();
+
+            Activity activity = await ActivityRepository.GetDetailAsync(request.ActivityId)
+                ?? throw new ArgumentException("De activiteit is niet gevonden.");
+
+            if (request.Image is not null)
+            {
+                using MemoryStream image = new MemoryStream();
+                await request.Image.CopyToAsync(image);
+
+                activity.Image = image.ToArray();
+                activity.ImageContentType = request.Image!.ContentType;
+            }
+
+            activity.Name = request.Name;
+            activity.Description = request.Description;
+            activity.CostPerPerson = request.CostPerPerson;
+            activity.Location = request.Location;
+
+            activity.MinParticipants = request.MinParticipants;
+            if (request.MaxParticipants < activity.SignUps.Count)
+                throw new ArgumentException("Het maximum aantal deelnemers kan niet onder het huidige aantal deelnemers zitten.");
+
+            activity.MaxParticipants = request.MaxParticipants;
+
+            activity.FoodIncluded = request.FoodIncluded;
+            if (activity.PublishedOn is not null && request.IsDraft && activity.SignUps.Count > 0)
+                throw new ArgumentException("De activiteit kan niet meer een draft worden nadat er al iemand aan deelneemt.");
+
+            activity.PublishedOn = request.IsDraft ? null : DateTime.UtcNow;
+
+            activity.StartDate = request.StartDate;
+            activity.EndDate = request.EndDate;
+
+            activity.SignUpDeadline = request.SignUpDeadline;
+            activity.SignOutDeadline = request.SignOutDeadline;
+
+            await ActivityRepository.UpdateAsync(activity);
+        }
+
 		public async Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role, ActivityFilterRequest request)
 		{
 			bool isAdmin = role == UserRole.Admin;
