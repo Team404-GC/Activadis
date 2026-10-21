@@ -13,14 +13,23 @@ namespace Activadis.UI.Application.Services
             HttpService = httpService;
         }
 
+        public async Task<ApiResponse<SignUpDTO>> GetSignUpAsync(GetSignUpRequest request)
+            => await HttpService.QueryAsync<SignUpDTO, GetSignUpRequest>("/SignUp", request);
+
         public async Task<ApiResponse<object>> SignUpAsync(SignUpRequest request)
             => await HttpService.PostAsync<object, SignUpRequest>("/SignUp", request);
 
+        public async Task<ApiResponse<object>> ConfirmSignUpAsync(string token)
+            => await HttpService.PostAsync<object, string>("/SignUp/Confirmation", token);
+
+        public async Task<ApiResponse<object>> EditSignUpAsync(EditSignUpRequest request)
+            => await HttpService.PutAsync<object, EditSignUpRequest>("/SignUp", request);
+
+        public async Task<ApiResponse<object>> ConfirmEditSignUpAsync(string token)
+            => await HttpService.PutAsync<object, string>("/SignUp/Confirmation", token);
+
         public async Task<ApiResponse<object>> SignOutAsync(SignOutRequest request)
             => await HttpService.PostAsync<object, SignOutRequest>($"/SignUp/SignOut", request);
-
-        public async Task<ApiResponse<object>> ConfirmSignUpAsync(string token)
-            => await HttpService.PostAsync<object, object>("/SignUp/Confirmation", token);
 
         public async Task<ApiResponse<object>> ConfirmSignOutAsync(string token)
             => await HttpService.DeleteAsync<object>($"/SignUp/SignOut/Confirmation/{token}");

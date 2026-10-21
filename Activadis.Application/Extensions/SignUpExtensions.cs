@@ -22,6 +22,14 @@ namespace Activadis.Application.Extensions
             };
         }
 
+        public static SignUpDTO ToSignUpDTO(this SignUp request)
+        {
+            return new SignUpDTO()
+            {
+                HasPlusOne = request.HasPlusOne
+            };
+        }
+
         public async static Task CreateOrUpdateAsync(this ISignUpRepository signUpRepository, SignUp? signUp, SignUpRequest request, Guid userId, int? position = null)
         {
             if (signUp is null)
@@ -36,6 +44,17 @@ namespace Activadis.Application.Extensions
             signUp.HasPlusOne = request.HasPlusOne;
             signUp.DeletedAt = null;
             signUp.WaitlistPosition = position;
+
+            await signUpRepository.UpdateAsync(signUp);
+        }
+
+        public async static Task UpdateAsync(this ISignUpRepository signUpRepository, SignUp? signUp, EditSignUpRequest request, Guid userId)
+        {
+            if (signUp is null || signUp.WaitlistPosition is not null)
+                throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
+
+            signUp.HasPlusOne = request.HasPlusOne;
+
             await signUpRepository.UpdateAsync(signUp);
         }
     }

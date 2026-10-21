@@ -30,6 +30,7 @@ namespace Activadis.Application
             services.AddScoped<LeaderboardService>();
 
             services.AddSingleton<IConfirmationService<SignUpRequest>, SignUpConfirmationService>();
+            services.AddSingleton<IConfirmationService<EditSignUpRequest>, EditSignUpConfirmationService>();
             services.AddSingleton<IConfirmationService<SignOutRequest>, SignOutConfirmationService>();
             services.AddSingleton<IConfirmationService<ResignUpRequest>, ResignUpConfirmationService>();
 

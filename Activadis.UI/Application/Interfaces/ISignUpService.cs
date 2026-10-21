@@ -5,10 +5,16 @@ namespace Activadis.UI.Application.Interfaces
 {
     public interface ISignUpService
     {
+        Task<ApiResponse<SignUpDTO>> GetSignUpAsync(GetSignUpRequest request);
         Task<ApiResponse<object>> SignUpAsync(SignUpRequest request);
-        Task<ApiResponse<object>> SignOutAsync(SignOutRequest request);
         Task<ApiResponse<object>> ConfirmSignUpAsync(string token);
+
+        Task<ApiResponse<object>> EditSignUpAsync(EditSignUpRequest request);
+        Task<ApiResponse<object>> ConfirmEditSignUpAsync(string token);
+
+        Task<ApiResponse<object>> SignOutAsync(SignOutRequest request);
         Task<ApiResponse<object>> ConfirmSignOutAsync(string token);
+
         Task<ApiResponse<ResignUpRequest>> GetResignUpRequestAsync(string token);
         Task<ApiResponse<object>> ResignUpRequestAsync(string token, ResignUpRequest request);
     }
