@@ -7,7 +7,7 @@
 
 <PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>
 
-<NavLink class="ad-back" href="/activiteiten" Match="NavLinkMatch.Prefix">
+<NavLink class="ad-back" href="@(User?.Identity?.IsAuthenticated == true ? "/activiteiten" : "/")" Match="NavLinkMatch.Prefix">
     <i class="bi bi-arrow-left"></i>
     <span>Terug naar activiteiten</span>
 </NavLink>
@@ -250,16 +250,9 @@ else
             .Concat(activity?.Categories.Where(x => !activeCategories.Any(y => y.Id == x.Id)) ?? [])
             .OrderBy(x => x.DisplayOrder);
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
-        if (AuthenticationState is null)
-        {
-            NavigationManager.NavigateTo("/");
-            return;
-        }
-
-        AuthenticationState state = await AuthenticationState;
-        User = state.User;
+        await OnParametersSetAsync();
 
         isLoading = true;
         activity = null;
@@ -277,7 +270,7 @@ else
         editSignUpRequest.Request.ActivityId = Id;
 
         activity = response.Value;
-        if (activity is not null && !activity.ExternalAllowed && User.Identity?.IsAuthenticated != true)
+        if (activity is not null && !activity.ExternalAllowed && User?.Identity?.IsAuthenticated != true)
         {
             NavigationManager.NavigateTo("/");
             return;
@@ -287,6 +280,23 @@ else
             await LoadAdminDataAsync();
 
         isLoading = false;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (AuthenticationState is null)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        AuthenticationState state = await AuthenticationState;
+        User = state.User;
+
+        if (activity?.ExternalAllowed == true || User?.Identity?.IsAuthenticated == true)
+            return;
+
+        NavigationManager.NavigateTo("/");
     }
 
     private async Task LoadAdminDataAsync()

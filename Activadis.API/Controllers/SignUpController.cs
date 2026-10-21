@@ -1,4 +1,5 @@
-﻿using Activadis.Application.Interfaces;
+﻿using Swashbuckle.AspNetCore.Annotations;
+using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.SignUp;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,6 +24,29 @@ namespace Activadis.API.Controllers
             SignUpConfirmationService = signUpConfirmationService;
             ResignUpConfirmationService = resignUpConfirmationService;
             EditSignUpConfirmationService = editSignUpConfirmationService;
+        }
+
+        [AcceptVerbs("QUERY")]
+        [SwaggerIgnore]
+        public async Task<IActionResult> GetSignUpAsync(GetSignUpRequest request)
+        {
+            string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(id, out Guid userId))
+                userId = Guid.Empty;
+
+            string? email = Request.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            if (email is not null)
+                request.Email = email;
+
+            try
+            {
+                SignUpDTO? signUp = await SignUpService.GetSignUpAsync(request, userId);
+                return Ok(ApiResponse<SignUpDTO>.Ok(signUp));
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(ApiResponse<SignUpDTO>.Fail(exception.Message));
+            }
         }
 
         [HttpPost]

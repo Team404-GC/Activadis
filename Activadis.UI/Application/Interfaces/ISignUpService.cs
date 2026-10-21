@@ -5,6 +5,7 @@ namespace Activadis.UI.Application.Interfaces
 {
     public interface ISignUpService
     {
+        Task<ApiResponse<SignUpDTO>> GetSignUpAsync(GetSignUpRequest request);
         Task<ApiResponse<object>> SignUpAsync(SignUpRequest request);
         Task<ApiResponse<object>> ConfirmSignUpAsync(string token);
 

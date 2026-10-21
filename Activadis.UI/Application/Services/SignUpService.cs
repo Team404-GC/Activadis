@@ -13,6 +13,9 @@ namespace Activadis.UI.Application.Services
             HttpService = httpService;
         }
 
+        public async Task<ApiResponse<SignUpDTO>> GetSignUpAsync(GetSignUpRequest request)
+            => await HttpService.QueryAsync<SignUpDTO, GetSignUpRequest>("/SignUp", request);
+
         public async Task<ApiResponse<object>> SignUpAsync(SignUpRequest request)
             => await HttpService.PostAsync<object, SignUpRequest>("/SignUp", request);
 

@@ -1,4 +1,6 @@
-﻿@if (ShouldDisplay)
+﻿@inject ISignUpService SignUpService
+
+@if (ShouldDisplay)
 {
     <div class="signup-container" @onclick="CloseAsync">
         <EditForm Model="Request" OnValidSubmit="OnSubmitAsync" class="form" @onclick:stopPropagation="true">
@@ -37,6 +39,8 @@
     [Parameter] public required bool PlusOneAllowed { get; set; }
     [Parameter] public required bool ShouldDisplay { get; set; }
 
+    private bool IsDisplayed = false;
+
     protected override async Task OnParametersSetAsync()
     {
         if (AuthenticationState is null)
@@ -44,16 +48,30 @@
 
         AuthenticationState state = await AuthenticationState;
         User = state.User;
+
+        if (!ShouldDisplay || IsDisplayed)
+            return;
+
+        IsDisplayed = true;
+        ApiResponse<SignUpDTO> response = await SignUpService.GetSignUpAsync(new GetSignUpRequest() { ActivityId = Request.ActivityId });
+        if (!response.Succeeded || response.Value is null)
+            return;
+
+        SignUpDTO signUp = response.Value;
+        Request.HasPlusOne = signUp.HasPlusOne;
+        await RequestChanged.InvokeAsync(Request);
     }
 
     public async Task OnSubmitAsync()
     {
+        IsDisplayed = false;
         await RequestChanged.InvokeAsync(Request);
         await OnSubmit.InvokeAsync();
     }
 
     public async Task CloseAsync()
     {
+        IsDisplayed = false;
         ShouldDisplay = false;
         await ShouldDisplayChanged.InvokeAsync(ShouldDisplay);
     }

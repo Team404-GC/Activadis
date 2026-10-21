@@ -22,6 +22,14 @@ namespace Activadis.Application.Extensions
             };
         }
 
+        public static SignUpDTO ToSignUpDTO(this SignUp request)
+        {
+            return new SignUpDTO()
+            {
+                HasPlusOne = request.HasPlusOne
+            };
+        }
+
         public async static Task CreateOrUpdateAsync(this ISignUpRepository signUpRepository, SignUp? signUp, SignUpRequest request, Guid userId, int? position = null)
         {
             if (signUp is null)

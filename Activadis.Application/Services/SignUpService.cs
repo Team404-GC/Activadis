@@ -26,6 +26,18 @@ namespace Activadis.Application.Services
             EditSignOutConfirmationService = editSignOutConfirmationService;
         }
 
+        public async Task<SignUpDTO> GetSignUpAsync(GetSignUpRequest request, Guid userId)
+        {
+            SignUp? signUp = userId == Guid.Empty
+                ? await SignUpRepository.GetByEmailAndActivityIdAsync(request.Email!, request.ActivityId)
+                : await SignUpRepository.GetByUserIdAndActivityIdAsync(userId, request.ActivityId);
+
+            if (signUp is null)
+                throw new KeyNotFoundException("Er is geen inschrijving gevonden.");
+
+            return signUp.ToSignUpDTO();
+        }
+
         public async Task SignUpAsync(SignUpRequest request, Guid userId)
         {
             Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
