@@ -89,16 +89,16 @@ else
             <div class="ad-actions">
                 @if (!activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
                 {
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signUpRequest, SignUpAsync))" disabled="@(IsSignUpDisabled || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signUpRequest, SignUpAsync))" disabled="@(!activity.IsOpenForSignUp || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
                         @(!signUpRequest.IsLoading ? "Inschrijven" : "Aan het laden..")
                     </button>
                 }
                 @if (activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
                 {
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(editSignUpRequest, EditSignUpAsync))" disabled="@(signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(editSignUpRequest, EditSignUpAsync))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
                         @(!editSignUpRequest.IsLoading ? "Inschrijving wijzigen" : "Aan het laden..")
                     </button>
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signOutRequest, SignOutAsync))" disabled="@(signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signOutRequest, SignOutAsync))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
                         @(!signOutRequest.IsLoading ? "Uitschrijven" : "Aan het laden..")
                     </button>
                 }
@@ -475,7 +475,7 @@ else
         editSignUpRequest.Request = new EditSignUpRequest() { ActivityId = activity.Id };
         if (User?.Identity?.IsAuthenticated == true)
         {
-            Notifications.AddNotification("Je bent je inschrijving succesvol bijgewerkt.", false);
+            Notifications.AddNotification("Je hebt je inschrijving succesvol bijgewerkt.", false);
         }
         else
         {
@@ -565,19 +565,5 @@ else
             return "De uitschrijftermijn is verstreken.";
 
         return "Inschrijving gesloten.";
-    }
-
-    private bool IsSignUpDisabled
-    {
-        get
-        {
-            if (activity is null || signUpRequest.IsLoading)
-                return true;
-
-            bool canSignIn = activity.IsOpenForSignUp;
-            bool canSignOut = DateTime.UtcNow < activity.SignOutDeadline;
-
-            return !activity.HasSignedUp ? !canSignIn : !canSignOut;
-        }
     }
 }

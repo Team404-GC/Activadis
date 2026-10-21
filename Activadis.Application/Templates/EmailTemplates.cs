@@ -62,6 +62,20 @@ namespace Activadis.Application.Templates
                    }
                );
 
+        public static EmailMessage EditSignUpConfirmation(string email, string fullName, string token)
+             => CreateEmailMessage(
+                   email, fullName,
+                   "EditSignUpConfirmation",
+                   "Bevestig je wijzing voor de inschrijving voor de activiteit",
+                   "Bevestig je wijzing voor de inschrijving",
+                   new Dictionary<string, string>()
+                   {
+                       ["FullName"] = fullName,
+                       ["Email"] = email,
+                       ["Token"] = $"{ApplicationConfiguration.RedirectLinks.ConfirmEditSignUp}/{token}"
+                   }
+               );
+
         public static EmailMessage SignOutConfirmation(string email, string fullName, string token)
             => CreateEmailMessage(
                    email, fullName,

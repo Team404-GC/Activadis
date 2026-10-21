@@ -6,6 +6,7 @@
         Task<bool> SendRemoveWaitlistConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendResignUpConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendSignUpConfirmationAsync(string email, string fullName, string token);
+        Task<bool> SendEditSignUpConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendSignOutConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendPasswordSetupAsync(string email, string fullName, string link);
         Task<bool> SendTestAsync(string email, string fullName);

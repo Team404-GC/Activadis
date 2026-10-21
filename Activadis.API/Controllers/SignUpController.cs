@@ -10,17 +10,19 @@ namespace Activadis.API.Controllers
     [Route("[controller]")]
     public class SignUpController : ControllerBase
     {
+        private readonly IConfirmationService<EditSignUpRequest> EditSignUpConfirmationService;
         private readonly IConfirmationService<ResignUpRequest> ResignUpConfirmationService;
         private readonly IConfirmationService<SignOutRequest> SignOutConfirmationService;
         private readonly IConfirmationService<SignUpRequest> SignUpConfirmationService;
         private readonly ISignUpService SignUpService;
 
-        public SignUpController(ISignUpService signUpService, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService, IConfirmationService<ResignUpRequest> resignUpConfirmationService)
+        public SignUpController(ISignUpService signUpService, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService, IConfirmationService<ResignUpRequest> resignUpConfirmationService, IConfirmationService<EditSignUpRequest> editSignUpConfirmationService)
         {
             SignUpService = signUpService;
             SignOutConfirmationService = signOutConfirmationService;
             SignUpConfirmationService = signUpConfirmationService;
             ResignUpConfirmationService = resignUpConfirmationService;
+            EditSignUpConfirmationService = editSignUpConfirmationService;
         }
 
         [HttpPost]
@@ -56,6 +58,42 @@ namespace Activadis.API.Controllers
             {
                 await SignUpConfirmationService.UseConfirmationAsync(token);
                 return Ok(ApiResponse<object>.Ok(message: "Je bent succesvol ingeschreven."));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> EditSignUpAsync(EditSignUpRequest request)
+        {
+            string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(id, out Guid userId))
+                userId = Guid.Empty;
+
+            string? email = Request.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            if (email is not null)
+                request.Email = email;
+
+            try
+            {
+                await SignUpService.EditSignUpAsync(request, userId);
+                return Ok(ApiResponse<object>.Ok());
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpPut("Confirmation")]
+        public async Task<IActionResult> ConfirmEditSignUpAsync([FromBody] string token)
+        {
+            try
+            {
+                await EditSignUpConfirmationService.UseConfirmationAsync(token);
+                return Ok(ApiResponse<object>.Ok(message: "Je hebt je inschrijving succesvol bijgewerkt."));
             }
             catch (ArgumentException exception)
             {

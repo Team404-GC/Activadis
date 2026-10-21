@@ -5,9 +5,9 @@ namespace Activadis.Application.Validations.SignUp
 {
     public static class SignOutRequestValidation
     {
-        public static void Validate(this SignOutRequest request, Entities.Activity? activity)
+        public static void Validate(this SignOutRequest request, Entities.Activity? activity, Guid userId)
         {
-            if (string.IsNullOrWhiteSpace(request.Email))
+            if (userId == Guid.Empty && string.IsNullOrWhiteSpace(request.Email))
                 throw new ArgumentException("De e-mail moet ingevuld worden.");
 
             if (activity is null)
