@@ -333,7 +333,7 @@ namespace Activadis.Application.Services
             return entries;
         }
 
-        private static string? GetRankTitle(double rating, Dictionary<double, string>? rankTitles)
+        public static string? GetRankTitle(double rating, Dictionary<double, string>? rankTitles)
         {
             if (rankTitles == null || rankTitles.Count == 0)
                 return null;

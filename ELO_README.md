@@ -163,9 +163,9 @@ Categories can define custom rank titles to display player achievement levels on
 - Example: A player with 1250 ELO against the above map would receive "Intermediate"
 
 ### Frontend support
-- Category management UI (`Categories.razor`) includes a `RankTitlesComponent` for adding/editing titles
+- Category management UI (`PageCategories.razor`) includes a `RankTitlesComponent` for adding/editing titles
 - When creating a new category the form is pre-filled with default titles: 0 "Beginner", 550 "Amateur", 750 "Gevorderde", 950 "Expert", 1100 "Meester" (they can still be removed or changed before saving)
-- Leaderboard display (`Leaderboard.razor`) shows rank titles in a dedicated column
+- Leaderboard display (`PageLeaderboard.razor`) shows rank titles in a dedicated column
 - DTOs (`CategoryDto`, `LeaderboardEntryDto`) include `RankTitles` and `RankTitle` fields respectively
 
 ---
@@ -237,10 +237,34 @@ Non-admins get a 403 on every admin endpoint, also when calling it directly.
 
 ### UI
 - `PageCreateActivity` — checkboxes for the active ELO categories.
-- `PageActivityDetail` — shows the linked categories (each links to its leaderboard) and the attached matches. Administrators can change the categories, attach and detach matches, and use **Wedstrijd aanmaken**.
-- **Wedstrijd aanmaken** opens `RecordMatch` at `/wedstrijd/nieuw?activiteit={id}`: the date is taken from the activity's start date, the categories are limited to the activity's categories (the administrator still picks one), players are chosen from a list of the activity's participants, and the saved match is linked to the activity.
-- `RecordMatch` picks players with `UserSelectComponent`: a search box (name or e-mail) above a select. Without an activity the list holds every user, loaded from `GET /User` (Admin only, returns `UserResponse`: id, name, e-mail); with an activity it holds only the activity's participants.
-- `Player` — the match history shows the activity a match was played at, linking to the activity.
+- `PageActivityDetail` — shows the linked categories as pills (each links to its leaderboard) and the attached matches as cards (date, category, players with placement and rating change; the winner gets a gold badge). Administrators can change the categories, attach and detach matches, and use **Wedstrijd aanmaken**.
+- **Wedstrijd aanmaken** opens `PageRecordMatch` at `/wedstrijd/nieuw?activiteit={id}`: the date is taken from the activity's start date, the categories are limited to the activity's categories (the administrator still picks one), players are chosen from a list of the activity's participants, and the saved match is linked to the activity.
+- `PageRecordMatch` picks players with `UserSelectComponent`: a search box (name or e-mail) above a select. Without an activity the list holds every user, loaded from `GET /User` (Admin only, returns `UserResponse`: id, name, e-mail); with an activity it holds only the activity's participants.
+- `PagePlayer` — the match history shows the activity a match was played at, linking to the activity.
+
+
+---
+
+## 7. ELO pages and styling
+
+The ELO pages live in `Activadis.UI/Pages/Elo` and follow the `Page*.razor` naming of the rest of the UI:
+
+| Page | Route | Notes |
+|---|---|---|
+| `PageLeaderboard` | `/ranglijst` | Category filter as pills ("Algemeen" plus one per category, the active one highlighted). Table with plaats, speler (with job title), rangtitel and rating; the top 3 get a gold, silver and bronze position badge. |
+| `PagePlayer` | `/speler/{id}` | Stat tiles for the overall numbers, one card per category with rating, rank title, peak rating and match count, and the latest matches. |
+| `PageCategories` | `/categorieen` | Category table with status pill; `CategoryFormComponent` and `RankTitlesComponent` open as a form card above it. |
+| `PageRecordMatch` | `/wedstrijd/nieuw` | Form cards for the match data and participants (`UserSelectComponent` per player), result table after saving. |
+| `PageStatistics` | `/statistieken` | KPI tiles and the charts/tables in cards. |
+
+- Each page and component has its own scoped `.razor.css` with a short class prefix (`lb-`, `pl-`, `ca-`, `cf-`, `rt-`, `rm-`, `st-`, `ib-`, `us-`). There are no inline styles.
+- Colours come from the variables in `wwwroot/css/app.css`. The ELO pages added `--AccentColorSoft` (also used by the activity pages, where it was missing), `--SuccessBg`, `--SuccessText`, `--GoldColor`, `--SilverColor` and `--BronzeColor`.
+- Cards, buttons, form fields, back links and the loading/empty/error states (`*-state`) use the same look as the activity pages. Positive rating changes are green, negative ones red.
+- Small screens (max 700px): less important table columns are hidden (`*-hide-small`), form grids go to one column and the participant rows of the match form stack, so no page scrolls horizontally.
+- Ratings and rating changes are always shown with two decimals (for example `803.14` and `+12.50`) through `ToRating()` and `ToRatingChange()` in `Activadis.UI/Application/Extensions/EloExtensions.cs`. Chart values are rounded to two decimals as well.
+- The "Elo ranking" dropdown in the navbar links to Categorieën, Ranglijst, Statistieken, Wedstrijd registreren (administrators only) and the personal profile.
+- `InfoBubbleComponent` shows an info icon; clicking it opens the text in a small popover.
+- `RatingDto` has a `RankTitle`, filled in `EloService.GetPlayerProfileAsync` with `LeaderboardService.GetRankTitle` (same rules as the leaderboard), so the player profile shows the rank title per category.
 
 ---
 

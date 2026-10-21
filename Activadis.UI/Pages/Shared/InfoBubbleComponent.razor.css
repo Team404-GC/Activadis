@@ -1,0 +1,53 @@
+﻿.ib {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+.ib-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--MutedText);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+    .ib-button:hover,
+    .ib-button.active {
+        color: var(--AccentColor);
+    }
+
+    .ib-button:focus-visible {
+        outline: 2px solid var(--AccentColor);
+        outline-offset: 1px;
+    }
+
+.ib-text {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 10;
+    width: max-content;
+    max-width: min(280px, 80vw);
+    padding: 10px 12px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    background: var(--TaskbarColor);
+    box-shadow: 0 8px 24px rgba(14, 30, 59, 0.15);
+    color: var(--TextColor);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 150%;
+    text-transform: none;
+    letter-spacing: normal;
+    white-space: normal;
+}

@@ -1,0 +1,118 @@
+﻿.rt-heading {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.rt-intro,
+.rt-empty {
+    color: var(--MutedText);
+    font-size: 14px;
+}
+
+.rt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rt-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: var(--SurfaceColor);
+}
+
+.rt-threshold {
+    flex: 0 0 72px;
+    color: var(--MutedText);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.rt-title {
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+.rt-remove {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--DangerBg);
+    color: var(--DangerText);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .rt-remove:hover {
+        filter: brightness(0.95);
+    }
+
+.rt-add {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) auto;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.rt-input {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+    .rt-input:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+    }
+
+.rt-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    padding: 0 20px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .rt-button:hover {
+        border-color: var(--AccentColor);
+        background: var(--AccentColorSoft);
+    }
+
+@media (max-width: 700px) {
+    .rt-add {
+        grid-template-columns: 1fr;
+    }
+
+    .rt-remove span {
+        display: none;
+    }
+}

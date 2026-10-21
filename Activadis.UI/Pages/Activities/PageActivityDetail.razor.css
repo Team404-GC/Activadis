@@ -144,6 +144,282 @@
     color: var(--MutedText);
 }
 
+.ad-empty {
+    font-size: 14px;
+    color: var(--MutedText);
+}
+
+.ad-elo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+    .ad-elo-tags ::deep .ad-elo-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: var(--AccentColorSoft);
+        color: var(--AccentColor);
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .ad-elo-tags ::deep .ad-elo-tag:hover {
+            background: var(--AccentColor);
+            color: var(--ButtonTextColor);
+        }
+
+.ad-elo-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+.ad-elo-card-title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.ad-elo-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ad-elo-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 6px 12px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 999px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .ad-elo-option input {
+        accent-color: var(--AccentColor);
+    }
+
+    .ad-elo-option.selected {
+        border-color: var(--AccentColor);
+        background: var(--AccentColorSoft);
+        font-weight: 600;
+    }
+
+.ad-elo-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+    .ad-elo-header h2 {
+        margin: 0;
+    }
+
+.ad-elo-button,
+.ad-elo-button-secondary,
+.ad-elo-button-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ad-elo-button {
+    padding: 10px 20px;
+    border: none;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 14px;
+}
+
+    .ad-elo-button:hover {
+        background: var(--ButtonColorHover);
+    }
+
+.ad-elo-button-secondary {
+    align-self: flex-start;
+    padding: 8px 16px;
+    border: 1px solid var(--BorderColor);
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+    .ad-elo-button-secondary:hover {
+        border-color: var(--AccentColor);
+        background: var(--AccentColorSoft);
+    }
+
+.ad-elo-button-danger {
+    align-self: flex-start;
+    padding: 6px 12px;
+    border: none;
+    background: var(--DangerBg);
+    color: var(--DangerText);
+    font-size: 13px;
+}
+
+    .ad-elo-button-secondary:disabled,
+    .ad-elo-button-danger:disabled {
+        background: var(--SurfaceColor);
+        color: var(--ButtonDisabledColor);
+        cursor: not-allowed;
+    }
+
+.ad-matches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 12px;
+}
+
+.ad-match {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+.ad-match-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ad-match-date {
+    color: var(--MutedText);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.ad-match-header ::deep .ad-match-category {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--SurfaceColor);
+    color: var(--TextColor);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .ad-match-header ::deep .ad-match-category:hover {
+        background: var(--AccentColorSoft);
+    }
+
+.ad-match-results {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ad-match-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.ad-match-placement {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--SurfaceColor);
+    color: var(--MutedText);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ad-match-placement.ad-match-winner {
+    background: var(--GoldColor);
+    color: var(--TextColor);
+}
+
+.ad-match-result ::deep .ad-match-player {
+    flex: 1;
+    min-width: 0;
+    color: var(--TextColor);
+    font-weight: 500;
+    overflow-wrap: anywhere;
+}
+
+    .ad-match-result ::deep .ad-match-player:hover {
+        color: var(--AccentColorHover);
+        text-decoration: none;
+    }
+
+.ad-match-change {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ad-positive {
+    color: var(--SuccessText);
+}
+
+.ad-negative {
+    color: var(--DangerText);
+}
+
+.ad-elo-link {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ad-elo-select {
+    flex: 1 1 240px;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+    .ad-elo-select:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+    }
+
+.ad-elo-link .ad-elo-button-secondary {
+    align-self: stretch;
+}
+
 @media (max-width: 900px) {
     .ad-layout {
         grid-template-columns: 1fr;

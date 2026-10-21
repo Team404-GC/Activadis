@@ -1,0 +1,129 @@
+﻿@inject IEloService EloService
+@page "/ranglijst"
+
+<PageTitle>Ranglijst</PageTitle>
+
+<h1>Ranglijst</h1>
+
+<nav class="lb-categories">
+    <a class="lb-category @(CategoryId is null ? "active" : "")" href="/ranglijst">Algemeen</a>
+    @foreach (CategoryDto category in categories)
+    {
+        <a class="lb-category @(CategoryId == category.Id ? "active" : "")" href="@($"/ranglijst?categorie={category.Id}")">@category.Name</a>
+    }
+</nav>
+
+@if (isLoading)
+{
+    <div class="lb-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (hasFailed)
+{
+    <p class="lb-state">De ranglijst kon niet worden geladen.</p>
+}
+else if (!entries.Any())
+{
+    <p class="lb-state">Er staan nog geen spelers op deze ranglijst.</p>
+}
+else
+{
+    <div class="lb-card">
+        <table class="lb-table">
+            <thead>
+                <tr>
+                    <th class="lb-position-column">Plaats</th>
+                    <th>Speler</th>
+                    <th>Rangtitel</th>
+                    <th class="lb-number">Rating</th>
+                    <th class="lb-number lb-hide-small">Piekrating</th>
+                    <th class="lb-number lb-hide-small">Wedstrijden</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (LeaderboardEntryDto entry in entries)
+                {
+                    <tr class="@(entry.Rank <= 3 ? "lb-top" : "")">
+                        <td class="lb-position-column">
+                            <span class="lb-position @ToPositionClass(entry.Rank)">@entry.Rank</span>
+                        </td>
+                        <td>
+                            <div class="lb-player">
+                                <NavLink class="lb-name" href="@($"/speler/{entry.UserId}")">@entry.FullName</NavLink>
+                                @if (!string.IsNullOrWhiteSpace(entry.JobTitle))
+                                {
+                                    <span class="lb-job">@entry.JobTitle</span>
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(entry.RankTitle))
+                            {
+                                <span class="lb-title">@entry.RankTitle</span>
+                            }
+                        </td>
+                        <td class="lb-number lb-rating">@entry.Rating.ToRating()</td>
+                        <td class="lb-number lb-hide-small">@entry.PeakRating.ToRating()</td>
+                        <td class="lb-number lb-hide-small">@entry.MatchCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "categorie")]
+    public Guid? CategoryId { get; set; }
+
+    private List<CategoryDto> categories = [];
+    private List<LeaderboardEntryDto> entries = [];
+    private bool isLoading = true;
+    private bool hasFailed;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        hasFailed = false;
+        entries = [];
+
+        if (!categories.Any())
+        {
+            ApiResponse<List<CategoryDto>> categoryResponse = await EloService.GetCategoriesAsync();
+            if (!categoryResponse.Succeeded)
+            {
+                Notifications.AddNotification(categoryResponse.Message, true);
+                hasFailed = true;
+                isLoading = false;
+                return;
+            }
+
+            categories = categoryResponse.Value ?? [];
+        }
+
+        ApiResponse<List<LeaderboardEntryDto>> response = CategoryId is null
+            ? await EloService.GetOverallLeaderboardAsync()
+            : await EloService.GetCategoryLeaderboardAsync(CategoryId.Value);
+
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            hasFailed = true;
+            isLoading = false;
+            return;
+        }
+
+        entries = response.Value ?? [];
+        isLoading = false;
+    }
+
+    private static string ToPositionClass(int rank)
+        => rank switch
+        {
+            1 => "lb-position-gold",
+            2 => "lb-position-silver",
+            3 => "lb-position-bronze",
+            _ => string.Empty
+        };
+}

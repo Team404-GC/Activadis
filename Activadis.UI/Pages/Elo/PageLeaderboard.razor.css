@@ -1,0 +1,172 @@
+﻿.lb-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.lb-category {
+    display: inline-flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    color: #ffffff;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+    .lb-category:hover {
+        border-color: var(--AccentColor);
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .lb-category.active {
+        border-color: var(--AccentColor);
+        background: var(--AccentColor);
+        color: var(--ButtonTextColor);
+        font-weight: 600;
+    }
+
+.lb-state {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    color: var(--MutedText);
+}
+
+.lb-card {
+    margin-top: 24px;
+    padding: 8px 16px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+.lb-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+    .lb-table th {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+        color: var(--MutedText);
+        font-size: 13px;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .lb-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+        vertical-align: middle;
+    }
+
+    .lb-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .lb-table tbody tr:hover td {
+        background: var(--SurfaceColor);
+    }
+
+    .lb-table .lb-number {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+.lb-position-column {
+    width: 72px;
+}
+
+.lb-position {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: var(--MutedText);
+    font-weight: 600;
+}
+
+.lb-position-gold {
+    background: var(--GoldColor);
+    color: var(--TextColor);
+}
+
+.lb-position-silver {
+    background: var(--SilverColor);
+    color: var(--TextColor);
+}
+
+.lb-position-bronze {
+    background: var(--BronzeColor);
+    color: var(--TextColor);
+}
+
+.lb-top td {
+    font-weight: 600;
+}
+
+.lb-player {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+    .lb-player ::deep .lb-name {
+        color: var(--TextColor);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+        .lb-player ::deep .lb-name:hover {
+            color: var(--AccentColorHover);
+            text-decoration: none;
+        }
+
+.lb-job {
+    color: var(--MutedText);
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.lb-title {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--AccentColorSoft);
+    color: var(--TextColor);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.lb-rating {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+@media (max-width: 700px) {
+    .lb-card {
+        padding: 4px 8px;
+    }
+
+    .lb-table .lb-hide-small {
+        display: none;
+    }
+
+    .lb-position-column {
+        width: 48px;
+    }
+
+    .lb-table th,
+    .lb-table td {
+        padding: 10px 4px;
+    }
+}
