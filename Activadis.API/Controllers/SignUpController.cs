@@ -70,6 +70,10 @@ namespace Activadis.API.Controllers
             if (!Guid.TryParse(id, out Guid userId))
                 userId = Guid.Empty;
 
+            string? email = Request.HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            if (email is not null)
+                request.Email = email;
+
             try
             {
                 await SignUpService.SignOutAsync(request, userId);

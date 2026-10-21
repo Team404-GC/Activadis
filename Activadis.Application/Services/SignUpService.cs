@@ -41,7 +41,7 @@ namespace Activadis.Application.Services
         public async Task SignOutAsync(SignOutRequest request, Guid userId)
         {
             Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
-            SignOutValidation.Validate(activity);
+            request.Validate(activity);
 
             if (userId == Guid.Empty)
             {

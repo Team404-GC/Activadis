@@ -1,0 +1,52 @@
+﻿.signup-container {
+    background-color: rgba(0, 0, 0, 0.4);
+    place-items: center;
+    position: fixed;
+    height: 100vh;
+    display: grid;
+    width: 100%;
+    left: 0;
+    top: 0;
+}
+
+::deep .form {
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    section {
+        display: flex;
+        flex-direction: column;
+        color: var(--DashboardColor);
+        gap: 2px;
+
+        label {
+            margin: 0;
+        }
+    }
+}
+
+p {
+    color: var(--TextColor);
+}
+
+button {
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    display: inline-block;
+    text-decoration: none;
+    padding: 13px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+}
+
+button:hover {
+    background: var(--ButtonColorHover);
+}
