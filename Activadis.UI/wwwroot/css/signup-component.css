@@ -1,0 +1,70 @@
+﻿.signup-container {
+    background-color: rgba(0, 0, 0, 0.4);
+    place-items: center;
+    position: fixed;
+    height: 100vh;
+    display: none;
+    width: 100%;
+    left: 0;
+    top: 0;
+
+    &.container-visible {
+        display: grid;
+    }
+
+    .form {
+        background-color: white;
+        border-radius: 15px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+
+        section {
+            display: flex;
+            flex-direction: column;
+            color: var(--DashboardColor);
+            gap: 2px;
+
+            label {
+                justify-content: space-between;
+                display: flex;
+                margin: 0;
+
+                .length-meter {
+                    font-size: 0.8rem;
+                    color: grey;
+
+                    &.length-invalid {
+                        color: red;
+                    }
+                }
+            }
+
+            textarea {
+                min-width: 257.11px;
+                min-height: 32px;
+                height: 32px;
+                resize: both;
+            }
+        }
+
+        button {
+            background: var(--ButtonColor);
+            color: var(--ButtonTextColor);
+            display: inline-block;
+            text-decoration: none;
+            padding: 13px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+
+            &:hover {
+                background: var(--ButtonColorHover);
+            }
+        }
+    }
+}

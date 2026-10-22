@@ -52,6 +52,7 @@ namespace Activadis.API.Controllers
         [HttpPost]
         public async Task<IActionResult> SignUpAsync(SignUpRequest request)
         {
+            ModelState.ClearValidationState("Comment");
             string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(id, out Guid userId))
                 userId = Guid.Empty;
@@ -92,6 +93,7 @@ namespace Activadis.API.Controllers
         [HttpPut]
         public async Task<IActionResult> EditSignUpAsync(EditSignUpRequest request)
         {
+            ModelState.Clear();
             string? id = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (!Guid.TryParse(id, out Guid userId))
                 userId = Guid.Empty;
@@ -174,6 +176,7 @@ namespace Activadis.API.Controllers
         [HttpPost("ResignUp/{token}")]
         public async Task<IActionResult> ResignUpAsync(string token, ResignUpRequest request)
         {
+            ModelState.Clear();
             try
             {
                 await ResignUpConfirmationService.UseConfirmationAsync(token, request);

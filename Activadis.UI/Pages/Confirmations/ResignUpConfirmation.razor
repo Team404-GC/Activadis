@@ -22,15 +22,14 @@
         </div>
     }
 </div>
-<ResignUpComponent OnSubmit="OnSubmitAsync" @bind-Request="request" ShouldDisplay="shouldDisplay" />
+<ResignUpComponent OnSubmit="OnSubmitAsync" @bind-Request="request" />
 
 @code {
     [Parameter] public string Token { get; set; } = string.Empty;
 
+    private ComponentRequest<ResignUpRequest> request = new ComponentRequest<ResignUpRequest>(new ResignUpRequest());
     private ActivityDetailResponse activity = new ActivityDetailResponse();
     private ApiResponse<object> response = new ApiResponse<object>();
-    private ResignUpRequest request = new ResignUpRequest();
-    private bool shouldDisplay = false;
     private bool isLoading = true;
 
     protected override async Task OnParametersSetAsync()
@@ -46,8 +45,8 @@
             return;
         }
 
-        request = resignUpResponse.Value;
-        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(request.ActivityId);
+        request.Request = resignUpResponse.Value;
+        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(request.Request.ActivityId);
         if (!activityResponse.Succeeded || activityResponse.Value is null)
         {
             response.Succeeded = false;
@@ -59,7 +58,7 @@
         activity = activityResponse.Value;
         if (activity.PlusOneAllowed)
         {
-            shouldDisplay = true;
+            request.ShouldOpenComponent = true;
             return;
         }
 
@@ -68,8 +67,8 @@
 
     public async Task OnSubmitAsync()
     {
-        shouldDisplay = false;
-        response = await SignUpService.ResignUpRequestAsync(Token, request);
+        request.ShouldOpenComponent = true;
+        response = await SignUpService.ResignUpRequestAsync(Token, request.Request);
         isLoading = false;
     }
 }
