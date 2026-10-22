@@ -7,11 +7,14 @@ namespace Activadis.Application.Validations.SignUp
     {
         public static void Validate(this SignUpRequest request, Entities.Activity? activity, Guid userId, int totalSignUps)
         {
-            if (string.IsNullOrWhiteSpace(request.FullName))
-                throw new ArgumentException("De naam moet ingevuld worden.");
+            if (userId == Guid.Empty)
+            {
+                if (string.IsNullOrWhiteSpace(request.FullName))
+                    throw new ArgumentException("De naam moet ingevuld worden.");
 
-            if (string.IsNullOrWhiteSpace(request.Email))
-                throw new ArgumentException("De e-mail moet ingevuld worden.");
+                if (string.IsNullOrWhiteSpace(request.Email))
+                    throw new ArgumentException("De e-mail moet ingevuld worden.");
+            }
 
             if (activity is null)
                 throw new ArgumentException("Er is geen activiteit gevonden.");

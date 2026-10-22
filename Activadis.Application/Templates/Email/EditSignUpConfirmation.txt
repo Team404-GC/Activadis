@@ -1,0 +1,8 @@
+Hallo {{FullName}},
+
+Er is een wijziging doorgegeven voor een activiteit onder dit e-mailadres. Open de link hieronder om te bevestigen dat je deze wijziging wilt doorvoeren voor deze activiteit:
+{{BaseUrl}}{{Token}}
+
+Je kunt uitschrijven of je inschrijving beheren op {{BaseUrl}} met je e-mailadres: {{Email}}
+
+Heb je deze e-mail niet verwacht? Dan kun je hem negeren. Er verandert dan niets aan je oorspronkelijke inschrijving.

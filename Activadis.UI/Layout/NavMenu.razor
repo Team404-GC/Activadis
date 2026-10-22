@@ -74,8 +74,5 @@
         => dropdownOpen = !dropdownOpen;
 
     private async Task HandleLogout()
-    {
-        await AuthService.LogoutAsync();
-        NavigationManager.NavigateTo("/login");
-    }
+        => await AuthService.LogoutAsync();
 }

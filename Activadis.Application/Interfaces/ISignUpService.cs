@@ -4,7 +4,9 @@ namespace Activadis.Application.Interfaces
 {
     public interface ISignUpService
     {
+        Task<SignUpDTO> GetSignUpAsync(GetSignUpRequest request, Guid userId);
         Task SignUpAsync(SignUpRequest request, Guid userId);
+        Task EditSignUpAsync(EditSignUpRequest request, Guid userId);
         Task SignOutAsync(SignOutRequest request, Guid userId);
     }
 }

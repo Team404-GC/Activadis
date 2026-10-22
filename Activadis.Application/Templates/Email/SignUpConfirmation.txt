@@ -3,6 +3,6 @@ Hallo {{FullName}},
 Er is ingeschreven bij een activiteit onder deze email. Open de link hieronder om te bevestigen dat je inschrijft voor deze activiteit:
 {{BaseUrl}}{{Token}}
 
-Je kunt weer uitschrijven op {{BaseUrl}} met je e-mailadres: {{Email}}
+Je kunt uitschrijven of je inschrijving beheren op {{BaseUrl}} met je e-mailadres: {{Email}}
 
 Heb je deze e-mail niet verwacht? Dan kun je hem negeren.

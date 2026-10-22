@@ -8,6 +8,7 @@
         public static class RedirectLinks
         {
             public readonly static string ConfirmSignUp = "/confirm-signup";
+            public readonly static string ConfirmEditSignUp = "/confirm-edit-signup";
             public readonly static string ConfirmSignOut = "/confirm-signout";
             public readonly static string ConfirmResignUp = "/confirm-resignup";
             public readonly static string SetupPassword = "/wachtwoord-instellen";
