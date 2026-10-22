@@ -2,7 +2,7 @@ using Activadis.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Localization;
 using Activadis.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
-using Activadis.API.Converters;
+using Activadis.API.Middlewares;
 using Activadis.Infrastructure;
 using Activadis.Application;
 using Activadis.Shared.DTOs;
@@ -24,11 +24,6 @@ namespace Activadis.API
                     ?? throw new InvalidOperationException("The connectionString was not found!"),
                 builder.Configuration.GetSection("Email").Get<EmailSettings>()
                     ?? throw new InvalidOperationException("The email settings were not found!"));
-
-            builder.Services.AddControllers().AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
-            });
 
             builder.Services.AddCors(options =>
             {
@@ -74,6 +69,8 @@ namespace Activadis.API
                     context.Response.Redirect("/api");
                     return Task.CompletedTask;
                 });
+
+                app.UseMiddleware<LogEndpointMiddleware>();
             }
 
             app.UseRequestLocalization(new RequestLocalizationOptions()

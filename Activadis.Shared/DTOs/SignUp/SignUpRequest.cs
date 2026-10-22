@@ -1,6 +1,6 @@
 ﻿namespace Activadis.Shared.DTOs.SignUp
 {
-    public class SignUpRequest
+    public class SignUpRequest : HasCommentBase
     {
         public string? FullName { get; set; }
         public string? Email { get; set; }

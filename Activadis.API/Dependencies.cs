@@ -1,9 +1,14 @@
-﻿using Activadis.Shared.DTOs;
-using Azure;
+﻿using Activadis.API.Converters;
+using Activadis.Shared.DTOs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using System.Collections;
+using System.Reflection;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -17,6 +22,7 @@ namespace Activadis.API
             services.RegisterAuthentication(configuration);
             services.RegisterRateLimiter();
             services.RegisterSwagger();
+            services.RegisterControllers();
 
             return services;
         }
@@ -130,6 +136,49 @@ namespace Activadis.API
                 {
                     [new OpenApiSecuritySchemeReference("Bearer", document)] = []
                 });
+            });
+
+            return services;
+        }
+
+        private static IServiceCollection RegisterControllers(this IServiceCollection services)
+        {
+            IMvcBuilder builder = services.AddControllers();
+            
+            builder.AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
+            });
+
+            builder.ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = (context) =>
+                {
+                    if (context.ActionDescriptor is not ControllerActionDescriptor controllerDescriptor)
+                        return new LocalRedirectResult("/Error");
+
+                    ParameterDescriptor? parameter = controllerDescriptor.Parameters.FirstOrDefault(p => p.BindingInfo?.BindingSource?.Id == "Body" || (p.ParameterType.IsClass && p.ParameterType != typeof(string)));
+                    if (parameter is null)
+                        return new LocalRedirectResult("/Error");
+
+                    Type parameterType = parameter.ParameterType;
+                    MethodInfo? method = typeof(ApiErrors).GetMethod("Build", BindingFlags.Public | BindingFlags.Static);
+                    if (method is null)
+                        return new LocalRedirectResult("/Error");
+
+                    List<ApiErrors> errors = [..context.ModelState
+                        .DistinctBy(x => x.Key)
+                        .Where(x => x.Value is not null)
+                        .Select(x =>
+                        {
+                            List<string> messages = [.. x.Value!.Errors.Select(e => e.ErrorMessage)];
+                            return (ApiErrors) method.Invoke(null, [x.Key, messages])!;
+                        })];
+
+                    return new BadRequestObjectResult(
+                        ApiResponse<object>.Error(errors)
+                    );
+                };
             });
 
             return services;

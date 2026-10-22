@@ -92,7 +92,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Activities", (string)null);
+                    b.ToTable("Activities");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Category", b =>
@@ -134,7 +134,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Leaderboard", b =>
@@ -167,7 +167,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.HasIndex("CategoryId", "IsOverall", "CreatedAt")
                         .IsDescending(false, false, true);
 
-                    b.ToTable("Leaderboards", (string)null);
+                    b.ToTable("Leaderboards");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Match", b =>
@@ -209,7 +209,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("MatchDate");
 
-                    b.ToTable("Matches", (string)null);
+                    b.ToTable("Matches");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.MatchParticipant", b =>
@@ -252,7 +252,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.HasIndex("MatchId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("MatchParticipants", (string)null);
+                    b.ToTable("MatchParticipants");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Rating", b =>
@@ -292,7 +292,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.HasIndex("UserId", "CategoryId")
                         .IsUnique();
 
-                    b.ToTable("Ratings", (string)null);
+                    b.ToTable("Ratings");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.SignUp", b =>
@@ -303,6 +303,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("ActivityId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -341,7 +344,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("SignUps", (string)null);
+                    b.ToTable("SignUps");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.User", b =>
@@ -386,7 +389,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ActivityCategory", b =>
@@ -401,7 +404,7 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CategoriesId");
 
-                    b.ToTable("ActivityCategories");
+                    b.ToTable("ActivityCategories", (string)null);
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Leaderboard", b =>
