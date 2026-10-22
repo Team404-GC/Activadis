@@ -1,12 +1,13 @@
 .hm-hero {
     display: flex;
     align-items: center;
-    gap: 64px;
-    padding: 48px 0;
+    justify-content: center;
+    gap: 45px;
+    padding: 24px 0;
 }
 
 .hm-intro {
-    flex: 1;
+    flex: 0 1 auto;
 }
 
     .hm-intro h1 {
@@ -24,25 +25,6 @@
     color: rgba(255, 255, 255, 0.75);
 }
 
-.hm-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 28px;
-    border-radius: 24px;
-    background: var(--ButtonColor);
-    color: var(--ButtonTextColor);
-    font-size: 16px;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-    .hm-button:hover {
-        background: var(--ButtonColorHover);
-        color: var(--ButtonTextColor);
-        text-decoration: none;
-    }
-
 .hm-note {
     margin-top: 16px;
     font-size: 14px;
@@ -50,7 +32,7 @@
 }
 
 .hm-logo {
-    flex: 1;
+    flex: none;
     display: flex;
     justify-content: center;
 }
@@ -68,7 +50,6 @@
 }
 
 .hm-block {
-    /* Schermbreed: buiten de marges van de pagina om, van rand tot rand. */
     display: block;
     width: 100vw;
     margin-left: calc(50% - 50vw);
@@ -87,7 +68,6 @@
         display: block;
         width: 100%;
         height: 500px;
-        /* Bijsnijden in plaats van uitrekken, zodat het vuur in beeld blijft. */
         object-fit: cover;
     }
 
@@ -107,8 +87,8 @@
 @media (max-width: 900px) {
     .hm-hero {
         flex-direction: column-reverse;
-        gap: 32px;
-        padding: 32px 0;
+        gap: 0;
+        padding: 16px 0;
         text-align: center;
     }
 

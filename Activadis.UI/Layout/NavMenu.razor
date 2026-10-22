@@ -1,16 +1,21 @@
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 
-<nav class="nm-navbar">
-    <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
-        <span>
-            <LogoAnimation />
-        </span>
-    </NavLink>
+<header class="nm-header">
+    <nav class="nm-navbar">
+        <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
+            <span>
+                <LogoAnimation />
+            </span>
+        </NavLink>
 
-    <button class="nm-toggle" @onclick="ToggleMenu">
-        <i class="bi bi-list"></i>
-    </button>
+        <AuthorizeView>
+            <Authorized>
+                <button class="nm-toggle" @onclick="ToggleMenu">
+                    <i class="bi bi-list"></i>
+                </button>
+            </Authorized>
+        </AuthorizeView>
 
     <div class="nm-menu @(isOpen ? "open" : "")" @onclick="CloseMenu">
         <AuthorizeView Context="auth">
