@@ -1,0 +1,457 @@
+﻿@inject IEloService EloService
+@page "/statistieken"
+
+<PageTitle>Statistieken</PageTitle>
+
+<div class="st-back-wrapper">
+    <NavLink class="st-back" href="/ranglijst">
+        <i class="bi bi-arrow-left"></i>
+        <span>Terug naar ranglijst</span>
+    </NavLink>
+</div>
+
+<div class="st-header">
+    <h1>Statistieken</h1>
+
+    <div class="st-filter">
+        <label for="categorie">Categorie</label>
+        <select id="categorie" class="st-select" value="@(selectedCategoryId?.ToString() ?? "")" @onchange="OnCategoryChanged">
+            <option value="">Alle categorieën</option>
+            @foreach (CategoryDto category in categories)
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </select>
+    </div>
+</div>
+
+@if (isLoading)
+{
+    <div class="st-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    <section class="st-section">
+        <h2>Overzicht</h2>
+
+        <div class="st-kpis">
+            <div class="st-kpi">
+                <span class="st-kpi-label">Totaal aantal wedstrijden</span>
+                <span class="st-kpi-value">@(summary?.TotalMatches ?? 0)</span>
+            </div>
+            <div class="st-kpi">
+                <span class="st-kpi-label">Wedstrijden deze maand</span>
+                <span class="st-kpi-value">@(summary?.MatchesThisMonth ?? 0)</span>
+            </div>
+            <div class="st-kpi">
+                <span class="st-kpi-label">Actieve spelers</span>
+                <span class="st-kpi-value">@(summary?.ActivePlayers ?? 0)</span>
+            </div>
+            <div class="st-kpi">
+                <span class="st-kpi-label">Spelers op de ranglijst</span>
+                <span class="st-kpi-value">@leaderboard.Count</span>
+            </div>
+            <div class="st-kpi">
+                <span class="st-kpi-label">Gemiddelde rating</span>
+                <span class="st-kpi-value">@averageRating.ToRating()</span>
+            </div>
+            <div class="st-kpi">
+                <span class="st-kpi-label">Hoogste piekrating</span>
+                <span class="st-kpi-value">@highestPeakRating.ToRating()</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="st-grid">
+        <section class="st-card st-card-wide">
+            <div class="st-card-header">
+                <h2>Rating in de tijd</h2>
+
+                @if (selectedCategoryId.HasValue && ratingHistory.Any(p => p.Points.Count > 0))
+                {
+                    <div class="st-filter st-filter-small">
+                        <label for="top">Aantal spelers</label>
+                        <select id="top" class="st-select" value="@topPlayers" @onchange="OnTopChanged">
+                            <option value="3">Top 3</option>
+                            <option value="5">Top 5</option>
+                            <option value="10">Top 10</option>
+                        </select>
+                    </div>
+                }
+            </div>
+
+            @if (!selectedCategoryId.HasValue)
+            {
+                <p class="st-empty">Kies een categorie om het ratingverloop te zien.</p>
+            }
+            else if (!ratingHistory.Any(p => p.Points.Count > 0))
+            {
+                <p class="st-empty">Er zijn geen wedstrijden gevonden.</p>
+            }
+            else
+            {
+                <ApexChart TItem="RatingHistoryPointDto" Title="Rating per speler" Options="historyOptions" @key="chartKey">
+                    @foreach (PlayerRatingHistoryDto player in ratingHistory)
+                    {
+                        <ApexPointSeries TItem="RatingHistoryPointDto"
+                                         Items="player.Points"
+                                         Name="@player.FullName"
+                                         SeriesType="SeriesType.Line"
+                                         XValue="@(e => e.Date)"
+                                         YValue="@(e => (decimal?)Math.Round(e.Rating, 2))" />
+                    }
+                </ApexChart>
+            }
+        </section>
+
+        <section class="st-card">
+            <h2>Ratingverdeling</h2>
+
+            @if (!leaderboard.Any())
+            {
+                <p class="st-empty">Er zijn nog geen spelers met een rating.</p>
+            }
+            else
+            {
+                <ApexChart TItem="RatingBucket" Title="Aantal spelers per ratingklasse" Options="bucketOptions" @key="chartKey">
+                    <ApexPointSeries TItem="RatingBucket"
+                                     Items="ratingBuckets"
+                                     Name="Spelers"
+                                     SeriesType="SeriesType.Bar"
+                                     XValue="@(e => e.Label)"
+                                     YValue="@(e => (decimal?)e.Count)" />
+                </ApexChart>
+            }
+        </section>
+
+        <section class="st-card">
+            <h2>Ervaring en rating</h2>
+
+            @if (!leaderboard.Any())
+            {
+                <p class="st-empty">Er zijn nog geen spelers met een rating.</p>
+            }
+            else
+            {
+                <ApexChart TItem="LeaderboardEntryDto" Title="Aantal wedstrijden tegenover rating" Options="scatterOptions" @key="chartKey">
+                    <ApexPointSeries TItem="LeaderboardEntryDto"
+                                     Items="leaderboard"
+                                     Name="Spelers"
+                                     SeriesType="SeriesType.Scatter"
+                                     XValue="@(e => e.MatchCount)"
+                                     YValue="@(e => (decimal?)Math.Round(e.Rating, 2))" />
+                </ApexChart>
+            }
+        </section>
+
+        <section class="st-card">
+            <h2>Rangtitels</h2>
+
+            @if (!titleCounts.Any())
+            {
+                <p class="st-empty">Er zijn geen rangtitels ingesteld.</p>
+            }
+            else
+            {
+                <ApexChart TItem="TitleCount" Title="Spelers per rangtitel" Options="titleOptions" @key="chartKey">
+                    <ApexPointSeries TItem="TitleCount"
+                                     Items="titleCounts"
+                                     Name="Spelers"
+                                     SeriesType="SeriesType.Donut"
+                                     XValue="@(e => e.Title)"
+                                     YValue="@(e => (decimal?)e.Count)" />
+                </ApexChart>
+            }
+        </section>
+
+        <section class="st-card">
+            <h2>Activiteit</h2>
+
+            @if (!activity.Any(a => a.MatchCount > 0))
+            {
+                <p class="st-empty">Er zijn geen wedstrijden gevonden.</p>
+            }
+            else
+            {
+                <ApexChart TItem="ActivityPointDto" Title="Wedstrijden per maand" Options="activityOptions" @key="chartKey">
+                    <ApexPointSeries TItem="ActivityPointDto"
+                                     Items="activity"
+                                     Name="Wedstrijden"
+                                     SeriesType="SeriesType.Bar"
+                                     XValue="@(e => ToMonthLabel(e.Year, e.Month))"
+                                     YValue="@(e => (decimal?)e.MatchCount)" />
+                </ApexChart>
+            }
+        </section>
+
+        <section class="st-card st-card-wide">
+            <h2>Grootste winst en verlies</h2>
+
+            @if (!biggestChanges.Any())
+            {
+                <p class="st-empty">Er zijn geen wedstrijden gevonden.</p>
+            }
+            else
+            {
+                <ApexChart TItem="RatingChangeItem" Title="Grootste ratingverschillen in de laatste wedstrijden" Options="changeOptions" @key="chartKey">
+                    <ApexPointSeries TItem="RatingChangeItem"
+                                     Items="biggestChanges"
+                                     Name="Verschil"
+                                     SeriesType="SeriesType.Bar"
+                                     XValue="@(e => e.Label)"
+                                     YValue="@(e => (decimal?)Math.Round(e.Change, 2))" />
+                </ApexChart>
+            }
+        </section>
+
+        <section class="st-card st-card-wide">
+            <h2>Ranglijst</h2>
+
+            @if (!leaderboard.Any())
+            {
+                <p class="st-empty">Er zijn nog geen spelers met een rating.</p>
+            }
+            else
+            {
+                <table class="st-table">
+                    <thead>
+                        <tr>
+                            <th>Plaats</th>
+                            <th>Speler</th>
+                            <th>Rangtitel</th>
+                            <th class="st-number">Rating</th>
+                            <th class="st-number st-hide-small">Piekrating</th>
+                            <th class="st-number st-hide-small">Wedstrijden</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (LeaderboardEntryDto entry in leaderboard)
+                        {
+                            <tr>
+                                <td>@entry.Rank</td>
+                                <td><NavLink class="st-link" href="@($"/speler/{entry.UserId}")">@entry.FullName</NavLink></td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(entry.RankTitle))
+                                    {
+                                        <span class="st-title">@entry.RankTitle</span>
+                                    }
+                                </td>
+                                <td class="st-number">@entry.Rating.ToRating()</td>
+                                <td class="st-number st-hide-small">@entry.PeakRating.ToRating()</td>
+                                <td class="st-number st-hide-small">@entry.MatchCount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+        <section class="st-card st-card-wide">
+            <h2>Laatste wedstrijden</h2>
+
+            @if (!recentMatches.Any())
+            {
+                <p class="st-empty">Er zijn geen wedstrijden gevonden.</p>
+            }
+            else
+            {
+                <table class="st-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th class="st-hide-small">Categorie</th>
+                            <th>Uitslag</th>
+                            <th class="st-hide-small">Opmerking</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (RecentMatchDto match in recentMatches)
+                        {
+                            <tr>
+                                <td class="st-nowrap">@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
+                                <td class="st-hide-small">@match.CategoryName</td>
+                                <td>@ToResult(match)</td>
+                                <td class="st-hide-small st-muted">@match.Notes</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    private List<CategoryDto> categories = [];
+    private Guid? selectedCategoryId;
+    private int topPlayers = 5;
+
+    private EloSummaryDto? summary;
+    private List<LeaderboardEntryDto> leaderboard = [];
+    private List<ActivityPointDto> activity = [];
+    private List<RecentMatchDto> recentMatches = [];
+    private List<PlayerRatingHistoryDto> ratingHistory = [];
+
+    private List<RatingBucket> ratingBuckets = [];
+    private List<TitleCount> titleCounts = [];
+    private List<RatingChangeItem> biggestChanges = [];
+
+    private double averageRating;
+    private double highestPeakRating;
+
+    private ApexChartOptions<RatingHistoryPointDto> historyOptions = CreateOptions<RatingHistoryPointDto>();
+    private ApexChartOptions<RatingBucket> bucketOptions = CreateOptions<RatingBucket>();
+    private ApexChartOptions<LeaderboardEntryDto> scatterOptions = CreateOptions<LeaderboardEntryDto>();
+    private ApexChartOptions<TitleCount> titleOptions = CreateOptions<TitleCount>();
+    private ApexChartOptions<ActivityPointDto> activityOptions = CreateOptions<ActivityPointDto>();
+    private ApexChartOptions<RatingChangeItem> changeOptions = CreateOptions<RatingChangeItem>();
+
+    private Guid chartKey = Guid.NewGuid();
+    private bool isLoading = true;
+
+    private record RatingBucket(string Label, int Count);
+    private record TitleCount(string Title, int Count);
+    private record RatingChangeItem(string Label, double Change);
+
+    protected override async Task OnInitializedAsync()
+    {
+        historyOptions.Xaxis = new XAxis { Type = XAxisType.Datetime };
+        scatterOptions.Xaxis = new XAxis { Title = new AxisTitle { Text = "Wedstrijden" } };
+        changeOptions.PlotOptions = new PlotOptions
+        {
+            Bar = new PlotOptionsBar { Horizontal = true }
+        };
+
+        ApiResponse<List<CategoryDto>> response = await EloService.GetCategoriesAsync();
+        if (IsSucceeded(response))
+            categories = response.Value ?? [];
+
+        await LoadAsync();
+    }
+
+    private async Task OnCategoryChanged(ChangeEventArgs e)
+    {
+        selectedCategoryId = Guid.TryParse(e.Value?.ToString(), out Guid id) ? id : null;
+        await LoadAsync();
+    }
+
+    private async Task OnTopChanged(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out int top) || !selectedCategoryId.HasValue)
+            return;
+
+        topPlayers = top;
+
+        ApiResponse<List<PlayerRatingHistoryDto>> response =
+            await EloService.GetRatingHistoryAsync(selectedCategoryId.Value, topPlayers);
+        if (IsSucceeded(response))
+            ratingHistory = response.Value ?? [];
+
+        chartKey = Guid.NewGuid();
+    }
+
+    private async Task LoadAsync()
+    {
+        isLoading = true;
+
+        Task<ApiResponse<EloSummaryDto>> summaryTask = EloService.GetSummaryAsync(selectedCategoryId);
+        Task<ApiResponse<List<LeaderboardEntryDto>>> leaderboardTask = selectedCategoryId.HasValue
+            ? EloService.GetCategoryLeaderboardAsync(selectedCategoryId.Value)
+            : EloService.GetOverallLeaderboardAsync();
+        Task<ApiResponse<List<ActivityPointDto>>> activityTask = EloService.GetActivityAsync(selectedCategoryId, 12);
+        Task<ApiResponse<List<RecentMatchDto>>> recentTask = EloService.GetRecentMatchesAsync(selectedCategoryId, 20);
+        Task<ApiResponse<List<PlayerRatingHistoryDto>>>? historyTask = selectedCategoryId.HasValue
+            ? EloService.GetRatingHistoryAsync(selectedCategoryId.Value, topPlayers)
+            : null;
+
+        List<Task> tasks = [summaryTask, leaderboardTask, activityTask, recentTask];
+        if (historyTask is not null)
+            tasks.Add(historyTask);
+
+        await Task.WhenAll(tasks);
+
+        summary = GetValue(await summaryTask);
+        leaderboard = GetValue(await leaderboardTask) ?? [];
+        activity = GetValue(await activityTask) ?? [];
+        recentMatches = GetValue(await recentTask) ?? [];
+        ratingHistory = historyTask is null ? [] : GetValue(await historyTask) ?? [];
+
+        BuildDerivedData();
+
+        chartKey = Guid.NewGuid();
+        isLoading = false;
+    }
+
+    private T? GetValue<T>(ApiResponse<T> response)
+        => IsSucceeded(response) ? response.Value : default;
+
+    private void BuildDerivedData()
+    {
+        averageRating = leaderboard.Count > 0 ? leaderboard.Average(e => e.Rating) : 0;
+        highestPeakRating = leaderboard.Count > 0 ? leaderboard.Max(e => e.PeakRating) : 0;
+
+        ratingBuckets = [];
+        if (leaderboard.Count > 0)
+        {
+            int lowest = (int)Math.Floor(leaderboard.Min(e => e.Rating) / 100) * 100;
+            int highest = (int)Math.Floor(leaderboard.Max(e => e.Rating) / 100) * 100;
+
+            for (int start = lowest; start <= highest; start += 100)
+            {
+                int count = leaderboard.Count(e => e.Rating >= start && e.Rating < start + 100);
+                ratingBuckets.Add(new RatingBucket($"{start}-{start + 99}", count));
+            }
+        }
+
+        titleCounts = leaderboard
+            .Where(e => !string.IsNullOrEmpty(e.RankTitle))
+            .GroupBy(e => e.RankTitle!)
+            .Select(g => new TitleCount(g.Key, g.Count()))
+            .OrderByDescending(t => t.Count)
+            .ToList();
+
+        List<RatingChangeItem> changes = recentMatches
+            .SelectMany(m => m.Participants.Select(p => new RatingChangeItem(
+                $"{p.FullName} ({m.MatchDate.ToLocalTime():dd-MM})",
+                p.RatingChange)))
+            .ToList();
+
+        biggestChanges = changes
+            .Where(c => c.Change > 0)
+            .OrderByDescending(c => c.Change)
+            .Take(5)
+            .Concat(changes
+                .Where(c => c.Change < 0)
+                .OrderBy(c => c.Change)
+                .Take(5))
+            .OrderByDescending(c => c.Change)
+            .ToList();
+    }
+
+    private bool IsSucceeded<T>(ApiResponse<T> response)
+    {
+        if (response.Succeeded)
+            return true;
+
+        Notifications.AddNotification(response.Message, true);
+        return false;
+    }
+
+    private static string ToResult(RecentMatchDto match)
+        => string.Join(", ", match.Participants.Select(p => $"{p.Placement}. {p.FullName} ({p.RatingChange.ToRatingChange()})"));
+
+    private static ApexChartOptions<T> CreateOptions<T>() where T : class
+        => new ApexChartOptions<T>()
+        {
+            Chart = new Chart()
+            {
+                Toolbar = new Toolbar() { Show = false },
+                Zoom = new Zoom() { Enabled = false }
+            }
+        };
+
+    private static string ToMonthLabel(int year, int month)
+        => new DateTime(year, month, 1).ToString("MMM yyyy", new CultureInfo("nl-NL"));
+}

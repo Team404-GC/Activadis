@@ -1,8 +1,12 @@
-﻿<button type="button" @onclick="() => isOpen = !isOpen">i</button>
-@if (isOpen)
-{
-    <small>@Text</small>
-}
+﻿<span class="ib">
+    <button type="button" class="ib-button @(isOpen ? "active" : "")" aria-label="Meer informatie" @onclick="() => isOpen = !isOpen">
+        <i class="bi bi-info-circle"></i>
+    </button>
+    @if (isOpen)
+    {
+        <small class="ib-text">@Text</small>
+    }
+</span>
 
 @code {
     [Parameter, EditorRequired]

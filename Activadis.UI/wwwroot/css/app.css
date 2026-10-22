@@ -7,12 +7,18 @@
     --MutedText: #6b7280;
     --AccentColor: #faa21b;
     --AccentColorHover: #e8920f;
+    --AccentColorSoft: rgba(250, 162, 27, 0.15);
     --ButtonColor: #faa21b;
     --ButtonColorHover: #e8920f;
     --ButtonTextColor: #0e1e3b;
     --ButtonDisabledColor: #c3c8d1;
     --DangerBg: #fdecec;
     --DangerText: #b91c1c;
+    --SuccessBg: #e7f6ec;
+    --SuccessText: #15803d;
+    --GoldColor: #f5c518;
+    --SilverColor: #c3c8d1;
+    --BronzeColor: #d08a4c;
 }
 
 body {

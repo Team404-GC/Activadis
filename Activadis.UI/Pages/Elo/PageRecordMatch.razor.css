@@ -1,0 +1,294 @@
+﻿.rm-back-wrapper ::deep .rm-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--MutedText);
+    text-decoration: none;
+}
+
+    .rm-back-wrapper ::deep .rm-back:hover {
+        color: #ffffff;
+    }
+
+.rm-state {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    color: var(--MutedText);
+}
+
+.rm-card {
+    margin-top: 24px;
+    padding: 32px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+    .rm-card h2 {
+        margin-bottom: 24px;
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+.rm-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 24px;
+}
+
+.rm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.rm-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+    .rm-label label {
+        margin: 0;
+    }
+
+.rm-input {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+    .rm-input:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+    }
+
+.rm-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--AccentColor);
+}
+
+.rm-hint {
+    margin: 0;
+    color: var(--DangerText);
+    font-size: 13px;
+}
+
+.rm-participant {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 100px 110px 130px;
+    align-items: start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--BorderColor);
+}
+
+.rm-participant-team {
+    grid-template-columns: minmax(0, 1fr) 100px 110px 100px 130px;
+}
+
+.rm-participant-head {
+    padding-top: 0;
+    color: var(--MutedText);
+}
+
+.rm-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.rm-cell-checkbox {
+    justify-content: center;
+    min-height: 40px;
+}
+
+.rm-cell-label {
+    display: none;
+    color: var(--MutedText);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.rm-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--DangerBg);
+    color: var(--DangerText);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .rm-remove:disabled {
+        background: var(--SurfaceColor);
+        color: var(--ButtonDisabledColor);
+        cursor: not-allowed;
+    }
+
+.rm-button,
+.rm-button-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rm-button {
+    padding: 13px 32px;
+    border: none;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 16px;
+}
+
+    .rm-button:hover {
+        background: var(--ButtonColorHover);
+    }
+
+    .rm-button:disabled {
+        background: var(--ButtonDisabledColor);
+        cursor: not-allowed;
+    }
+
+.rm-button-secondary {
+    margin-top: 16px;
+    padding: 10px 20px;
+    border: 1px solid var(--BorderColor);
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-size: 14px;
+}
+
+    .rm-button-secondary:hover {
+        border-color: var(--AccentColor);
+        background: var(--AccentColorSoft);
+    }
+
+.rm-actions {
+    margin-top: 24px;
+}
+
+.rm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+    .rm-table th {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+        color: var(--MutedText);
+        font-size: 13px;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .rm-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+    }
+
+    .rm-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .rm-table .rm-number {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .rm-table ::deep .rm-link {
+        color: var(--TextColor);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+        .rm-table ::deep .rm-link:hover {
+            color: var(--AccentColorHover);
+            text-decoration: none;
+        }
+
+.rm-positive {
+    color: var(--SuccessText);
+    font-weight: 600;
+}
+
+.rm-negative {
+    color: var(--DangerText);
+    font-weight: 600;
+}
+
+@media (max-width: 700px) {
+    .rm-card {
+        padding: 24px 16px;
+    }
+
+    .rm-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .rm-participant-head {
+        display: none;
+    }
+
+    .rm-participant,
+    .rm-participant-team {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+        .rm-participant .rm-cell:first-child {
+            grid-column: 1 / -1;
+        }
+
+    .rm-cell-label {
+        display: block;
+    }
+
+    .rm-cell-checkbox {
+        justify-content: flex-start;
+    }
+
+    .rm-cell-remove {
+        grid-column: 1 / -1;
+    }
+
+    .rm-remove {
+        width: 100%;
+    }
+
+    .rm-table .rm-hide-small {
+        display: none;
+    }
+
+    .rm-table th,
+    .rm-table td {
+        padding: 10px 4px;
+    }
+}

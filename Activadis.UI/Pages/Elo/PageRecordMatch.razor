@@ -1,0 +1,331 @@
+﻿@inject IEloService EloService
+@inject IActivityService ActivityService
+@inject IUserService UserService
+@attribute [Authorize(Roles = "Admin")]
+@page "/wedstrijd/nieuw"
+
+<PageTitle>Wedstrijd registreren</PageTitle>
+
+@if (activity is not null)
+{
+    <div class="rm-back-wrapper">
+        <NavLink class="rm-back" href="@($"/activiteit/{activity.Id}")">
+            <i class="bi bi-arrow-left"></i>
+            <span>Terug naar @activity.Name</span>
+        </NavLink>
+    </div>
+}
+
+<h1>Wedstrijd registreren</h1>
+
+@if (isLoading)
+{
+    <div class="rm-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else
+{
+    <div class="rm-card">
+        <h2>Wedstrijdgegevens</h2>
+
+        <div class="rm-fields">
+            <div class="rm-field">
+                <div class="rm-label">
+                    <label for="rm-category">Categorie</label>
+                    <InfoBubbleComponent Text="Kies de categorie waarin de wedstrijd is gespeeld. De ratings veranderen alleen in deze categorie." />
+                </div>
+                <select id="rm-category" class="rm-input" @bind="categoryId">
+                    <option value="@Guid.Empty">Kies een categorie</option>
+                    @foreach (CategoryDto category in categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </select>
+                @if (activity is not null && !categories.Any())
+                {
+                    <p class="rm-hint">Deze activiteit heeft geen ELO-categorieën. Koppel eerst een categorie aan de activiteit.</p>
+                }
+            </div>
+            <div class="rm-field">
+                <div class="rm-label">
+                    <label for="rm-date">Datum en tijd</label>
+                    <InfoBubbleComponent Text="Het moment waarop de wedstrijd is gespeeld. Standaard is dit het huidige moment." />
+                </div>
+                <input id="rm-date" class="rm-input" type="datetime-local" @bind="matchDate" />
+            </div>
+            <div class="rm-field">
+                <div class="rm-label">
+                    <label for="rm-type">Type wedstrijd</label>
+                    <InfoBubbleComponent Text="Individueel: iedere deelnemer speelt voor zichzelf (1 tegen 1 of met meer personen). Team: deelnemers spelen in teams. Alleen de twee best geplaatste teams worden meegeteld." />
+                </div>
+                <select id="rm-type" class="rm-input" @bind="matchType">
+                    <option value="Individual">Individueel</option>
+                    <option value="team">Team</option>
+                </select>
+            </div>
+            <div class="rm-field">
+                <div class="rm-label">
+                    <label for="rm-notes">Notities</label>
+                    <InfoBubbleComponent Text="Optioneel. Bijvoorbeeld de naam van het toernooi of een opmerking over de wedstrijd." />
+                </div>
+                <input id="rm-notes" class="rm-input" type="text" @bind="notes" />
+            </div>
+        </div>
+    </div>
+
+    <div class="rm-card">
+        <h2>Deelnemers</h2>
+
+        <div class="rm-participant rm-participant-head @(IsTeamMatch ? "rm-participant-team" : "")">
+            <div class="rm-label">
+                <span>Speler</span>
+                <InfoBubbleComponent Text="Zoek de speler op naam of e-mail en kies hem in de lijst. Bij een wedstrijd vanuit een activiteit staan alleen de deelnemers van de activiteit in de lijst." />
+            </div>
+            <div class="rm-label">
+                <span>Plaats</span>
+                <InfoBubbleComponent Text="De eindpositie van de speler. 1 is de winnaar, 2 de tweede, enzovoort. Bij een teamwedstrijd vullen teamgenoten dezelfde plaats in." />
+            </div>
+            <div class="rm-label">
+                <span>Gelijkspel?</span>
+                <InfoBubbleComponent Text="Vink dit aan bij een gelijkspel. Vink het bij beide spelers aan en geef ze dezelfde plaats." />
+            </div>
+            @if (IsTeamMatch)
+            {
+                <div class="rm-label">
+                    <span>Team</span>
+                    <InfoBubbleComponent Text="Geef teamgenoten hetzelfde nummer (1, 2, ...). Er zijn minimaal twee teams nodig." />
+                </div>
+            }
+            <div></div>
+        </div>
+
+        @foreach (ParticipantRow participant in participants)
+        {
+            <div class="rm-participant @(IsTeamMatch ? "rm-participant-team" : "")" @key="participant">
+                <div class="rm-cell">
+                    <span class="rm-cell-label">Speler</span>
+                    <UserSelectComponent Users="users" @bind-Value="participant.UserId" />
+                </div>
+                <div class="rm-cell">
+                    <span class="rm-cell-label">Plaats</span>
+                    <input class="rm-input" type="number" min="1" @bind="participant.Placement" />
+                </div>
+                <div class="rm-cell rm-cell-checkbox">
+                    <span class="rm-cell-label">Gelijkspel?</span>
+                    <input class="rm-checkbox" type="checkbox" @bind="participant.IsTie" />
+                </div>
+                @if (IsTeamMatch)
+                {
+                    <div class="rm-cell">
+                        <span class="rm-cell-label">Team</span>
+                        <input class="rm-input" type="number" min="1" @bind="participant.TeamNumber" />
+                    </div>
+                }
+                <div class="rm-cell rm-cell-remove">
+                    <button type="button" class="rm-remove" aria-label="Deelnemer verwijderen" @onclick="@(() => RemoveParticipant(participant))"
+                            disabled="@(participants.Count <= 2)">
+                        <i class="bi bi-trash"></i>
+                        <span>Verwijderen</span>
+                    </button>
+                </div>
+            </div>
+        }
+
+        <button type="button" class="rm-button-secondary" @onclick="AddParticipant">
+            <i class="bi bi-plus-lg"></i>
+            <span>Deelnemer toevoegen</span>
+        </button>
+    </div>
+
+    <div class="rm-actions">
+        <button type="button" class="rm-button" @onclick="SubmitAsync" disabled="@isSubmitting">
+            @(isSubmitting ? "Aan het laden.." : "Registreren")
+        </button>
+    </div>
+}
+
+@if (result is not null)
+{
+    <div class="rm-card">
+        <h2>Resultaat</h2>
+
+        <table class="rm-table">
+            <thead>
+                <tr>
+                    <th>Speler</th>
+                    <th class="rm-number">Plaats</th>
+                    <th class="rm-number rm-hide-small">Verwacht</th>
+                    <th class="rm-number rm-hide-small">Werkelijk</th>
+                    <th class="rm-number rm-hide-small">Oude rating</th>
+                    <th class="rm-number">Nieuwe rating</th>
+                    <th class="rm-number">Verschil</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (ParticipantResultDto participant in result.Results)
+                {
+                    <tr>
+                        <td><NavLink class="rm-link" href="@($"/speler/{participant.UserId}")">@participant.FullName</NavLink></td>
+                        <td class="rm-number">@participant.Placement</td>
+                        <td class="rm-number rm-hide-small">@participant.ExpectedScore.ToString("0.00")</td>
+                        <td class="rm-number rm-hide-small">@participant.ActualScore.ToString("0.00")</td>
+                        <td class="rm-number rm-hide-small">@participant.OldRating.ToRating()</td>
+                        <td class="rm-number">@participant.NewRating.ToRating()</td>
+                        <td class="rm-number @ToChangeClass(participant.RatingChange)">@participant.RatingChange.ToRatingChange()</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [SupplyParameterFromQuery(Name = "activiteit")]
+    public Guid? ActivityId { get; set; }
+
+    private ActivityDetailResponse? activity;
+    private List<UserResponse> users = [];
+
+    private List<CategoryDto> categories = [];
+    private List<ParticipantRow> participants = [new(), new()];
+    private MatchResultDto? result;
+
+    private Guid categoryId = Guid.Empty;
+    private DateTime matchDate = DateTime.Now;
+    private string? notes;
+    private string matchType = "Individual";
+
+    private bool isLoading = true;
+    private bool isSubmitting;
+
+    private bool IsTeamMatch => matchType == "team";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ActivityId is not null)
+        {
+            await LoadActivityAsync(ActivityId.Value);
+            isLoading = false;
+            return;
+        }
+
+        ApiResponse<List<CategoryDto>> response = await EloService.GetCategoriesAsync();
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        ApiResponse<IEnumerable<UserResponse>> userResponse = await UserService.GetAllAsync();
+        if (!userResponse.Succeeded)
+        {
+            Notifications.AddNotification(userResponse.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        categories = response.Value ?? [];
+        users = userResponse.Value?.ToList() ?? [];
+        isLoading = false;
+    }
+
+    private async Task LoadActivityAsync(Guid activityId)
+    {
+        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(activityId);
+        if (!activityResponse.Succeeded || activityResponse.Value is null)
+        {
+            Notifications.AddNotification(activityResponse.Message, true);
+            return;
+        }
+
+        ApiResponse<IEnumerable<ActivityParticipantResponse>> participantResponse = await ActivityService.GetParticipantsAsync(activityId);
+        if (!participantResponse.Succeeded)
+        {
+            Notifications.AddNotification(participantResponse.Message, true);
+            return;
+        }
+
+        activity = activityResponse.Value;
+        users = participantResponse.Value?
+            .Select(x => new UserResponse() { Id = x.UserId, FullName = x.FullName })
+            .ToList() ?? [];
+        categories = activity.Categories;
+        matchDate = activity.StartDate.ToLocalTime();
+    }
+
+    private void AddParticipant()
+        => participants.Add(new ParticipantRow());
+
+    private void RemoveParticipant(ParticipantRow participant)
+        => participants.Remove(participant);
+
+    private async Task SubmitAsync()
+    {
+        if (categoryId == Guid.Empty)
+        {
+            Notifications.AddNotification("Kies eerst een categorie.", true);
+            return;
+        }
+
+        if (participants.Any(x => !Guid.TryParse(x.UserId, out _)))
+        {
+            Notifications.AddNotification("Kies voor elke deelnemer een speler.", true);
+            return;
+        }
+
+        isSubmitting = true;
+        result = null;
+
+        // Participants with the same team number share one generated team id.
+        Dictionary<int, Guid> teams = participants
+            .Select(x => x.TeamNumber)
+            .Distinct()
+            .ToDictionary(x => x, _ => Guid.NewGuid());
+
+        RecordMatchRequest request = new RecordMatchRequest()
+        {
+            CategoryId = categoryId,
+            ActivityId = activity?.Id,
+            MatchDate = matchDate.ToUniversalTime(),
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes,
+            MatchType = matchType,
+            Participants = participants
+                .Select(x => new MatchParticipantInput()
+                {
+                    UserId = Guid.Parse(x.UserId),
+                    Placement = x.Placement,
+                    IsTie = x.IsTie,
+                    TeamId = IsTeamMatch ? teams[x.TeamNumber] : null
+                })
+                .ToList()
+        };
+
+        ApiResponse<MatchResultDto> response = await EloService.RecordMatchAsync(request);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSubmitting = false;
+            return;
+        }
+
+        result = response.Value;
+        participants = [new(), new()];
+        notes = null;
+
+        Notifications.AddNotification("De wedstrijd is met succes geregistreerd.", false);
+        isSubmitting = false;
+    }
+
+    private static string ToChangeClass(double change)
+        => change > 0 ? "rm-positive" : change < 0 ? "rm-negative" : string.Empty;
+
+    private class ParticipantRow
+    {
+        public string UserId { get; set; } = string.Empty;
+        public int Placement { get; set; } = 1;
+        public bool IsTie { get; set; }
+        public int TeamNumber { get; set; } = 1;
+    }
+}

@@ -1,42 +1,34 @@
-<h3>Rang Titels</h3>
+﻿<h3 class="rt-heading">Rangtitels</h3>
+<p class="rt-intro">Stel per minimale rating een rangtitel in, bijvoorbeeld "Brons" vanaf 800 en "Zilver" vanaf 1200.</p>
 
-<div style="margin-bottom: 20px;">
-    <p>Definieer aangepaste rangtitels voor ELO-waarderingsbereiken. Voeg bijvoorbeeld "Bronze" toe voor 800+, "Silver" voor 1200+, enz.</p>
+@if (RankTitles != null && RankTitles.Any())
+{
+    <ul class="rt-list">
+        @foreach (var kvp in RankTitles.OrderBy(x => x.Key))
+        {
+            <li class="rt-item">
+                <span class="rt-threshold">@kvp.Key.ToString("F0")+</span>
+                <span class="rt-title">@kvp.Value</span>
+                <button type="button" class="rt-remove" aria-label="@($"{kvp.Value} verwijderen")" @onclick="@(() => RemoveRankTitle(kvp.Key))">
+                    <i class="bi bi-trash"></i>
+                    <span>Verwijderen</span>
+                </button>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    <p class="rt-empty">Er zijn nog geen rangtitels ingesteld.</p>
+}
 
-    @if (RankTitles != null && RankTitles.Any())
-    {
-        <table style="width: 100%; margin-bottom: 10px;">
-            <thead>
-                <tr>
-                    <th>Minimale ELO</th>
-                    <th>Titel</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var kvp in RankTitles.OrderBy(x => x.Key))
-                {
-                    <tr>
-                        <td>@kvp.Key.ToString("F0")</td>
-                        <td>@kvp.Value</td>
-                        <td>
-                            <button type="button" @onclick="@(() => RemoveRankTitle(kvp.Key))">Verwijderen</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <p style="font-style: italic;">Geen rangtitels gedefinieerd.</p>
-    }
-
-    <div style="display: flex; gap: 10px; margin-top: 10px;">
-        <input type="number" @bind="_newEloThreshold" placeholder="Min ELO (bijv. 800)" style="flex: 0 0 150px;" />
-        <input type="text" @bind="_newRankTitle" placeholder="Titel (bijv. Bronze)" style="flex: 1;" />
-        <button type="button" @onclick="AddRankTitle">Toevoegen</button>
-    </div>
+<div class="rt-add">
+    <input class="rt-input rt-input-threshold" type="number" @bind="_newEloThreshold" placeholder="Minimale rating (bijv. 800)" />
+    <input class="rt-input" type="text" @bind="_newRankTitle" placeholder="Titel (bijv. Brons)" />
+    <button type="button" class="rt-button" @onclick="AddRankTitle">
+        <i class="bi bi-plus-lg"></i>
+        <span>Toevoegen</span>
+    </button>
 </div>
 
 @code {

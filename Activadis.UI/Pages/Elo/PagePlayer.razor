@@ -1,0 +1,177 @@
+﻿@inject IEloService EloService
+@page "/speler/{Id:guid}"
+
+<PageTitle>@(profile?.FullName ?? "Speler")</PageTitle>
+
+<div class="pl-back-wrapper">
+    <NavLink class="pl-back" href="/ranglijst">
+        <i class="bi bi-arrow-left"></i>
+        <span>Terug naar ranglijst</span>
+    </NavLink>
+</div>
+
+@if (isLoading)
+{
+    <div class="pl-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (profile is null)
+{
+    <p class="pl-state">Deze speler is niet gevonden.</p>
+}
+else
+{
+    <h1>@profile.FullName</h1>
+    <p class="pl-subtitle">
+        @profile.JobTitle
+        @if (!string.IsNullOrWhiteSpace(profile.JobTitle) && !string.IsNullOrWhiteSpace(profile.Email))
+        {
+            <span> · </span>
+        }
+        @profile.Email
+    </p>
+
+    <div class="pl-stats">
+        <div class="pl-stat">
+            <span class="pl-stat-label">Algemene rating</span>
+            <span class="pl-stat-value">@profile.OverallRating.ToRating()</span>
+        </div>
+        <div class="pl-stat">
+            <span class="pl-stat-label">Wedstrijden</span>
+            <span class="pl-stat-value">@profile.TotalMatches</span>
+        </div>
+        <div class="pl-stat">
+            <span class="pl-stat-label">Winstpercentage</span>
+            <span class="pl-stat-value">@ToPercentage(profile.WinRate)</span>
+        </div>
+        <div class="pl-stat">
+            <span class="pl-stat-label">Behaalde score</span>
+            <span class="pl-stat-value">@ToScore(profile.TotalActualScore)</span>
+        </div>
+        <div class="pl-stat">
+            <span class="pl-stat-label">Verwachte score</span>
+            <span class="pl-stat-value">@ToScore(profile.TotalExpectedScore)</span>
+        </div>
+        <div class="pl-stat">
+            <span class="pl-stat-label">Prestatie ten opzichte van verwachting</span>
+            <span class="pl-stat-value @ToChangeClass(profile.Overperformance)">@ToChange(profile.Overperformance)</span>
+        </div>
+    </div>
+
+    <section class="pl-section">
+        <h2>Rating per categorie</h2>
+
+        @if (!profile.CategoryRatings.Any())
+        {
+            <p class="pl-empty">Deze speler heeft nog geen wedstrijden gespeeld.</p>
+        }
+        else
+        {
+            <div class="pl-ratings">
+                @foreach (RatingDto rating in profile.CategoryRatings)
+                {
+                    <div class="pl-rating">
+                        <div class="pl-rating-header">
+                            <NavLink class="pl-rating-category" href="@($"/ranglijst?categorie={rating.CategoryId}")">@rating.CategoryName</NavLink>
+                            @if (!string.IsNullOrWhiteSpace(rating.RankTitle))
+                            {
+                                <span class="pl-title">@rating.RankTitle</span>
+                            }
+                        </div>
+                        <span class="pl-rating-value">@rating.CurrentRating.ToRating()</span>
+                        <div class="pl-rating-meta">
+                            <span>Piekrating @rating.PeakRating.ToRating()</span>
+                            <span>@rating.MatchCount @(rating.MatchCount == 1 ? "wedstrijd" : "wedstrijden")</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    <section class="pl-section">
+        <h2>Laatste wedstrijden</h2>
+
+        @if (!profile.RecentMatches.Any())
+        {
+            <p class="pl-empty">Er zijn geen wedstrijden gevonden.</p>
+        }
+        else
+        {
+            <div class="pl-card">
+                <table class="pl-table">
+                    <thead>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Categorie</th>
+                            <th class="pl-hide-small">Activiteit</th>
+                            <th class="pl-number">Plaats</th>
+                            <th class="pl-number pl-hide-small">Rating voor</th>
+                            <th class="pl-number pl-hide-small">Rating na</th>
+                            <th class="pl-number">Verschil</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (MatchHistoryDto match in profile.RecentMatches)
+                        {
+                            <tr>
+                                <td>@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
+                                <td>@match.CategoryName</td>
+                                <td class="pl-hide-small">
+                                    @if (match.ActivityId is not null)
+                                    {
+                                        <NavLink class="pl-link" href="@($"/activiteit/{match.ActivityId}")">@match.ActivityName</NavLink>
+                                    }
+                                </td>
+                                <td class="pl-number">@match.Placement</td>
+                                <td class="pl-number pl-hide-small">@match.RatingBefore.ToRating()</td>
+                                <td class="pl-number pl-hide-small">@match.RatingAfter.ToRating()</td>
+                                <td class="pl-number @ToChangeClass(match.RatingChange)">@match.RatingChange.ToRatingChange()</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private PlayerProfileDto? profile;
+    private bool isLoading = true;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+        profile = null;
+
+        ApiResponse<PlayerProfileDto> response = await EloService.GetPlayerProfileAsync(Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        profile = response.Value;
+        isLoading = false;
+    }
+
+    private static string ToChange(double change)
+        => change > 0
+            ? $"+{change.ToString("0.##", CultureInfo.InvariantCulture)}"
+            : change.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string ToChangeClass(double change)
+        => change > 0 ? "pl-positive" : change < 0 ? "pl-negative" : string.Empty;
+
+    private static string ToScore(double score)
+        => score.ToString("0.##", CultureInfo.InvariantCulture);
+
+    private static string ToPercentage(double fraction)
+        => $"{(fraction * 100).ToString("0.#", CultureInfo.InvariantCulture)}%";
+}

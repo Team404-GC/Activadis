@@ -1,0 +1,30 @@
+﻿.us {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.us-search,
+.us-select {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+    .us-search::placeholder {
+        color: var(--MutedText);
+    }
+
+    .us-search:focus,
+    .us-select:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+    }

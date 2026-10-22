@@ -111,99 +111,106 @@ else
 
                     @if (!activity.Categories.Any())
                     {
-                        <p>Er zijn geen ELO-categorieën gekoppeld aan deze activiteit.</p>
+                        <p class="ad-empty">Er zijn geen ELO-categorieën gekoppeld aan deze activiteit.</p>
                     }
                     else
                     {
-                        <ul>
+                        <div class="ad-elo-tags">
                             @foreach (CategoryDto category in activity.Categories)
                             {
-                                <li><NavLink href="@($"/ranglijst?categorie={category.Id}")">@category.Name</NavLink></li>
+                                <NavLink class="ad-elo-tag" href="@($"/ranglijst?categorie={category.Id}")">
+                                    <i class="bi bi-trophy"></i>
+                                    <span>@category.Name</span>
+                                </NavLink>
                             }
-                        </ul>
+                        </div>
                     }
 
                     @if (IsAdmin)
                     {
-                        @foreach (CategoryDto category in SelectableCategories)
-                        {
-                            <label>
-                                <input type="checkbox" checked="@selectedCategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
-                                @category.Name
-                            </label>
-                        }
-                        <button type="button" @onclick="SaveCategoriesAsync" disabled="@isSavingCategories">
-                            @(!isSavingCategories ? "Categorieën opslaan" : "Aan het laden..")
-                        </button>
+                        <div class="ad-elo-card">
+                            <span class="ad-elo-card-title">Categorieën wijzigen</span>
+                            <div class="ad-elo-options">
+                                @foreach (CategoryDto category in SelectableCategories)
+                                {
+                                    <label class="ad-elo-option @(selectedCategoryIds.Contains(category.Id) ? "selected" : "")">
+                                        <input type="checkbox" checked="@selectedCategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
+                                        <span>@category.Name</span>
+                                    </label>
+                                }
+                            </div>
+                            <button type="button" class="ad-elo-button-secondary" @onclick="SaveCategoriesAsync" disabled="@isSavingCategories">
+                                @(!isSavingCategories ? "Categorieën opslaan" : "Aan het laden..")
+                            </button>
+                        </div>
                     }
                 </section>
 
                 <section class="ad-section">
-                    <h2>Wedstrijden</h2>
-
-                    @if (IsAdmin)
-                    {
-                        <button type="button" @onclick="@(() => NavigationManager.NavigateTo($"/wedstrijd/nieuw?activiteit={Id}"))">Wedstrijd aanmaken</button>
-                    }
+                    <div class="ad-elo-header">
+                        <h2>Wedstrijden</h2>
+                        @if (IsAdmin)
+                        {
+                            <button type="button" class="ad-elo-button" @onclick="@(() => NavigationManager.NavigateTo($"/wedstrijd/nieuw?activiteit={Id}"))">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>Wedstrijd aanmaken</span>
+                            </button>
+                        }
+                    </div>
 
                     @if (!activity.Matches.Any())
                     {
-                        <p>Er zijn geen wedstrijden gekoppeld aan deze activiteit.</p>
+                        <p class="ad-empty">Er zijn geen wedstrijden gekoppeld aan deze activiteit.</p>
                     }
                     else
                     {
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Datum</th>
-                                    <th>Categorie</th>
-                                    <th>Uitslag</th>
+                        <div class="ad-matches">
+                            @foreach (RecentMatchDto match in activity.Matches)
+                            {
+                                <div class="ad-match">
+                                    <div class="ad-match-header">
+                                        <span class="ad-match-date">@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</span>
+                                        <NavLink class="ad-match-category" href="@($"/ranglijst?categorie={match.CategoryId}")">@match.CategoryName</NavLink>
+                                    </div>
+                                    <ol class="ad-match-results">
+                                        @foreach (RecentMatchParticipantDto participant in match.Participants)
+                                        {
+                                            <li class="ad-match-result">
+                                                <span class="ad-match-placement @(participant.Placement == 1 ? "ad-match-winner" : "")">@participant.Placement</span>
+                                                <NavLink class="ad-match-player" href="@($"/speler/{participant.UserId}")">@participant.FullName</NavLink>
+                                                <span class="ad-match-change @ToChangeClass(participant.RatingChange)">@participant.RatingChange.ToRatingChange()</span>
+                                            </li>
+                                        }
+                                    </ol>
                                     @if (IsAdmin)
                                     {
-                                        <th></th>
+                                        <button type="button" class="ad-elo-button-danger" @onclick="@(() => UnlinkMatchAsync(match))" disabled="@isLinkingMatch">
+                                            <i class="bi bi-link-45deg"></i>
+                                            <span>Ontkoppelen</span>
+                                        </button>
                                     }
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (RecentMatchDto match in activity.Matches)
-                                {
-                                    <tr>
-                                        <td>@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
-                                        <td><NavLink href="@($"/ranglijst?categorie={match.CategoryId}")">@match.CategoryName</NavLink></td>
-                                        <td>
-                                            @foreach (RecentMatchParticipantDto participant in match.Participants)
-                                            {
-                                                <div>
-                                                    @(participant.Placement).
-                                                    <NavLink href="@($"/speler/{participant.UserId}")">@participant.FullName</NavLink>
-                                                    (@(ToChange(participant.RatingChange)))
-                                                </div>
-                                            }
-                                        </td>
-                                        @if (IsAdmin)
-                                        {
-                                            <td>
-                                                <button type="button" @onclick="@(() => UnlinkMatchAsync(match))" disabled="@isLinkingMatch">Ontkoppelen</button>
-                                            </td>
-                                        }
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </div>
+                            }
+                        </div>
                     }
 
                     @if (IsAdmin)
                     {
-                        <select @bind="selectedMatchId">
-                            <option value="@Guid.Empty">Kies een wedstrijd</option>
-                            @foreach (RecentMatchDto match in linkableMatches)
-                            {
-                                <option value="@match.MatchId">@ToMatchDescription(match)</option>
-                            }
-                        </select>
-                        <button type="button" @onclick="LinkMatchAsync" disabled="@isLinkingMatch">
-                            @(!isLinkingMatch ? "Wedstrijd koppelen" : "Aan het laden..")
-                        </button>
+                        <div class="ad-elo-card">
+                            <span class="ad-elo-card-title">Bestaande wedstrijd koppelen</span>
+                            <div class="ad-elo-link">
+                                <select class="ad-elo-select" @bind="selectedMatchId">
+                                    <option value="@Guid.Empty">Kies een wedstrijd</option>
+                                    @foreach (RecentMatchDto match in linkableMatches)
+                                    {
+                                        <option value="@match.MatchId">@ToMatchDescription(match)</option>
+                                    }
+                                </select>
+                                <button type="button" class="ad-elo-button-secondary" @onclick="LinkMatchAsync" disabled="@isLinkingMatch">
+                                    @(!isLinkingMatch ? "Wedstrijd koppelen" : "Aan het laden..")
+                                </button>
+                            </div>
+                        </div>
                     }
                 </section>
             }
@@ -549,10 +556,8 @@ else
     private static string ToAnswer(bool value)
         => value ? "Ja" : "Nee";
 
-    private static string ToChange(double change)
-        => change > 0
-            ? $"+{change.ToString("0.##", CultureInfo.InvariantCulture)}"
-            : change.ToString("0.##", CultureInfo.InvariantCulture);
+    private static string ToChangeClass(double change)
+        => change > 0 ? "ad-positive" : change < 0 ? "ad-negative" : string.Empty;
 
     private static string ToMatchDescription(RecentMatchDto match)
         => $"{match.MatchDate.ToLocalTime():dd-MM-yyyy HH:mm} - {match.CategoryName} - {string.Join(", ", match.Participants.Select(x => $"{x.Placement}. {x.FullName}"))}";

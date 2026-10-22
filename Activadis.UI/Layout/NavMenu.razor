@@ -30,6 +30,10 @@
                         <div class="nm-dropdown-menu">
                             <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink>
                             <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink>
+                            <NavLink class="nm-dropdown-item" href="/statistieken"> Statistieken </NavLink>
+                            <AuthorizeView Roles="Admin">
+                                <NavLink class="nm-dropdown-item" href="/wedstrijd/nieuw"> Wedstrijd registreren </NavLink>
+                            </AuthorizeView>
                             <NavLink class="nm-dropdown-item" href="@($"/speler/{User.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
                         </div>
                     }

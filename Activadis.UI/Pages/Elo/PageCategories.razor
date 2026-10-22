@@ -3,58 +3,82 @@
 
 <PageTitle>Categorieën</PageTitle>
 
-<h1>Categorieën</h1>
-
-<button type="button" @onclick="OpenCreate">Nieuwe categorie</button>
-
-@if (isLoading)
-{
-    <div>
-        <div class="spinner-border" role="status"></div>
-    </div>
-}
-else if (!categories.Any())
-{
-    <p>Er zijn nog geen categorieën.</p>
-}
-else
-{
-    <table>
-        <thead>
-            <tr>
-                <th>Naam</th>
-                <th>Beschrijving</th>
-                <th>Volgorde</th>
-                <th>Actief</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (CategoryDto category in categories)
-            {
-                <tr>
-                    <td><NavLink href="@($"/ranglijst?categorie={category.Id}")">@category.Name</NavLink></td>
-                    <td>@category.Description</td>
-                    <td>@category.DisplayOrder</td>
-                    <td>@(category.IsActive ? "Ja" : "Nee")</td>
-                    <td><button type="button" @onclick="@(() => OpenEdit(category))">Bewerken</button></td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div class="ca-header">
+    <h1>Categorieën</h1>
+    @if (!isFormOpen)
+    {
+        <button type="button" class="ca-button" @onclick="OpenCreate">
+            <i class="bi bi-plus-lg"></i>
+            <span>Nieuwe categorie</span>
+        </button>
+    }
+</div>
 
 @if (isFormOpen)
 {
-    <CategoryFormComponent Model="formModel"
+    <CategoryFormComponent @key="formModel"
+                           Model="formModel"
                            IsSaving="isSaving"
                            OnSubmit="SubmitAsync"
                            OnCancel="CloseForm" />
 }
 
+@if (isLoading)
+{
+    <div class="ca-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (hasFailed)
+{
+    <p class="ca-state">De categorieën konden niet worden geladen.</p>
+}
+else if (!categories.Any())
+{
+    <p class="ca-state">Er zijn nog geen categorieën.</p>
+}
+else
+{
+    <div class="ca-card">
+        <table class="ca-table">
+            <thead>
+                <tr>
+                    <th>Naam</th>
+                    <th class="ca-hide-small">Beschrijving</th>
+                    <th class="ca-hide-small">Volgorde</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (CategoryDto category in categories)
+                {
+                    <tr>
+                        <td><NavLink class="ca-name" href="@($"/ranglijst?categorie={category.Id}")">@category.Name</NavLink></td>
+                        <td class="ca-hide-small ca-muted">@category.Description</td>
+                        <td class="ca-hide-small">@category.DisplayOrder</td>
+                        <td>
+                            <span class="ca-status @(category.IsActive ? "ca-status-active" : "ca-status-inactive")">
+                                @(category.IsActive ? "Actief" : "Inactief")
+                            </span>
+                        </td>
+                        <td class="ca-actions">
+                            <button type="button" class="ca-button-secondary" @onclick="@(() => OpenEdit(category))">
+                                <i class="bi bi-pencil"></i>
+                                <span>Bewerken</span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
 @code {
     private List<CategoryDto> categories = [];
     private bool isLoading = true;
+    private bool hasFailed;
 
     private bool isFormOpen;
     private bool isSaving;
@@ -67,11 +91,13 @@ else
     private async Task LoadAsync()
     {
         isLoading = true;
+        hasFailed = false;
 
         ApiResponse<List<CategoryDto>> response = await EloService.GetCategoriesAsync();
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
+            hasFailed = true;
             isLoading = false;
             return;
         }

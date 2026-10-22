@@ -1,11 +1,13 @@
-﻿<input type="text" placeholder="Zoek op naam of e-mail" @bind="search" @bind:event="oninput" />
-<select value="@Value" @onchange="OnChangeAsync">
-    <option value="">Kies een speler</option>
-    @foreach (UserResponse user in FilteredUsers)
-    {
-        <option value="@user.Id">@ToDescription(user)</option>
-    }
-</select>
+﻿<div class="us">
+    <input class="us-search" type="search" placeholder="Zoek op naam of e-mail" @bind="search" @bind:event="oninput" />
+    <select class="us-select" value="@Value" @onchange="OnChangeAsync">
+        <option value="">Kies een speler</option>
+        @foreach (UserResponse user in FilteredUsers)
+        {
+            <option value="@user.Id">@ToDescription(user)</option>
+        }
+    </select>
+</div>
 
 @code {
     [Parameter, EditorRequired]

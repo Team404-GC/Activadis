@@ -1,0 +1,237 @@
+﻿.st-back-wrapper ::deep .st-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--MutedText);
+    text-decoration: none;
+}
+
+    .st-back-wrapper ::deep .st-back:hover {
+        color: #ffffff;
+    }
+
+.st-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.st-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: min(100%, 240px);
+}
+
+    .st-filter label {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.75);
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+.st-filter-small {
+    flex-direction: row;
+    align-items: center;
+    min-width: 0;
+}
+
+    .st-filter-small label {
+        color: var(--MutedText);
+        white-space: nowrap;
+    }
+
+.st-select {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-family: inherit;
+    font-size: 14px;
+}
+
+    .st-select:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+    }
+
+.st-state {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    color: var(--MutedText);
+}
+
+.st-section {
+    margin-top: 32px;
+}
+
+    .st-section h2 {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+.st-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.st-kpi {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+.st-kpi-label {
+    color: var(--MutedText);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.st-kpi-value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.st-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 32px;
+}
+
+.st-card {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+    .st-card h2 {
+        margin-bottom: 16px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+.st-card-wide {
+    grid-column: 1 / -1;
+}
+
+.st-card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    margin-bottom: 16px;
+}
+
+    .st-card-header h2 {
+        margin-bottom: 0;
+    }
+
+.st-empty {
+    margin: 0;
+    color: var(--MutedText);
+    font-size: 14px;
+}
+
+.st-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+    .st-table th {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+        color: var(--MutedText);
+        font-size: 13px;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .st-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+        vertical-align: top;
+    }
+
+    .st-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .st-table .st-number {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+    .st-table ::deep .st-link {
+        color: var(--TextColor);
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+        .st-table ::deep .st-link:hover {
+            color: var(--AccentColorHover);
+            text-decoration: none;
+        }
+
+.st-title {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--AccentColorSoft);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.st-nowrap {
+    white-space: nowrap;
+}
+
+.st-muted {
+    color: var(--MutedText);
+}
+
+@media (max-width: 900px) {
+    .st-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .st-card {
+        padding: 16px 12px;
+    }
+
+    .st-table .st-hide-small {
+        display: none;
+    }
+
+    .st-table th,
+    .st-table td {
+        padding: 10px 4px;
+    }
+
+    .st-nowrap {
+        white-space: normal;
+    }
+}

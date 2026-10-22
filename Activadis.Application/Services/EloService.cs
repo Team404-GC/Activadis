@@ -387,6 +387,7 @@ namespace Activadis.Application.Services
                 UserId = r.UserId,
                 CategoryId = r.CategoryId,
                 CategoryName = r.Category?.Name ?? "Onbekend",
+                RankTitle = LeaderboardService.GetRankTitle(r.CurrentRating, r.Category?.RankTitles),
                 CurrentRating = r.CurrentRating,
                 MatchCount = r.MatchCount,
                 PeakRating = r.PeakRating,
