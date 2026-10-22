@@ -24,4 +24,8 @@
 	  <Folder Include="wwwroot\videos\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <None Include="wwwroot\css\signup-component.css" />
+	</ItemGroup>
+
 </Project>

@@ -1,45 +1,49 @@
-﻿@if (ShouldDisplay)
-{
-    <div class="signup-container" @onclick="CloseAsync">
-        <EditForm Model="Request" OnValidSubmit="OnSubmitAsync" class="form" @onclick:stopPropagation="true">
-            @if (User?.Identity?.IsAuthenticated == false)
-            {
-                <section>
-                    <label>Naam</label>
-                    <InputText @bind-Value="Request.FullName" />
-                </section>
-                <section>
-                    <label>Email</label>
-                    <InputText @bind-Value="Request.Email" />
-                </section>
-            }
-            @if (PlusOneAllowed)
-            {
-                <section>
-                    <label>Zou je een +1 willen meenemen?</label>
-                    <label class="switch">
-                        <InputCheckbox @bind-Value="Request.HasPlusOne" />
-                        <span class="slider round"></span>
-                    </label>
-                </section>
-            }
+﻿<link rel="stylesheet" href="/css/signup-component.css" />
+<div class="signup-container @(Request.ShouldOpenComponent ? "container-visible" : "")" @onmousedown="CloseAsync">
+    <EditForm EditContext="Request.Context" OnValidSubmit="OnSubmitAsync" class="form" @onmousedown:stopPropagation="true">
+        @if (User?.Identity?.IsAuthenticated == false)
+        {
             <section>
-                <button type="submit">Inschrijven</button>
+                <label>Naam</label>
+                <InputText @bind-Value="Request.Request.FullName" />
             </section>
-        </EditForm>
-    </div>
-}
+            <section>
+                <label>Email</label>
+                <InputText @bind-Value="Request.Request.Email" />
+            </section>
+        }
+        <section>
+            <label>
+                Opmerking (optioneel)
+                <span class="length-meter @((Request.Request.Comment?.Length ?? 0) > Request.Request.GetMaxLength("Comment") ? "length-invalid" : "")">@(Request.Request.Comment?.Length ?? 0) | @Request.Request.GetMaxLength("Comment")</span>
+            </label>
+            <InputTextArea @bind-Value="Request.Request.Comment" @oninput="Request.InstantUpdateComment" />
+            <ValidationMessage For="@(() => Request.Request.Comment)" />
+        </section>
+        @if (PlusOneAllowed)
+        {
+            <section>
+                <label>Zou je een +1 willen meenemen?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="Request.Request.HasPlusOne" />
+                    <span class="slider round"></span>
+                </label>
+            </section>
+        }
+        <section>
+            <button type="submit">Inschrijven</button>
+        </section>
+    </EditForm>
+</div>
 
 @code {
     [CascadingParameter] public Task<AuthenticationState>? AuthenticationState { get; set; }
     private ClaimsPrincipal? User { get; set; }
 
-    [Parameter] public required EventCallback<SignUpRequest> RequestChanged { get; set; }
-    [Parameter] public required EventCallback<bool> ShouldDisplayChanged { get; set; }
+    [Parameter] public required EventCallback<ComponentRequest<SignUpRequest>> RequestChanged { get; set; }
+    [Parameter] public required ComponentRequest<SignUpRequest> Request { get; set; }
     [Parameter] public required EventCallback OnSubmit { get; set; }
-    [Parameter] public required SignUpRequest Request { get; set; }
     [Parameter] public required bool PlusOneAllowed { get; set; }
-    [Parameter] public required bool ShouldDisplay { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -52,13 +56,16 @@
 
     public async Task OnSubmitAsync()
     {
+        if (string.IsNullOrWhiteSpace(Request.Request.Comment))
+            Request.Request.Comment = null;
+
         await RequestChanged.InvokeAsync(Request);
         await OnSubmit.InvokeAsync();
     }
 
     public async Task CloseAsync()
     {
-        ShouldDisplay = false;
-        await ShouldDisplayChanged.InvokeAsync(ShouldDisplay);
+        Request.ShouldOpenComponent = false;
+        await RequestChanged.InvokeAsync(Request);
     }
 }

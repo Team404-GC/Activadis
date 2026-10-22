@@ -3,6 +3,7 @@
 @inject IActivityService ActivityService
 @inject ISignUpService SignUpService
 @inject IEloService EloService
+@implements IDisposable
 @page "/activiteit/{Id:guid}"
 
 <PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>
@@ -89,13 +90,13 @@ else
             <div class="ad-actions">
                 @if (!activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
                 {
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signUpRequest, SignUpAsync))" disabled="@(!activity.IsOpenForSignUp || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signUpRequest))" disabled="@(!activity.IsOpenForSignUp || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
                         @(!signUpRequest.IsLoading ? "Inschrijven" : "Aan het laden..")
                     </button>
                 }
                 @if (activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
                 {
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(editSignUpRequest, EditSignUpAsync))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(editSignUpRequest))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
                         @(!editSignUpRequest.IsLoading ? "Inschrijving wijzigen" : "Aan het laden..")
                     </button>
                     <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signOutRequest, SignOutAsync))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
@@ -217,9 +218,9 @@ else
         }
     </div>
 
-    <SignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-ShouldDisplay="signUpRequest.ShouldOpenComponent" @bind-Request="signUpRequest.Request" OnSubmit="@(() => SubmitComponentAsync(signUpRequest, SignUpAsync))" />
-    <EditSignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-ShouldDisplay="editSignUpRequest.ShouldOpenComponent" @bind-Request="editSignUpRequest.Request" OnSubmit="@(() => SubmitComponentAsync(editSignUpRequest, EditSignUpAsync))" />
-    <SignOutComponent @bind-ShouldDisplay="signOutRequest.ShouldOpenComponent" @bind-Request="signOutRequest.Request" OnSubmit="@(() => SubmitComponentAsync(signOutRequest, SignOutAsync))" />
+    <SignUpComponent PlusOneAllowed="activity.PlusOneAllowed"  @bind-Request="signUpRequest" OnSubmit="@(() => SubmitComponentAsync(signUpRequest, SignUpAsync))" />
+    <EditSignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-Request="editSignUpRequest" OnSubmit="@(() => SubmitComponentAsync(editSignUpRequest, EditSignUpAsync))" />
+    <SignOutComponent @bind-Request="signOutRequest" OnSubmit="@(() => SubmitComponentAsync(signOutRequest, SignOutAsync))" />
 }
 
 @code {
@@ -297,6 +298,13 @@ else
             return;
 
         NavigationManager.NavigateTo("/");
+    }
+
+    public void Dispose()
+    {
+        signUpRequest.Dispose();
+        editSignUpRequest.Dispose();
+        signOutRequest.Dispose();
     }
 
     private async Task LoadAdminDataAsync()
@@ -414,12 +422,12 @@ else
         isLinkingMatch = false;
     }
 
-    public async Task OpenComponentAsync<TRequest>(ComponentRequest<TRequest> request, Func<Task> action)
+    public async Task OpenComponentAsync<TRequest>(ComponentRequest<TRequest> request, Func<Task>? action = null)
     {
         if (activity is null)
             return;
 
-        if (activity.PlusOneAllowed || User?.Identity?.IsAuthenticated == false)
+        if (typeof(TRequest) != typeof(SignOutRequest) || action is null || User?.Identity?.IsAuthenticated == false)
         {
             request.ShouldOpenComponent = true;
             return;
@@ -443,15 +451,31 @@ else
         ApiResponse<object> response = await SignUpService.SignUpAsync(signUpRequest.Request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
             signUpRequest.ShouldOpenComponent = true;
             signUpRequest.IsLoading = false;
+
+            if (response.Errors.Any())
+            {
+                foreach (ApiErrors errors in response.Errors)
+                {
+                    FieldIdentifier field = signUpRequest.Context.Field(errors.Key);
+                    foreach (string error in errors.Errors)
+                        signUpRequest.MessageStore.Add(field, error);
+                }
+
+                signUpRequest.Context.NotifyValidationStateChanged();
+                return;
+            }
+
+            Notifications.AddNotification(response.Message, true);
             return;
         }
 
-        signUpRequest.Request = new SignUpRequest() { ActivityId = activity.Id };
         if (User?.Identity?.IsAuthenticated == true)
         {
+            editSignUpRequest.Request.Comment = signUpRequest.Request.Comment;
+            editSignUpRequest.Request.HasPlusOne = signUpRequest.Request.HasPlusOne;
+
             activity.AvailableSpots--;
             activity.TotalSignUps++;
             activity.HasSignedUp = true;
@@ -464,6 +488,7 @@ else
             Notifications.AddNotification("We hebben een e-mail naar je verstuurd om de inschrijving te bevestigen.", false);
         }
 
+        signUpRequest.Request = new SignUpRequest() { ActivityId = activity.Id };
         signUpRequest.IsLoading = false;
     }
 
@@ -476,19 +501,33 @@ else
         ApiResponse<object> response = await SignUpService.EditSignUpAsync(editSignUpRequest.Request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
             editSignUpRequest.ShouldOpenComponent = true;
             editSignUpRequest.IsLoading = false;
+
+            if (response.Errors.Any())
+            {
+                foreach (ApiErrors errors in response.Errors)
+                {
+                    FieldIdentifier field = editSignUpRequest.Context.Field(errors.Key);
+                    foreach (string error in errors.Errors)
+                        editSignUpRequest.MessageStore.Add(field, error);
+                }
+
+                editSignUpRequest.Context.NotifyValidationStateChanged();
+                return;
+            }
+
+            Notifications.AddNotification(response.Message, true);
             return;
         }
 
-        editSignUpRequest.Request = new EditSignUpRequest() { ActivityId = activity.Id };
         if (User?.Identity?.IsAuthenticated == true)
         {
             Notifications.AddNotification("Je hebt je inschrijving succesvol bijgewerkt.", false);
         }
         else
         {
+            editSignUpRequest.Request = new EditSignUpRequest() { ActivityId = activity.Id };
             Notifications.AddNotification("We hebben een e-mail naar je verstuurd om de wijziging te bevestigen.", false);
         }
 
@@ -504,13 +543,26 @@ else
         ApiResponse<object> response = await SignUpService.SignOutAsync(signOutRequest.Request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
             signOutRequest.ShouldOpenComponent = true;
             signOutRequest.IsLoading = false;
+
+            if (response.Errors.Any())
+            {
+                foreach (ApiErrors errors in response.Errors)
+                {
+                    FieldIdentifier field = signOutRequest.Context.Field(errors.Key);
+                    foreach (string error in errors.Errors)
+                        signOutRequest.MessageStore.Add(field, error);
+                }
+
+                signOutRequest.Context.NotifyValidationStateChanged();
+                return;
+            }
+
+            Notifications.AddNotification(response.Message, true);
             return;
         }
 
-        signOutRequest.Request = new SignOutRequest() { ActivityId = activity.Id };
         if (User?.Identity?.IsAuthenticated == true)
         {
             activity.AvailableSpots++;
@@ -525,6 +577,8 @@ else
             Notifications.AddNotification("We hebben een e-mail naar je verstuurd om de uitschrijving te bevestigen.", false);
         }
 
+        editSignUpRequest.Request = new EditSignUpRequest() { ActivityId = activity.Id };
+        signOutRequest.Request = new SignOutRequest() { ActivityId = activity.Id };
         signOutRequest.IsLoading = false;
     }
 
@@ -570,7 +624,7 @@ else
 
         if (!activity.HasSignedUp && activity.SignUpDeadlinePassed)
             return "De inschrijftermijn is verstreken.";
-            
+
         if (activity.HasSignedUp && DateTime.UtcNow >= activity.SignOutDeadline)
             return "De uitschrijftermijn is verstreken.";
 

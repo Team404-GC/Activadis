@@ -15,6 +15,10 @@
     --DangerText: #b91c1c;
 }
 
+html:has(.container-visible) {
+    overflow: hidden;
+}
+
 body {
     font-family: 'Poppins', sans-serif;
     background: var(--DashboardColor);

@@ -13,6 +13,7 @@ namespace Activadis.Application.Extensions
                 FullName = request.FullName ?? string.Empty,
                 Email = request.Email ?? string.Empty,
 
+                Comment = request.Comment,
                 HasPlusOne = request.HasPlusOne,
                 IsExternal = userId == Guid.Empty,
                 WaitlistPosition = position,
@@ -26,6 +27,7 @@ namespace Activadis.Application.Extensions
         {
             return new SignUpDTO()
             {
+                Comment = request.Comment,
                 HasPlusOne = request.HasPlusOne
             };
         }
@@ -41,6 +43,7 @@ namespace Activadis.Application.Extensions
             if (signUp.DeletedAt is null)
                 throw new ArgumentException("Je kan niet 2x inschrijven bij dezelfde activiteit.");
 
+            signUp.Comment = request.Comment;
             signUp.HasPlusOne = request.HasPlusOne;
             signUp.DeletedAt = null;
             signUp.WaitlistPosition = position;
@@ -53,6 +56,7 @@ namespace Activadis.Application.Extensions
             if (signUp is null || signUp.WaitlistPosition is not null)
                 throw new ArgumentException("Je bent niet ingeschreven bij deze activiteit.");
 
+            signUp.Comment = request.Comment;
             signUp.HasPlusOne = request.HasPlusOne;
 
             await signUpRepository.UpdateAsync(signUp);
