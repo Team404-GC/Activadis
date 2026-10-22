@@ -17,25 +17,28 @@
 
         <div class="login-right">
             <h1>Activadis</h1>
-            <h2>Login</h2>
+            <h2>Inloggen met e-mail</h2>
             <EditForm Model="request" OnValidSubmit="HandleLogin">
                 <DataAnnotationsValidator />
 
                 <div class="form-group">
+                    <label for="email">E-mailadres</label>
                     <InputText id="email"
                                class="form-control"
                                @bind-Value="request.Email"
+                               type="email"
                                inputmode="email"
-                               placeholder="Email" />
+                               placeholder="naam@covadis.nl" />
                     <ValidationMessage For="@(() => request.Email)" />
                 </div>
 
                 <div class="form-group">
+                    <label for="password">Wachtwoord</label>
                     <InputText id="password"
                                class="form-control"
                                @bind-Value="request.Password"
                                type="password"
-                               placeholder="Password" />
+                               placeholder="Wachtwoord" />
                     <ValidationMessage For="@(() => request.Password)" />
                 </div>
 
@@ -46,7 +49,7 @@
                     }
                     else
                     {
-                        <span>Login</span>
+                        <span>Inloggen</span>
                     }
                 </button>
             </EditForm>

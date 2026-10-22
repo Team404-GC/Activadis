@@ -27,9 +27,9 @@ namespace Activadis.Application.Services
             User? user = await UserRepository.GetByEmailAsync(request.Email);
 
             if (user is null || !user.HasPassword() || !Password.Validate(user.HashedPassword, request.Password))
-                throw new AuthenticationException("De email of het password is incorrect.");
+				throw new AuthenticationException("Het e-mailadres of wachtwoord is onjuist.");
 
-            return TokenService.GenerateToken(user);
+			return TokenService.GenerateToken(user);
         }
 
         public async Task CheckPasswordSetupAsync(string token)
