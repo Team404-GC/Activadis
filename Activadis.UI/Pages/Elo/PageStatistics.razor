@@ -115,7 +115,7 @@ else
             }
             else
             {
-                <ApexChart TItem="RatingBucket" Title="Aantal spelers per ratingklasse" @key="chartKey">
+                <ApexChart TItem="RatingBucket" Title="Aantal spelers per ratingklasse" Options="bucketOptions" @key="chartKey">
                     <ApexPointSeries TItem="RatingBucket"
                                      Items="ratingBuckets"
                                      Name="Spelers"
@@ -155,7 +155,7 @@ else
             }
             else
             {
-                <ApexChart TItem="TitleCount" Title="Spelers per rangtitel" @key="chartKey">
+                <ApexChart TItem="TitleCount" Title="Spelers per rangtitel" Options="titleOptions" @key="chartKey">
                     <ApexPointSeries TItem="TitleCount"
                                      Items="titleCounts"
                                      Name="Spelers"
@@ -175,7 +175,7 @@ else
             }
             else
             {
-                <ApexChart TItem="ActivityPointDto" Title="Wedstrijden per maand" @key="chartKey">
+                <ApexChart TItem="ActivityPointDto" Title="Wedstrijden per maand" Options="activityOptions" @key="chartKey">
                     <ApexPointSeries TItem="ActivityPointDto"
                                      Items="activity"
                                      Name="Wedstrijden"
@@ -301,9 +301,12 @@ else
     private double averageRating;
     private double highestPeakRating;
 
-    private ApexChartOptions<RatingHistoryPointDto> historyOptions = new();
-    private ApexChartOptions<LeaderboardEntryDto> scatterOptions = new();
-    private ApexChartOptions<RatingChangeItem> changeOptions = new();
+    private ApexChartOptions<RatingHistoryPointDto> historyOptions = CreateOptions<RatingHistoryPointDto>();
+    private ApexChartOptions<RatingBucket> bucketOptions = CreateOptions<RatingBucket>();
+    private ApexChartOptions<LeaderboardEntryDto> scatterOptions = CreateOptions<LeaderboardEntryDto>();
+    private ApexChartOptions<TitleCount> titleOptions = CreateOptions<TitleCount>();
+    private ApexChartOptions<ActivityPointDto> activityOptions = CreateOptions<ActivityPointDto>();
+    private ApexChartOptions<RatingChangeItem> changeOptions = CreateOptions<RatingChangeItem>();
 
     private Guid chartKey = Guid.NewGuid();
     private bool isLoading = true;
@@ -438,6 +441,16 @@ else
 
     private static string ToResult(RecentMatchDto match)
         => string.Join(", ", match.Participants.Select(p => $"{p.Placement}. {p.FullName} ({p.RatingChange.ToRatingChange()})"));
+
+    private static ApexChartOptions<T> CreateOptions<T>() where T : class
+        => new ApexChartOptions<T>()
+        {
+            Chart = new Chart()
+            {
+                Toolbar = new Toolbar() { Show = false },
+                Zoom = new Zoom() { Enabled = false }
+            }
+        };
 
     private static string ToMonthLabel(int year, int month)
         => new DateTime(year, month, 1).ToString("MMM yyyy", new CultureInfo("nl-NL"));
