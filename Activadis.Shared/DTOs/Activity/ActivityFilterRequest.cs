@@ -10,5 +10,6 @@ namespace Activadis.Shared.DTOs.Activity
 		public DateTime? From { get; set; }
 		public DateTime? To { get; set; }
 		public bool IncludePast { get; set; }
+		public bool ExcludeInternal { get; set; } = false;
 	}
 }

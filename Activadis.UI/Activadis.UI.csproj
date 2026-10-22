@@ -17,15 +17,11 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Activadis.Shared\Activadis.Shared.csproj" />
+		<ProjectReference Include="..\Activadis.Shared\Activadis.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\videos\" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="wwwroot\css\signup-component.css" />
+		<None Include="wwwroot\css\signup-component.css" />
 	</ItemGroup>
 
 </Project>

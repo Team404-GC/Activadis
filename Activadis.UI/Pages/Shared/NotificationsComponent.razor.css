@@ -1,5 +1,5 @@
 ﻿.notifications {
-    --notification-color: #6638ad;
+    --notification-color: var(--AccentColor);
     flex-direction: column;
     justify-content: end;
     pointer-events: none;
@@ -29,11 +29,11 @@
         width: 400px;
 
         &.notification-error {
-            --notification-color: #ff0000;
+            --notification-color: var(--DangerText);
         }
 
         p {
-            color: var(--notification-color);
+            color: var(--TextColor);
             margin: 0;
         }
     }

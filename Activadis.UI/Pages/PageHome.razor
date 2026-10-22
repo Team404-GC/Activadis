@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject NavigationManager Navigation
+@inject IActivityService ActivityService
 
 <PageTitle>Activadis</PageTitle>
 
@@ -14,36 +15,41 @@
             schrijf je in en houd bij waar je bij bent.
         </p>
 
-        <a class="hm-button" href="/login">
-            <i class="bi bi-box-arrow-in-right"></i>
-            <span>Inloggen</span>
-        </a>
-
         <p class="hm-note">Log in om alle activiteiten te zien en je in te schrijven.</p>
     </div>
 </section>
 
 <section class="hm-blocks">
-    <a class="hm-block" href="/open-haard">
-        @* <h2>De haard</h2> *@
-        <video autoplay muted loop>
-            <source src="videos/OPEN_HAARD.mp4" type="video/mp4" />
-        </video>
-    </a>
+    <ListOverviewComponent Activities="activities"
+    EmptyMessage="Geen activiteiten beschikbaar." />
 </section>
 
 
 @code {
+
+    private IEnumerable<ActivityOverviewResponse> activities = [];
+
     [CascadingParameter]
     private Task<AuthenticationState> AuthState { get; set; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
+
         AuthenticationState state = await AuthState;
 
-        if (state.User.Identity?.IsAuthenticated != true)
+        if (state.User.Identity?.IsAuthenticated == true)
+        {
+            Navigation.NavigateTo("/activiteiten");
             return;
+        }
 
-        Navigation.NavigateTo("/activiteiten");
+        ApiResponse<IEnumerable<ActivityOverviewResponse>> response = await ActivityService.GetActivitiesAsync(new ActivityFilterRequest()
+        {
+             ExcludeInternal = true
+        });
+
+        if (response.Succeeded)
+            activities = response.Value ?? [];
+
     }
 }

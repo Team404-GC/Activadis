@@ -76,6 +76,11 @@ else
 }
 
 @code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthState { get; set; } = null!;
+
+    private bool isAdmin;
+
     private List<CategoryDto> categories = [];
     private bool isLoading = true;
     private bool hasFailed;
@@ -86,7 +91,12 @@ else
     private CreateCategoryRequest formModel = new();
 
     protected override async Task OnInitializedAsync()
-        => await LoadAsync();
+    {
+        AuthenticationState state = await AuthState;
+        isAdmin = state.User.IsInRole("Admin");
+
+        await LoadAsync();
+    }
 
     private async Task LoadAsync()
     {

@@ -1,51 +1,66 @@
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 
-<nav class="nm-navbar">
-    <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
-        <span>
-            <LogoAnimation />
-        </span>
-    </NavLink>
+<header class="nm-header">
+    <nav class="nm-navbar">
+        <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
+            <span>
+                <LogoAnimation />
+            </span>
+        </NavLink>
 
-    <button class="nm-toggle" @onclick="ToggleMenu">
-        <i class="bi bi-list"></i>
-    </button>
-
-    <div class="nm-menu @(isOpen ? "open" : "")" @onclick="CloseMenu">
-        <AuthorizeView Context="auth">
+        <AuthorizeView>
             <Authorized>
-                <div class="nm-links">
-                    <NavLink class="nm-link" href="/activiteiten" Match="NavLinkMatch.Prefix">Activiteiten</NavLink>
-                    <NavLink class="nm-link" href="/kalender">Kalender</NavLink>
-                    <AuthorizeView Roles="Admin">
-                        <NavLink class="nm-link" href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
-                        <NavLink class="nm-link" href="/gebruiker/nieuw">Gebruiker aanmaken</NavLink>
-                    </AuthorizeView>
-                </div>
-                <div class="nm-dropdown" @onclick:stopPropagation>
-                    <button class="nm-link nm-dropdown-toggle" @onclick="ToggleDropdown"> Elo ranking <i class="bi bi-chevron-down"></i> </button>
-                    @if (dropdownOpen)
-                    {
-                        <div class="nm-dropdown-menu">
-                            <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink>
-                            <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink>
-                            <NavLink class="nm-dropdown-item" href="/statistieken"> Statistieken </NavLink>
-                            <AuthorizeView Roles="Admin">
-                                <NavLink class="nm-dropdown-item" href="/wedstrijd/nieuw"> Wedstrijd registreren </NavLink>
-                            </AuthorizeView>
-                            <NavLink class="nm-dropdown-item" href="@($"/speler/{User.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
-                        </div>
-                    }
-                </div>
-                <button class="nm-button" @onclick="HandleLogout">
-                    <i class="bi bi-box-arrow-right"></i>
-                    <span>Uitloggen</span>
+                <button class="nm-toggle" @onclick="ToggleMenu">
+                    <i class="bi bi-list"></i>
                 </button>
             </Authorized>
         </AuthorizeView>
-    </div>
-</nav>
+
+        <div class="nm-menu @(isOpen ? "open" : "")" @onclick="CloseMenu">
+            <AuthorizeView Context="auth">
+                <Authorized>
+                    <div class="nm-links">
+                        <NavLink class="nm-link" href="/activiteiten" Match="NavLinkMatch.Prefix">Activiteiten</NavLink>
+                        <NavLink class="nm-link" href="/kalender">Kalender</NavLink>
+                        <AuthorizeView Roles="Admin">
+                            <NavLink class="nm-link" href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
+                            <NavLink class="nm-link" href="/gebruiker/nieuw">Gebruiker aanmaken</NavLink>
+                        </AuthorizeView>
+                    </div>
+                    <div class="nm-dropdown" @onclick:stopPropagation>
+                        <button class="nm-link nm-dropdown-toggle" @onclick="ToggleDropdown"> Elo ranking <i class="bi bi-chevron-down"></i> </button>
+                        @if (dropdownOpen)
+                        {
+                            <div class="nm-dropdown-menu">
+                                <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink>
+                                <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink>
+                                <NavLink class="nm-dropdown-item" href="/statistieken"> Statistieken </NavLink>
+                                <AuthorizeView Roles="Admin">
+                                    <NavLink class="nm-dropdown-item" href="/wedstrijd/nieuw"> Wedstrijd registreren </NavLink>
+                                </AuthorizeView>
+                                <NavLink class="nm-dropdown-item" href="@($"/speler/{User.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
+                            </div>
+                        }
+                    </div>
+                    <button class="nm-button" @onclick="HandleLogout">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Uitloggen</span>
+                    </button>
+                </Authorized>
+            </AuthorizeView>
+        </div>
+
+        <AuthorizeView>
+            <NotAuthorized>
+                <NavLink class="nm-button nm-login" href="/login">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Inloggen</span>
+                </NavLink>
+            </NotAuthorized>
+        </AuthorizeView>
+    </nav>
+</header>
 
 @code {
     [CascadingParameter]

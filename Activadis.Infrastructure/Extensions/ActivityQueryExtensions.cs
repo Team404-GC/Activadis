@@ -15,6 +15,7 @@ namespace Activadis.Infrastructure.Extensions
 				.Where(x => (isAdmin && filter.IncludePast) || x.EndDate >= DateTime.UtcNow)
 				.Where(x => filter.Name == null || x.Name.Contains(filter.Name))
 				.Where(x => filter.To == null || x.StartDate <= filter.To)
-				.Where(x => filter.From == null || x.EndDate >= filter.From);
+				.Where(x => filter.From == null || x.EndDate >= filter.From)
+				.Where(x => !filter.ExcludeInternal || x.ExternalAllowed);
 	}
 }
