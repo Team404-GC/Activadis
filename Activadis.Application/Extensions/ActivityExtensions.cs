@@ -52,13 +52,25 @@ namespace Activadis.Application.Extensions
                 Name = activity.Name,
 
                 Location = activity.Location,
+                HasPhoto = activity.Image.Length > 0,
+                PhotoVersion = (activity.UpdatedAt ?? activity.CreatedAt).Ticks,
                 IsDraft = activity.PublishedOn is null,
                 IsDeleted = activity.DeletedAt is not null,
                 HasTakenPlace = DateTime.UtcNow >= activity.StartDate,
                 HasSignedIn = hasSignedIn,
+                PlusOneAllowed = activity.PlusOneAllowed,
 
                 StartDate = activity.StartDate,
                 EndDate = activity.EndDate
+            };
+        }
+
+        public static ActivityPhotoResponse ToPhotoResponse(this Activity activity)
+        {
+            return new ActivityPhotoResponse()
+            {
+                Image = activity.Image,
+                ImageContentType = activity.ImageContentType
             };
         }
 

@@ -23,6 +23,7 @@
     color: var(--TextColor);
     text-decoration: none;
     position: relative;
+    overflow: hidden;
 }
 
     ::deep .ao-card:hover {
@@ -45,6 +46,19 @@
     font-size: 16px;
     font-weight: 600;
     color: var(--TextColor);
+}
+
+.ao-card-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% + 32px);
+    height: 160px;
+    margin: -16px -16px 4px -16px;
+    object-fit: cover;
+    background: var(--SurfaceColor);
+    color: var(--MutedText);
+    font-size: 32px;
 }
 
 .ao-card-meta {

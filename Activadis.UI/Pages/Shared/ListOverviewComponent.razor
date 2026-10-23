@@ -1,4 +1,6 @@
-﻿@if (!Activities.Any())
+﻿@inject IActivityService ActivityService
+
+@if (!Activities.Any())
 {
     <p class="ao-state">@EmptyMessage</p>
 }
@@ -8,6 +10,17 @@ else
         @foreach (ActivityOverviewResponse activity in Activities)
         {
             <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Id}")">
+                @if (activity.HasPhoto)
+                {
+                    <img class="ao-card-photo" src="@ActivityService.GetPhotoUrl(activity)" alt="Foto van @activity.Name" loading="lazy" />
+                }
+                else
+                {
+                    <span class="ao-card-photo">
+                        <i class="bi bi-image"></i>
+                    </span>
+                }
+
                 <span class="ao-card-name">@activity.Name</span>
 
                 @if (activity.IsDraft)
@@ -24,6 +37,14 @@ else
                     <i class="bi bi-geo-alt"></i>
                     <span>@activity.Location</span>
                 </span>
+
+                @if (activity.PlusOneAllowed)
+                {
+                    <span class="ao-card-meta">
+                        <i class="bi bi-person-plus"></i>
+                        <span>+1 mag mee</span>
+                    </span>
+                }
 
                 @if (activity.HasTakenPlace)
                 {

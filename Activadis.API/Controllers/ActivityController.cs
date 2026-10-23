@@ -73,6 +73,21 @@ namespace Activadis.API.Controllers
 			}
 		}
 
+		[HttpGet("{id:guid}/Photo")]
+		[ResponseCache(Duration = 3600)]
+		public async Task<IActionResult> GetPhotoAsync(Guid id)
+		{
+			try
+			{
+				ActivityPhotoResponse photo = await ActivityService.GetPhotoAsync(id);
+				return File(photo.Image, photo.ImageContentType);
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
 		[HttpPost]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> CreateAsync([FromForm] CreateActivityRequest request)
