@@ -22,12 +22,22 @@ namespace Activadis.Infrastructure.Extensions
                 throw new InvalidOperationException($"De tabel van het type {type.Name} is niet gevonden.");
 
             if (expression is not null)
-                set = ((IQueryable<TEntity>) set).Where(expression);
+            {
+                if (type != typeof(TEntity))
+                {
+                    set = typeof(Queryable).GetMethod(nameof(Queryable.Cast))!
+                        .MakeGenericMethod(typeof(TEntity))
+                        .Invoke(null, [set])!;
+                }
 
-            return await (Task<int>) typeof(EntityFrameworkQueryableExtensions).GetMethods()
-                .First(x => x.Name == nameof(EntityFrameworkQueryableExtensions.CountAsync) && x.GetParameters().Length == 2)
-                .MakeGenericMethod(type)
-                .Invoke(null, [set])!;
+                set = ((IQueryable<TEntity>)set).Where(expression);
+            }
+
+            // Ensure we look up CountAsync using typeof(TEntity) to completely align parameters
+            return await (Task<int>)typeof(EntityFrameworkQueryableExtensions).GetMethods()
+                .First(x => x.Name == nameof(EntityFrameworkQueryableExtensions.CountAsync) && x.GetParameters().Length == 2 && x.GetParameters()[1].ParameterType == typeof(CancellationToken))
+                .MakeGenericMethod(expression is not null ? typeof(TEntity) : type)
+                .Invoke(null, [set, default(CancellationToken)])!;
         }
     }
 }

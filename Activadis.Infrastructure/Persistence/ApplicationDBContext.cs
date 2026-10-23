@@ -41,11 +41,14 @@ namespace Activadis.Infrastructure.Persistence
             builder.UseSeeding((context, _) =>
             {
                 context.UseUserSeeder();
+                context.CreateSlugs<User>();
 
                 context.UseActivitySeeder();
-                //context.CreateSlugsAsync<User>();
+                context.CreateSlugs<Activity>();
 
                 context.UseCategorySeeder();
+                context.CreateSlugs<Category>();
+
                 context.UseMatchSeeder();
                 context.UseRatingSeeder();
             });
