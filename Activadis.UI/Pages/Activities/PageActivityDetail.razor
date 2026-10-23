@@ -306,6 +306,18 @@ else
         if (activity is not null)
             return;
 
+        AuthenticationState state = await AuthenticationState;
+        User = state.User;
+
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        if (activity is not null)
+            return;
+
         isLoading = true;
         ApiResponse<ActivityDetailResponse> response = await ActivityService.GetDetailAsync(Id);
         if (!response.Succeeded || response.Value is null)
@@ -317,7 +329,7 @@ else
         }
 
         activity = response.Value;
-        if (!activity.ExternalAllowed && (User is not null && User.Identity?.IsAuthenticated != true))
+        if (!activity.ExternalAllowed && User.Identity?.IsAuthenticated != true)
         {
             NavigationManager.NavigateTo("/");
             return;
