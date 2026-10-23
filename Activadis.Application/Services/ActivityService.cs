@@ -111,6 +111,17 @@ namespace Activadis.Application.Services
             return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty);
         }
 
+        public async Task<ActivityPhotoResponse> GetPhotoAsync(Guid id)
+        {
+            Activity activity = await ActivityRepository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            if (activity.Image.Length <= 0)
+                throw new KeyNotFoundException("De activiteit heeft geen foto.");
+
+            return activity.ToPhotoResponse();
+        }
+
         public async Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId)
         {
             IEnumerable<Activity> activities = await ActivityRepository.GetSignedUpByUserIdAsync(userId);

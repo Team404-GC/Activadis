@@ -9,10 +9,13 @@ namespace Activadis.UI.Application.Services
 	public class ActivityService : IActivityService
 	{
 		private readonly IHttpService HttpService;
+		private readonly string ApiBaseUrl;
 
-		public ActivityService(IHttpService httpService)
+		public ActivityService(IHttpService httpService, IConfiguration configuration)
 		{
 			HttpService = httpService;
+			ApiBaseUrl = configuration.GetValue<string>("ApiBaseUrl")
+				?? throw new InvalidOperationException("The API base url was not found.");
 		}
 
 		public async Task<ApiResponse<object>> CreateAsync(CreateActivityRequest request)
@@ -45,5 +48,7 @@ namespace Activadis.UI.Application.Services
 		public async Task<ApiResponse<object>> UnlinkMatchAsync(Guid id, Guid matchId)
 			=> await HttpService.DeleteAsync<object>($"/Activity/{id}/matches/{matchId}");
 
+		public string GetPhotoUrl(ActivityOverviewResponse activity)
+			=> $"{ApiBaseUrl}/Activity/{activity.Id}/Photo?v={activity.PhotoVersion}";
 	}
 }
