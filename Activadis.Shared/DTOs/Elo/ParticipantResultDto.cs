@@ -3,6 +3,7 @@ namespace Activadis.Shared.DTOs.Elo
     public class ParticipantResultDto
     {
         public Guid UserId { get; set; }
+        public string? UserSlug { get; set; }
         public required string FullName { get; set; }
         public int Placement { get; set; }
         public double OldRating { get; set; }

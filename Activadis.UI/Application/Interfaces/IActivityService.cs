@@ -11,7 +11,7 @@ namespace Activadis.UI.Application.Interfaces
 		Task<ApiResponse<object>> EditAsync(EditActivityRequest request);
 
         Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter);
-		Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id);
+		Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(string identifier);
 		Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync();
 
 		Task<ApiResponse<object>> UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request);

@@ -48,8 +48,8 @@ namespace Activadis.API.Controllers
 			return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
 		}
 
-		[HttpGet("{id:guid}")]
-		public async Task<IActionResult> GetDetailAsync(Guid id)
+		[HttpGet("{id}")]
+		public async Task<IActionResult> GetDetailAsync(string id)
 		{
 			string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (!Guid.TryParse(nameIdentifier, out Guid userId))

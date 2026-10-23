@@ -5,6 +5,7 @@ namespace Activadis.Shared.DTOs.Elo.Match
         public Guid MatchId { get; set; }
         public required string CategoryName { get; set; }
         public Guid? ActivityId { get; set; }
+        public string? ActivitySlug { get; set; }
         public string? ActivityName { get; set; }
         public DateTime MatchDate { get; set; }
         public int Placement { get; set; }

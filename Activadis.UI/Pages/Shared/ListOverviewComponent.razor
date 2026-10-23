@@ -7,7 +7,7 @@ else
     <div class="ao-list">
         @foreach (ActivityOverviewResponse activity in Activities)
         {
-            <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Id}")">
+            <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Slug ?? activity.Id.ToString()}")">
                 <span class="ao-card-name">@activity.Name</span>
 
                 @if (activity.IsDraft)

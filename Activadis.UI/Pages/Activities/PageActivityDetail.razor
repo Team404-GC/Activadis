@@ -3,7 +3,7 @@
 @inject ISignUpService SignUpService
 @inject IEloService EloService
 @implements IDisposable
-@page "/activiteit/{Id:guid}"
+@page "/activiteit/{Id}"
 
 <PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>
 
@@ -34,7 +34,7 @@ else
         </div>
         @if (User?.IsInRole("Admin") ?? false)
         {
-            <NavLink class="ad-edit" href="@($"/activiteit/bewerk/{Id}")">
+            <NavLink class="ad-edit" href="@($"/activiteit/bewerk/{activity.Slug ?? activity.Id.ToString() ?? Id}")">
                 <i class="bi bi-pencil-fill"></i>
             </NavLink>
         }
@@ -124,7 +124,7 @@ else
                         <div class="ad-elo-tags">
                             @foreach (CategoryDto category in activity.Categories)
                             {
-                                <NavLink class="ad-elo-tag" href="@($"/ranglijst?categorie={category.Id}")">
+                                <NavLink class="ad-elo-tag" href="@($"/ranglijst/{category.Slug ?? category.Id.ToString()}")">
                                     <i class="bi bi-trophy"></i>
                                     <span>@category.Name</span>
                                 </NavLink>
@@ -157,7 +157,7 @@ else
                         <h2>Wedstrijden</h2>
                         @if (IsAdmin)
                         {
-                            <button type="button" class="ad-elo-button" @onclick="@(() => NavigationManager.NavigateTo($"/wedstrijd/nieuw?activiteit={Id}"))">
+                            <button type="button" class="ad-elo-button" @onclick="@(() => NavigationManager.NavigateTo($"/wedstrijd/nieuw/{activity.Slug ?? activity.Id.ToString() ?? Id}"))">
                                 <i class="bi bi-plus-lg"></i>
                                 <span>Wedstrijd aanmaken</span>
                             </button>
@@ -176,14 +176,14 @@ else
                                 <div class="ad-match">
                                     <div class="ad-match-header">
                                         <span class="ad-match-date">@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</span>
-                                        <NavLink class="ad-match-category" href="@($"/ranglijst?categorie={match.CategoryId}")">@match.CategoryName</NavLink>
+                                        <NavLink class="ad-match-category" href="@($"/ranglijst/{match.CategorySlug ?? match.CategoryId.ToString()}")">@match.CategoryName</NavLink>
                                     </div>
                                     <ol class="ad-match-results">
                                         @foreach (RecentMatchParticipantDto participant in match.Participants)
                                         {
                                             <li class="ad-match-result">
                                                 <span class="ad-match-placement @(participant.Placement == 1 ? "ad-match-winner" : "")">@participant.Placement</span>
-                                                <NavLink class="ad-match-player" href="@($"/speler/{participant.UserId}")">@participant.FullName</NavLink>
+                                                <NavLink class="ad-match-player" href="@($"/speler/{participant.UserSlug ?? participant.UserId.ToString()}")">@participant.FullName</NavLink>
                                                 <span class="ad-match-change @ToChangeClass(participant.RatingChange)">@participant.RatingChange.ToRatingChange()</span>
                                             </li>
                                         }
@@ -239,7 +239,7 @@ else
     [CascadingParameter] public Task<AuthenticationState>? AuthenticationState { get; set; }
     private ClaimsPrincipal? User { get; set; }
 
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public string Id { get; set; } = string.Empty;
 
     private ActivityDetailResponse? activity;
     private bool isLoading = true;
@@ -263,39 +263,6 @@ else
             .Concat(activity?.Categories.Where(x => !activeCategories.Any(y => y.Id == x.Id)) ?? [])
             .OrderBy(x => x.DisplayOrder);
 
-    protected override async Task OnInitializedAsync()
-    {
-        await OnParametersSetAsync();
-
-        isLoading = true;
-        activity = null;
-
-        ApiResponse<ActivityDetailResponse> response = await ActivityService.GetDetailAsync(Id);
-        if (!response.Succeeded || response.Value is null)
-        {
-            Notifications.AddNotification(response.Message, true);
-            NavigationManager.NavigateTo("/");
-            isLoading = false;
-            return;
-        }
-
-        activity = response.Value;
-        if (!activity.ExternalAllowed && (User is not null && User.Identity?.IsAuthenticated != true))
-        {
-            NavigationManager.NavigateTo("/");
-            return;
-        }
-
-        signUpRequest.Request.ActivityId = Id;
-        signOutRequest.Request.ActivityId = Id;
-        editSignUpRequest.Request.ActivityId = Id;
-
-        if (IsAdmin)
-            await LoadAdminDataAsync();
-
-        isLoading = false;
-    }
-
     protected override async Task OnParametersSetAsync()
     {
         if (AuthenticationState is null)
@@ -307,10 +274,40 @@ else
         AuthenticationState state = await AuthenticationState;
         User = state.User;
 
-        if (activity is null || activity.ExternalAllowed || User?.Identity?.IsAuthenticated == true)
+        if (string.IsNullOrWhiteSpace(Id))
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        if (activity is not null)
             return;
 
-        NavigationManager.NavigateTo("/");
+        isLoading = true;
+        ApiResponse<ActivityDetailResponse> response = await ActivityService.GetDetailAsync(Id);
+        if (!response.Succeeded || response.Value is null)
+        {
+            Notifications.AddNotification(response.Message, true);
+            NavigationManager.NavigateTo("/");
+            isLoading = false;
+            return;
+        }
+
+        activity = response.Value;
+        if (!activity.ExternalAllowed && User.Identity?.IsAuthenticated != true)
+        {
+            NavigationManager.NavigateTo("/");
+            return;
+        }
+
+        signUpRequest.Request.ActivityId = activity.Id;
+        signOutRequest.Request.ActivityId = activity.Id;
+        editSignUpRequest.Request.ActivityId = activity.Id;
+
+        if (IsAdmin)
+            await LoadAdminDataAsync();
+
+        isLoading = false;
     }
 
     public void Dispose()
@@ -341,7 +338,7 @@ else
 
     private async Task LoadLinkableMatchesAsync()
     {
-        ApiResponse<IEnumerable<RecentMatchDto>> response = await ActivityService.GetLinkableMatchesAsync(Id);
+        ApiResponse<IEnumerable<RecentMatchDto>> response = await ActivityService.GetLinkableMatchesAsync(activity!.Id);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
@@ -382,7 +379,7 @@ else
             CategoryIds = selectedCategoryIds
         };
 
-        ApiResponse<object> response = await ActivityService.UpdateCategoriesAsync(Id, request);
+        ApiResponse<object> response = await ActivityService.UpdateCategoriesAsync(activity?.Id ?? Guid.Empty, request);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
@@ -405,7 +402,7 @@ else
 
         isLinkingMatch = true;
 
-        ApiResponse<object> response = await ActivityService.LinkMatchAsync(Id, new LinkMatchRequest() { MatchId = selectedMatchId });
+        ApiResponse<object> response = await ActivityService.LinkMatchAsync(activity?.Id ?? Guid.Empty, new LinkMatchRequest() { MatchId = selectedMatchId });
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
@@ -422,7 +419,7 @@ else
     {
         isLinkingMatch = true;
 
-        ApiResponse<object> response = await ActivityService.UnlinkMatchAsync(Id, match.MatchId);
+        ApiResponse<object> response = await ActivityService.UnlinkMatchAsync(activity?.Id ?? Guid.Empty, match.MatchId);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
