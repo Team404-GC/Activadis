@@ -1,5 +1,4 @@
 using Activadis.Domain.Entities;
-using Activadis.Domain.Interfaces.Repositories;
 
 namespace Activadis.Domain.Interfaces.Repositories
 {
