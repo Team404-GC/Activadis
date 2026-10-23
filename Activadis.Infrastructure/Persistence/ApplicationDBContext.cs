@@ -3,8 +3,6 @@ using Activadis.Infrastructure.Persistence.Seeders;
 using Activadis.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
-using Activadis.Domain.Interfaces;
-using Activadis.Infrastructure.Helpers;
 
 namespace Activadis.Infrastructure.Persistence
 {
