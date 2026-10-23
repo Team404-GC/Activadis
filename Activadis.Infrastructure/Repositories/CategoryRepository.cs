@@ -1,6 +1,5 @@
 using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Infrastructure.Persistence;
-using Activadis.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
 
@@ -25,11 +24,6 @@ namespace Activadis.Infrastructure.Repositories
         public async Task<Category?> GetByNameAsync(string name)
             => await _context.Categories
                 .FirstOrDefaultAsync(c => c.Name == name && c.DeletedAt == null);
-
-        public async Task<Category?> GetByIdentifierAsync(string identifier)
-            => await _context.Categories
-                .WithIdentifier(identifier)
-                .SingleOrDefaultAsync(c => c.DeletedAt == null);
 
         public async Task<IEnumerable<Category>> GetByIdsAsync(IEnumerable<Guid> ids)
             => await _context.Categories
