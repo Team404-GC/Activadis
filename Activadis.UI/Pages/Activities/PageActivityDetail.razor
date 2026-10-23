@@ -1,5 +1,4 @@
-﻿@using System.Globalization
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
 @inject IActivityService ActivityService
 @inject ISignUpService SignUpService
 @inject IEloService EloService
@@ -295,10 +294,17 @@ else
         activity = null;
 
         ApiResponse<ActivityDetailResponse> response = await ActivityService.GetDetailAsync(Id);
-        if (!response.Succeeded)
+        if (!response.Succeeded || response.Value is null)
         {
             Notifications.AddNotification(response.Message, true);
             isLoading = false;
+            return;
+        }
+
+        activity = response.Value;
+        if (!activity.ExternalAllowed && User?.Identity?.IsAuthenticated != true)
+        {
+            NavigationManager.NavigateTo("/");
             return;
         }
 
@@ -306,14 +312,7 @@ else
         signOutRequest.Request.ActivityId = Id;
         editSignUpRequest.Request.ActivityId = Id;
 
-        activity = response.Value;
-        if (activity is not null && !activity.ExternalAllowed && User?.Identity?.IsAuthenticated != true)
-        {
-            NavigationManager.NavigateTo("/");
-            return;
-        }
-
-        if (activity is not null && IsAdmin)
+        if (IsAdmin)
             await LoadAdminDataAsync();
 
         isLoading = false;
@@ -330,7 +329,7 @@ else
         AuthenticationState state = await AuthenticationState;
         User = state.User;
 
-        if (activity is null || activity.ExternalAllowed == true || User?.Identity?.IsAuthenticated == true)
+        if (activity is null || activity.ExternalAllowed || User?.Identity?.IsAuthenticated == true)
             return;
 
         NavigationManager.NavigateTo("/");

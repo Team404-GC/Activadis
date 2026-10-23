@@ -79,6 +79,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("SignUpDeadline")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -155,6 +158,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("RankTitles")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -414,6 +420,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

@@ -1,5 +1,6 @@
 ﻿@inject IEloService EloService
 @page "/ranglijst"
+@page "/ranglijst/{CategoryId:guid}"
 
 <PageTitle>Ranglijst</PageTitle>
 
@@ -9,7 +10,7 @@
     <a class="lb-category @(CategoryId is null ? "active" : "")" href="/ranglijst">Algemeen</a>
     @foreach (CategoryDto category in categories)
     {
-        <a class="lb-category @(CategoryId == category.Id ? "active" : "")" href="@($"/ranglijst?categorie={category.Id}")">@category.Name</a>
+        <a class="lb-category @(CategoryId == category.Id ? "active" : "")" href="@($"/ranglijst/{category.Id}")">@category.Name</a>
     }
 </nav>
 
@@ -74,7 +75,7 @@ else
 }
 
 @code {
-    [SupplyParameterFromQuery(Name = "categorie")]
+    [Parameter]
     public Guid? CategoryId { get; set; }
 
     private List<CategoryDto> categories = [];
