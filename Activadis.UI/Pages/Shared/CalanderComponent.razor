@@ -102,8 +102,8 @@ else
                 DateStart = activity.StartDate.ToLocalTime(),
                 DateEnd = activity.EndDate.ToLocalTime(),
                 Code = activity.Name,
-                Caption = activity.Name,
-                Color = "#faa21b",
+                Caption = activity.IsDraft ? $"Concept: {activity.Name}" : activity.Name,
+                Color = activity.IsDraft ? "#ebf5f7" : "#faa21b",
                 ForeColor = "#0e1e3b",
                 NotBeDraggable = true
             });
