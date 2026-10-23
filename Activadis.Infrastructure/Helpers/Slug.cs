@@ -14,6 +14,12 @@ namespace Activadis.Infrastructure.Helpers
         [GeneratedRegex(@"\s+")]
         private static partial Regex NoDoubleSpaces();
 
+        private static string RemoveAllNonLettersAndNumbers(this string text)
+            => NoLettersAndNumbers().Replace(text, string.Empty);
+
+        private static string RemoveAllDoubleSpaces(this string text)
+            => NoDoubleSpaces().Replace(text, " ").Trim();
+
         private static string Generate(string text)
         {
             text = text.ToLowerInvariant();
@@ -35,7 +41,10 @@ namespace Activadis.Infrastructure.Helpers
             return $"{slug}-{count}";
         }
 
-        public static async Task CreateSlugsAsync<TEntity>(this DbContext context) where TEntity : class, IHasSlug
+        public static void CreateSlugs<TEntity>(this DbContext context) where TEntity : class, IEntity, IHasSlug
+            => Task.Run(async () => await context.CreateSlugsAsync<TEntity>()).GetAwaiter().GetResult();
+
+        public static async Task CreateSlugsAsync<TEntity>(this DbContext context) where TEntity : class, IEntity, IHasSlug
         {
             DbSet<TEntity> set = context.Set<TEntity>();
 
@@ -47,15 +56,8 @@ namespace Activadis.Infrastructure.Helpers
                     continue;
 
                 entity.Slug = await GenerateUniqueAsync(context, entity, source);
+                context.SaveChanges();
             }
-
-            context.SaveChanges();
         }
-
-        private static string RemoveAllNonLettersAndNumbers(this string text)
-            => NoLettersAndNumbers().Replace(text, string.Empty);
-
-        private static string RemoveAllDoubleSpaces(this string text)
-            => NoDoubleSpaces().Replace(text, " ").Trim();
     }
 }
