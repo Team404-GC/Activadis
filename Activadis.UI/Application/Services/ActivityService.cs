@@ -49,6 +49,6 @@ namespace Activadis.UI.Application.Services
 			=> await HttpService.DeleteAsync<object>($"/Activity/{id}/matches/{matchId}");
 
 		public string GetPhotoUrl(ActivityOverviewResponse activity)
-			=> $"{ApiBaseUrl}/Activity/{activity.Id}/Photo?v={activity.PhotoVersion}";
+			=> $"{ApiBaseUrl}/Activity/{activity.Slug ?? activity.Id.ToString()}/Photo?v={activity.PhotoVersion}";
 	}
 }
