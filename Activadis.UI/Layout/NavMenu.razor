@@ -2,7 +2,12 @@
 @inject NavigationManager NavigationManager
 
 <header class="nm-header">
-    <nav class="nm-navbar">
+    @if (openDropdown is not null)
+    {
+        <div class="nm-backdrop" @onclick="CloseMenu"></div>
+    }
+
+    <nav class="nm-navbar @(hoverPaused ? "nm-hover-paused" : "")">
         <NavLink class="nm-brand" href="/" Match="NavLinkMatch.Prefix" @onclick="CloseMenu">
             <span>
                 <LogoAnimation />
@@ -23,30 +28,40 @@
                     <div class="nm-links">
                         <NavLink class="nm-link" href="/activiteiten" Match="NavLinkMatch.Prefix">Activiteiten</NavLink>
                         <NavLink class="nm-link" href="/kalender">Kalender</NavLink>
-                        <AuthorizeView Roles="Admin">
-                            <NavLink class="nm-link" href="/activiteit/nieuw">Activiteit aanmaken</NavLink>
-                            <NavLink class="nm-link" href="/gebruiker/nieuw">Gebruiker aanmaken</NavLink>
-                        </AuthorizeView>
                     </div>
-                    <div class="nm-dropdown" @onclick:stopPropagation>
-                        <button class="nm-link nm-dropdown-toggle" @onclick="ToggleDropdown"> Elo ranking <i class="bi bi-chevron-down"></i> </button>
-                        @if (dropdownOpen)
-                        {
+                    <div class="nm-dropdown @(openDropdown == "elo" ? "open" : "")" @onclick:stopPropagation @onmouseenter="@(() => HoverDropdown("elo"))" @onmouseleave="ResumeHover">
+                        <button class="nm-link nm-dropdown-toggle" @onclick="@(() => ToggleDropdown("elo"))"> Elo ranking <i class="bi bi-chevron-down"></i> </button>
+                        <div class="nm-dropdown-menu">
+                            <AuthorizeView Roles="Admin" Context="eloAdmin">
+                                <NotAuthorized>
+                                    <NavLink class="nm-dropdown-item" href="/categorieen" @onclick="ChoosePage"> Categorieen </NavLink>
+                                </NotAuthorized>
+                            </AuthorizeView>
+                            <NavLink class="nm-dropdown-item" href="/ranglijst" @onclick="ChoosePage"> Rang lijst </NavLink>
+                            <NavLink class="nm-dropdown-item" href="/statistieken" @onclick="ChoosePage"> Statistieken </NavLink>
+                        </div>
+                    </div>
+                    <AuthorizeView Roles="Admin" Context="admin">
+                        <div class="nm-dropdown @(openDropdown == "beheer" ? "open" : "")" @onclick:stopPropagation @onmouseenter="@(() => HoverDropdown("beheer"))" @onmouseleave="ResumeHover">
+                            <button class="nm-link nm-dropdown-toggle" @onclick="@(() => ToggleDropdown("beheer"))"> Beheer <i class="bi bi-chevron-down"></i> </button>
                             <div class="nm-dropdown-menu">
-                                <NavLink class="nm-dropdown-item" href="/categorieen"> Categorieen </NavLink>
-                                <NavLink class="nm-dropdown-item" href="/ranglijst"> Rang lijst </NavLink>
-                                <NavLink class="nm-dropdown-item" href="/statistieken"> Statistieken </NavLink>
-                                <AuthorizeView Roles="Admin">
-                                    <NavLink class="nm-dropdown-item" href="/wedstrijd/nieuw"> Wedstrijd registreren </NavLink>
-                                </AuthorizeView>
-                                <NavLink class="nm-dropdown-item" href="@($"/speler/{User.FindFirst(ClaimTypes.NameIdentifier)?.Value}")"> Persoonlijk profiel </NavLink>
+                                <NavLink class="nm-dropdown-item" href="/activiteit/nieuw" @onclick="ChoosePage"> Activiteit aanmaken </NavLink>
+                                <NavLink class="nm-dropdown-item" href="/gebruiker/nieuw" @onclick="ChoosePage"> Gebruiker aanmaken </NavLink>
+                                <NavLink class="nm-dropdown-item" href="/categorieen" @onclick="ChoosePage"> ELO-categorieën </NavLink>
+                                <NavLink class="nm-dropdown-item" href="/wedstrijd/nieuw" @onclick="ChoosePage"> Wedstrijd registreren </NavLink>
                             </div>
-                        }
+                        </div>
+                    </AuthorizeView>
+                    <div class="nm-account">
+                        <NavLink class="nm-link" href="@($"/speler/{User.FindFirst(ClaimTypes.NameIdentifier)?.Value}")">
+                            <i class="bi bi-person-circle"></i>
+                            <span>Profiel</span>
+                        </NavLink>
+                        <button class="nm-button" @onclick="HandleLogout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Uitloggen</span>
+                        </button>
                     </div>
-                    <button class="nm-button" @onclick="HandleLogout">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Uitloggen</span>
-                    </button>
                 </Authorized>
             </AuthorizeView>
         </div>
@@ -68,7 +83,8 @@
     ClaimsPrincipal User = null!;
 
     private bool isOpen = false;
-    private bool dropdownOpen = false;
+    private string? openDropdown;
+    private bool hoverPaused = false;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -83,10 +99,28 @@
         => isOpen = !isOpen;
 
     private void CloseMenu()
-        => isOpen = false;
+    {
+        isOpen = false;
+        openDropdown = null;
+    }
 
-    private void ToggleDropdown()
-        => dropdownOpen = !dropdownOpen;
+    private void ToggleDropdown(string name)
+        => openDropdown = openDropdown == name ? null : name;
+
+    private void ChoosePage()
+    {
+        hoverPaused = true;
+        CloseMenu();
+    }
+
+    private void ResumeHover()
+        => hoverPaused = false;
+
+    private void HoverDropdown(string name)
+    {
+        if (openDropdown != name)
+            openDropdown = null;
+    }
 
     private async Task HandleLogout()
         => await AuthService.LogoutAsync();
