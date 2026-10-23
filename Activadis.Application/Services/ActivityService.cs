@@ -43,7 +43,7 @@ namespace Activadis.Application.Services
         {
             request.Validate();
 
-            Activity activity = await ActivityRepository.GetDetailAsync(request.ActivityId)
+            Activity activity = await ActivityRepository.GetDetailAsync(request.ActivityId.ToString())
                 ?? throw new ArgumentException("De activiteit is niet gevonden.");
 
             if (request.Image is not null)
@@ -96,9 +96,9 @@ namespace Activadis.Application.Services
 
 			return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
 		}
-		public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId, bool isAdmin)
+		public async Task<ActivityDetailResponse> GetDetailAsync(string identifier, Guid userId, bool isAdmin)
         {
-            Activity activity = await ActivityRepository.GetDetailAsync(id)
+            Activity activity = await ActivityRepository.GetDetailAsync(identifier)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
 			if (activity.PublishedOn is null && !isAdmin)
@@ -107,13 +107,13 @@ namespace Activadis.Application.Services
 			if (userId == Guid.Empty && !activity.ExternalAllowed)
                 throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
 
-            bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);
+            bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
             return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty);
         }
 
-        public async Task<ActivityPhotoResponse> GetPhotoAsync(Guid id)
+        public async Task<ActivityPhotoResponse> GetPhotoAsync(string identifier)
         {
-            Activity activity = await ActivityRepository.GetByIdAsync(id)
+            Activity activity = await ActivityRepository.GetByIdentifierAsync(identifier)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
             if (activity.Image.Length <= 0)
@@ -154,7 +154,7 @@ namespace Activadis.Application.Services
 
         public async Task<IEnumerable<ActivityParticipantResponse>> GetParticipantsAsync(Guid id)
         {
-            Activity activity = await ActivityRepository.GetDetailAsync(id)
+            Activity activity = await ActivityRepository.GetDetailAsync(id.ToString())
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
             return activity.SignUps

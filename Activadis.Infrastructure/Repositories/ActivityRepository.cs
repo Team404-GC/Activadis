@@ -23,8 +23,10 @@ namespace Activadis.Infrastructure.Repositories
 				.OrderBy(x => x.StartDate)
 				.ToListAsync();
 
-		public async Task<Activity?> GetDetailAsync(Guid id)
+		public async Task<Activity?> GetDetailAsync(string identifier)
 			=> await Context.Activities
+				.WithIdentifier(identifier)
+				.Where(x => x.DeletedAt == null)
 				.Include(x => x.SignUps.Where(signUp => signUp.WaitlistPosition == null && signUp.DeletedAt == null))
 				.Include(x => x.Categories)
 				.Include(x => x.Matches)
@@ -33,7 +35,7 @@ namespace Activadis.Infrastructure.Repositories
 					.ThenInclude(match => match.Participants)
 						.ThenInclude(participant => participant.User)
 				.AsSplitQuery()
-				.SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+				.SingleOrDefaultAsync();
 
 		public async Task<Activity?> GetWithCategoriesAndMatchesAsync(Guid id)
 			=> await Context.Activities

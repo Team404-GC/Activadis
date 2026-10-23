@@ -224,9 +224,9 @@ namespace Activadis.UnitTests
         {
             var userId = Guid.NewGuid();
 
-            _userRepositoryMock.Setup(repo => repo.GetByIdAsync(userId)).ReturnsAsync((User?)null);
+            _userRepositoryMock.Setup(repo => repo.GetByIdentifierAsync(userId.ToString())).ReturnsAsync((User?)null);
 
-            var result = await _eloServiceMock.GetPlayerProfileAsync(userId);
+            var result = await _eloServiceMock.GetPlayerProfileAsync(userId.ToString());
 
             Assert.Null(result);
         }
@@ -250,12 +250,12 @@ namespace Activadis.UnitTests
                 },
             };
 
-            _userRepositoryMock.Setup(repo => repo.GetByIdAsync(userId)).ReturnsAsync(user);
+            _userRepositoryMock.Setup(repo => repo.GetByIdentifierAsync(userId.ToString())).ReturnsAsync(user);
             _ratingRepositoryMock.Setup(repo => repo.GetUserRatingsAsync(userId)).ReturnsAsync(ratings);
             _participantRepositoryMock.Setup(repo => repo.GetUserParticipationsAsync(userId))
                 .ReturnsAsync(new List<MatchParticipant>());
 
-            var result = await _eloServiceMock.GetPlayerProfileAsync(userId);
+            var result = await _eloServiceMock.GetPlayerProfileAsync(userId.ToString());
 
             Assert.NotNull(result);
             Assert.Equal("Alice", result!.FullName);
@@ -275,8 +275,10 @@ namespace Activadis.UnitTests
             };
 
             _ratingRepositoryMock.Setup(repo => repo.GetCategoryRatingsAsync(categoryId)).ReturnsAsync(ratings);
+            _categoryRepositoryMock.Setup(repo => repo.GetByIdentifierAsync(categoryId.ToString()))
+                .ReturnsAsync(new Category { Id = categoryId, Name = "Chess" });
 
-            var result = await _eloServiceMock.GetCategoryLeaderboardAsync(categoryId);
+            var result = await _eloServiceMock.GetCategoryLeaderboardAsync(categoryId.ToString());
 
             Assert.Equal(2, result.Count);
             Assert.Equal("Bob", result[0].FullName);

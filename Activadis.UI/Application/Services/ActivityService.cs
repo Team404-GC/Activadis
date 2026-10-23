@@ -27,8 +27,8 @@ namespace Activadis.UI.Application.Services
         public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter)
 			=> await HttpService.QueryAsync<IEnumerable<ActivityOverviewResponse>, ActivityFilterRequest>("/Activity", filter);
 
-		public async Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id)
-			=> await HttpService.GetAsync<ActivityDetailResponse>($"/Activity/{id}");
+		public async Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(string identifier)
+			=> await HttpService.GetAsync<ActivityDetailResponse>($"/Activity/{identifier}");
 
 		public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync()
 			=> await HttpService.GetAsync<IEnumerable<ActivityOverviewResponse>>("/Activity/SignedUp");
@@ -49,6 +49,6 @@ namespace Activadis.UI.Application.Services
 			=> await HttpService.DeleteAsync<object>($"/Activity/{id}/matches/{matchId}");
 
 		public string GetPhotoUrl(ActivityOverviewResponse activity)
-			=> $"{ApiBaseUrl}/Activity/{activity.Id}/Photo?v={activity.PhotoVersion}";
+			=> $"{ApiBaseUrl}/Activity/{activity.Slug ?? activity.Id.ToString()}/Photo?v={activity.PhotoVersion}";
 	}
 }

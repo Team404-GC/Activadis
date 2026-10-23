@@ -1,11 +1,15 @@
 ﻿using Activadis.Domain.Interfaces;
+using Activadis.Domain.Attributes;
 using Activadis.Domain.Enums;
 
 namespace Activadis.Domain.Entities
 {
-    public class User : IEntity
+    public class User : IEntity, IHasSlug
     {
         public Guid Id { get; set; }
+        public string? Slug { get; set; }
+
+        [SlugSource]
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string JobTitle { get; set; } = string.Empty;

@@ -48,8 +48,8 @@ namespace Activadis.API.Controllers
 			return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
 		}
 
-		[HttpGet("{id:guid}")]
-		public async Task<IActionResult> GetDetailAsync(Guid id)
+		[HttpGet("{id}")]
+		public async Task<IActionResult> GetDetailAsync(string id)
 		{
 			string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 			if (!Guid.TryParse(nameIdentifier, out Guid userId))
@@ -73,13 +73,13 @@ namespace Activadis.API.Controllers
 			}
 		}
 
-		[HttpGet("{id:guid}/Photo")]
+		[HttpGet("{identifier}/Photo")]
 		[ResponseCache(Duration = 3600)]
-		public async Task<IActionResult> GetPhotoAsync(Guid id)
+		public async Task<IActionResult> GetPhotoAsync(string identifier)
 		{
 			try
 			{
-				ActivityPhotoResponse photo = await ActivityService.GetPhotoAsync(id);
+				ActivityPhotoResponse photo = await ActivityService.GetPhotoAsync(identifier);
 				return File(photo.Image, photo.ImageContentType);
 			}
 			catch (KeyNotFoundException exception)

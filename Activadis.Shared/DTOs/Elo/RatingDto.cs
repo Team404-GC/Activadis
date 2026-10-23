@@ -4,6 +4,7 @@ namespace Activadis.Shared.DTOs.Elo
     {
         public Guid UserId { get; set; }
         public Guid CategoryId { get; set; }
+        public string? CategorySlug { get; set; }
         public required string CategoryName { get; set; }
         public string? RankTitle { get; set; }
         public double CurrentRating { get; set; }

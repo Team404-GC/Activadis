@@ -10,8 +10,8 @@ namespace Activadis.UI.Application.Interfaces
 		Task<ApiResponse<object>> CreateAsync(CreateActivityRequest request);
 		Task<ApiResponse<object>> EditAsync(EditActivityRequest request);
 
-		Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter);
-		Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id);
+        Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter);
+		Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(string identifier);
 		Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetSignedUpAsync();
 		string GetPhotoUrl(ActivityOverviewResponse activity);
 

@@ -9,7 +9,7 @@ else
     <div class="ao-list">
         @foreach (ActivityOverviewResponse activity in Activities)
         {
-            <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Id}")">
+            <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Slug ?? activity.Id.ToString()}")">
                 @if (activity.HasPhoto)
                 {
                     <img class="ao-card-photo" src="@ActivityService.GetPhotoUrl(activity)" alt="Foto van @activity.Name" loading="lazy" />

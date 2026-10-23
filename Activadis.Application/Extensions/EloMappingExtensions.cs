@@ -14,6 +14,7 @@ namespace Activadis.Application.Extensions
             return new CategoryDto
             {
                 Id = category.Id,
+                Slug = category.Slug,
                 Name = category.Name,
                 Description = category.Description,
                 DisplayOrder = category.DisplayOrder,
@@ -56,6 +57,7 @@ namespace Activadis.Application.Extensions
             {
                 MatchId = match.Id,
                 CategoryId = match.CategoryId,
+                CategorySlug = match.Category?.Slug,
                 CategoryName = match.Category?.Name ?? "Onbekend",
                 MatchDate = match.MatchDate,
                 Notes = match.Notes,
@@ -64,6 +66,7 @@ namespace Activadis.Application.Extensions
                     .Select(p => new RecentMatchParticipantDto
                     {
                         UserId = p.UserId,
+                        UserSlug = p.User?.Slug,
                         FullName = p.User?.FullName ?? "Onbekend",
                         Placement = p.Placement,
                         RatingChange = p.RatingChange
@@ -76,6 +79,7 @@ namespace Activadis.Application.Extensions
             return new ParticipantResultDto
             {
                 UserId = participant.UserId,
+                UserSlug = participant.User?.Slug,
                 FullName = participant.User?.FullName ?? "Onbekend",
                 Placement = participant.Placement,
                 OldRating = participant.Match != null ? 

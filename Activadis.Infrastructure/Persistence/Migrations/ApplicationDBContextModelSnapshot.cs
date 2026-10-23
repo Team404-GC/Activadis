@@ -84,6 +84,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Property<DateTime>("SignUpDeadline")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -91,6 +94,8 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Slug");
 
                     b.ToTable("Activities");
                 });
@@ -126,6 +131,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -133,6 +141,8 @@ namespace Activadis.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("Slug");
 
                     b.ToTable("Categories");
                 });
@@ -384,10 +394,15 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Slug");
 
                     b.ToTable("Users");
                 });

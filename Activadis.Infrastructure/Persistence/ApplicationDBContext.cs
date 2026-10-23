@@ -1,7 +1,8 @@
-﻿using Activadis.Infrastructure.Persistence.Seeders;
+﻿using Activadis.Infrastructure.Persistence.Configurations;
+using Activadis.Infrastructure.Persistence.Seeders;
+using Activadis.Infrastructure.Helpers;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
-using Activadis.Infrastructure.Persistence.Configurations;
 
 namespace Activadis.Infrastructure.Persistence
 {
@@ -15,7 +16,6 @@ namespace Activadis.Infrastructure.Persistence
         public DbSet<MatchParticipant> MatchParticipants => Set<MatchParticipant>();
         public DbSet<Rating> Ratings => Set<Rating>();
         public DbSet<Leaderboard> Leaderboards => Set<Leaderboard>();
-
 
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options)
             : base(options) { }
@@ -31,6 +31,8 @@ namespace Activadis.Infrastructure.Persistence
             builder.Entity<Rating>(options => options.Configure());
             builder.Entity<Leaderboard>(options => options.Configure());
 
+            builder.ConfigureSlugs();
+
             base.OnModelCreating(builder);
         }
 
@@ -39,8 +41,14 @@ namespace Activadis.Infrastructure.Persistence
             builder.UseSeeding((context, _) =>
             {
                 context.UseUserSeeder();
+                context.CreateSlugs<User>();
+
                 context.UseActivitySeeder();
+                context.CreateSlugs<Activity>();
+
                 context.UseCategorySeeder();
+                context.CreateSlugs<Category>();
+
                 context.UseMatchSeeder();
                 context.UseRatingSeeder();
             });

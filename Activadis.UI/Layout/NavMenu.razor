@@ -23,7 +23,7 @@
         </AuthorizeView>
 
         <div class="nm-menu @(isOpen ? "open" : "")" @onclick="CloseMenu">
-            <AuthorizeView Context="auth">
+            <AuthorizeView>
                 <Authorized>
                     <div class="nm-links">
                         <NavLink class="nm-link" href="/activiteiten" Match="NavLinkMatch.Prefix">Activiteiten</NavLink>
@@ -53,7 +53,7 @@
                         </div>
                     </AuthorizeView>
                     <div class="nm-account">
-                        <NavLink class="nm-link" href="@($"/speler/{User.FindFirst(ClaimTypes.NameIdentifier)?.Value}")">
+                        <NavLink class="nm-link" href="@($"/speler/{User.FindFirst("slug")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty}")">
                             <i class="bi bi-person-circle"></i>
                             <span>Profiel</span>
                         </NavLink>
@@ -80,7 +80,7 @@
 @code {
     [CascadingParameter]
     public Task<AuthenticationState>? AuthenticationState { get; set; }
-    ClaimsPrincipal User = null!;
+    ClaimsPrincipal User = new ClaimsPrincipal(new ClaimsIdentity());
 
     private bool isOpen = false;
     private string? openDropdown;
@@ -123,5 +123,8 @@
     }
 
     private async Task HandleLogout()
-        => await AuthService.LogoutAsync();
+    {
+        await AuthService.LogoutAsync();
+        NavigationManager.NavigateTo("/");
+    }
 }

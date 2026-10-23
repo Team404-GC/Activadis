@@ -1,7 +1,7 @@
-using Activadis.Domain.Entities;
 using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Activadis.Domain.Entities;
 
 namespace Activadis.Infrastructure.Repositories
 {
