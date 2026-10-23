@@ -1,7 +1,9 @@
-﻿using Activadis.Infrastructure.Persistence.Seeders;
+﻿using Activadis.Infrastructure.Persistence.Configurations;
+using Activadis.Infrastructure.Persistence.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
-using Activadis.Infrastructure.Persistence.Configurations;
+using Activadis.Domain.Interfaces;
+using Activadis.Infrastructure.Helpers;
 
 namespace Activadis.Infrastructure.Persistence
 {
@@ -39,7 +41,10 @@ namespace Activadis.Infrastructure.Persistence
             builder.UseSeeding((context, _) =>
             {
                 context.UseUserSeeder();
+
                 context.UseActivitySeeder();
+                //context.CreateSlugsAsync<User>();
+
                 context.UseCategorySeeder();
                 context.UseMatchSeeder();
                 context.UseRatingSeeder();
