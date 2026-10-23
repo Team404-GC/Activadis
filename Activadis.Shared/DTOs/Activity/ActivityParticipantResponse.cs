@@ -3,6 +3,7 @@
     public class ActivityParticipantResponse
     {
         public Guid UserId { get; set; }
+        public string? UserSlug { get; set; }
         public string FullName { get; set; } = string.Empty;
     }
 }

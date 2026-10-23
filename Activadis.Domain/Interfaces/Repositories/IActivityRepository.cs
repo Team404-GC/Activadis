@@ -6,7 +6,7 @@ namespace Activadis.Domain.Interfaces.Repositories
 	public interface IActivityRepository : IRepository<Activity>
 	{
 		Task<IEnumerable<Activity>> GetListAsync(bool isAdmin, ActivityFilter filter);
-		Task<Activity?> GetDetailAsync(Guid id);
+		Task<Activity?> GetDetailAsync(string identifier);
 		Task<Activity?> GetWithCategoriesAndMatchesAsync(Guid id);
 		Task<IEnumerable<Activity>> GetSignedUpByUserIdAsync(Guid userId);
 	}

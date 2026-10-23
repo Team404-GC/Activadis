@@ -64,6 +64,7 @@ namespace Activadis.Application.Extensions
             return new ActivityParticipantResponse()
             {
                 UserId = signUp.UserId ?? Guid.Empty,
+                UserSlug = signUp.User?.Slug,
                 FullName = signUp.User?.FullName ?? signUp.FullName
             };
         }
@@ -73,6 +74,7 @@ namespace Activadis.Application.Extensions
             return new ActivityOverviewResponse()
             {
                 Id = activity.Id,
+                Slug = activity.Slug,
                 Name = activity.Name,
 
                 Location = activity.Location,
@@ -103,6 +105,7 @@ namespace Activadis.Application.Extensions
             return new ActivityDetailResponse()
             {
                 Id = activity.Id,
+                Slug = activity.Slug,
                 Name = activity.Name,
                 Description = activity.Description,
                 Requirements = activity.Requirements,

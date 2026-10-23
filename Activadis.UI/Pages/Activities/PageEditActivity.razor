@@ -1,9 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IActivityService ActivityService
 @attribute [Authorize(Roles = "Admin")]
-@page "/activiteit/bewerk/{Id:guid}"
+@page "/activiteit/bewerk/{Id}"
 
-<NavLink class="ad-back" href="@($"/activiteit/{Id}")" Match="NavLinkMatch.Prefix">
+<NavLink class="ad-back" href="@($"/activiteit/{activity?.Slug ?? Id}")" Match="NavLinkMatch.Prefix">
     <i class="bi bi-arrow-left"></i>
     <span>Terug naar de activiteit</span>
 </NavLink>
@@ -144,7 +144,10 @@ else if (context is not null)
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
+    public string Id { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
 
     EditActivityRequest request = new EditActivityRequest();
     ActivityDetailResponse? activity = null;
@@ -157,15 +160,25 @@ else if (context is not null)
     bool isEditing = false;
     bool isLoading = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
+
+        if (AuthenticationState is null)
+            return;
+
+        AuthenticationState state = await AuthenticationState;
+        if (!state.User.IsInRole("Admin") || string.IsNullOrWhiteSpace(Id))
+        {
+            NavigationManager.NavigateTo("/activiteiten");
+            return;
+        }
 
         ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(Id);
         if (!activityResponse.Succeeded || activityResponse.Value is null)
         {
             Notifications.AddNotification(activityResponse.Message, true);
-            NavigationManager.NavigateTo($"/activiteit/{Id}");
+            NavigationManager.NavigateTo($"/activiteit/{activity?.Slug ?? Id}");
             isLoading = false;
             return;
         }

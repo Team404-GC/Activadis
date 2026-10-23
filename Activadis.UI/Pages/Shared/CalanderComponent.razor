@@ -1,7 +1,4 @@
-﻿@using System.Globalization
-@using BlazorCalendar
-@using BlazorCalendar.Models
-@inject NavigationManager Navigation
+﻿@inject NavigationManager Navigation
 
 <div class="cal-toolbar">
     <div class="cal-views">
@@ -84,10 +81,12 @@ else
     private DateTime current = DateTime.Today;
     private Tasks[] tasks = [];
     private readonly Dictionary<int, Guid> identifiers = new Dictionary<int, Guid>();
+    private readonly Dictionary<int, string?> slugs = new Dictionary<int, string?>();
 
     protected override void OnParametersSet()
     {
         identifiers.Clear();
+        slugs.Clear();
 
         List<Tasks> list = new List<Tasks>();
         int identifier = 1;
@@ -95,6 +94,7 @@ else
         foreach (ActivityOverviewResponse activity in Activities)
         {
             identifiers[identifier] = activity.Id;
+            slugs[identifier] = activity.Slug;
 
             list.Add(new Tasks()
             {
@@ -120,7 +120,7 @@ else
         {
             if (identifiers.TryGetValue(identifier, out Guid id))
             {
-                Navigation.NavigateTo($"/activiteit/{id}");
+                Navigation.NavigateTo($"/activiteit/{slugs.GetValueOrDefault(identifier) ?? id.ToString()}");
                 return;
             }
         }

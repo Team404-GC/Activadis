@@ -1,6 +1,6 @@
 ﻿@inject IEloService EloService
 @page "/ranglijst"
-@page "/ranglijst/{CategoryId:guid}"
+@page "/ranglijst/{CategoryId}"
 
 <PageTitle>Ranglijst</PageTitle>
 
@@ -10,7 +10,7 @@
     <a class="lb-category @(CategoryId is null ? "active" : "")" href="/ranglijst">Algemeen</a>
     @foreach (CategoryDto category in categories)
     {
-        <a class="lb-category @(CategoryId == category.Id ? "active" : "")" href="@($"/ranglijst/{category.Id}")">@category.Name</a>
+        <a class="lb-category @(CategoryId == (category.Slug ?? category.Id.ToString()) ? "active" : "")" href="@($"/ranglijst/{category.Slug ?? category.Id.ToString()}")">@category.Name</a>
     }
 </nav>
 
@@ -51,7 +51,7 @@ else
                         </td>
                         <td>
                             <div class="lb-player">
-                                <NavLink class="lb-name" href="@($"/speler/{entry.UserId}")">@entry.FullName</NavLink>
+                                <NavLink class="lb-name" href="@($"/speler/{entry.UserSlug ?? entry.UserId.ToString()}")">@entry.FullName</NavLink>
                                 @if (!string.IsNullOrWhiteSpace(entry.JobTitle))
                                 {
                                     <span class="lb-job">@entry.JobTitle</span>
@@ -76,7 +76,10 @@ else
 
 @code {
     [Parameter]
-    public Guid? CategoryId { get; set; }
+    public string? CategoryId { get; set; }
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
 
     private List<CategoryDto> categories = [];
     private List<LeaderboardEntryDto> entries = [];
@@ -85,6 +88,11 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
+        if (AuthenticationState is null)
+            return;
+
+        await AuthenticationState;
+
         isLoading = true;
         hasFailed = false;
         entries = [];
@@ -105,7 +113,7 @@ else
 
         ApiResponse<List<LeaderboardEntryDto>> response = CategoryId is null
             ? await EloService.GetOverallLeaderboardAsync()
-            : await EloService.GetCategoryLeaderboardAsync(CategoryId.Value);
+            : await EloService.GetCategoryLeaderboardAsync(CategoryId!);
 
         if (!response.Succeeded)
         {

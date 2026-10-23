@@ -373,12 +373,13 @@ namespace Activadis.Application.Services
             return totalExpected / otherPlayerRatings.Count;
         }
 
-        public async Task<PlayerProfileDto?> GetPlayerProfileAsync(Guid userId)
+        public async Task<PlayerProfileDto?> GetPlayerProfileAsync(string identifier)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdentifierAsync(identifier);
             if (user == null)
                 return null;
 
+            Guid userId = user.Id;
             var ratings = await _ratingRepository.GetUserRatingsAsync(userId);
             var ratingList = ratings.ToList();
 
@@ -386,6 +387,7 @@ namespace Activadis.Application.Services
             {
                 UserId = r.UserId,
                 CategoryId = r.CategoryId,
+                CategorySlug = r.Category?.Slug,
                 CategoryName = r.Category?.Name ?? "Onbekend",
                 RankTitle = LeaderboardService.GetRankTitle(r.CurrentRating, r.Category?.RankTitles),
                 CurrentRating = r.CurrentRating,
@@ -414,6 +416,7 @@ namespace Activadis.Application.Services
                     MatchId = p.MatchId,
                     CategoryName = p.Match?.Category?.Name ?? "Onbekend",
                     ActivityId = activity?.Id,
+                    ActivitySlug = activity?.Slug,
                     ActivityName = activity?.Name,
                     MatchDate = p.Match?.MatchDate ?? DateTime.MinValue,
                     Placement = p.Placement,
@@ -433,6 +436,7 @@ namespace Activadis.Application.Services
             return new PlayerProfileDto
             {
                 UserId = userId,
+                UserSlug = user.Slug,
                 FullName = user.FullName,
                 JobTitle = user.JobTitle,
                 Email = user.Email,
@@ -447,19 +451,27 @@ namespace Activadis.Application.Services
             };
         }
 
-        public async Task<List<LeaderboardEntryDto>> GetCategoryLeaderboardAsync(Guid categoryId)
+        public async Task<List<LeaderboardEntryDto>> GetCategoryLeaderboardAsync(string identifier)
         {
-            var category = await _categoryRepository.GetByIdAsync(categoryId);
+            var category = await _categoryRepository.GetByIdentifierAsync(identifier);
+            if (category == null)
+                return [];
+
+            Guid categoryId = category.Id;
             var ratings = await _ratingRepository.GetCategoryRatingsAsync(categoryId);
             var entries = await _leaderboardService.GetCategoryLeaderboardAsync(
                 categoryId,
                 ratings.ToList(),
                 category,
                 cacheDurationMinutes: 5);
+            Dictionary<Guid, string?> userSlugs = ratings
+                .Where(r => r.User is not null)
+                .ToDictionary(r => r.UserId, r => r.User!.Slug);
 
             return entries.Select(e => new LeaderboardEntryDto
             {
                 UserId = e.UserId,
+                UserSlug = userSlugs.GetValueOrDefault(e.UserId),
                 FullName = e.FullName,
                 JobTitle = e.JobTitle,
                 Rating = e.Rating,
@@ -477,10 +489,15 @@ namespace Activadis.Application.Services
                 allRatings.ToList(),
                 null,
                 cacheDurationMinutes: 5);
+            Dictionary<Guid, string?> userSlugs = allRatings
+                .Where(r => r.User is not null)
+                .GroupBy(r => r.UserId)
+                .ToDictionary(g => g.Key, g => g.First().User!.Slug);
 
             return entries.Select(e => new LeaderboardEntryDto
             {
                 UserId = e.UserId,
+                UserSlug = userSlugs.GetValueOrDefault(e.UserId),
                 FullName = e.FullName,
                 JobTitle = e.JobTitle,
                 Rating = e.Rating,
@@ -638,6 +655,7 @@ namespace Activadis.Application.Services
             return categories.Select(c => new CategoryDto
             {
                 Id = c.Id,
+                Slug = c.Slug,
                 Name = c.Name,
                 Description = c.Description,
                 DisplayOrder = c.DisplayOrder,
@@ -688,6 +706,7 @@ namespace Activadis.Application.Services
             return new CategoryDto
             {
                 Id = category.Id,
+                Slug = category.Slug,
                 Name = category.Name,
                 Description = category.Description,
                 DisplayOrder = category.DisplayOrder,

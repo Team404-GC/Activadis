@@ -26,7 +26,7 @@ namespace Activadis.Application.Services.Confirmations
             ISignUpRepository signUpRepository = scope.ServiceProvider.GetRequiredService<ISignUpRepository>();
             IActivityRepository activityRepository = scope.ServiceProvider.GetRequiredService<IActivityRepository>();
 
-            Activity activity = await activityRepository.GetDetailAsync(request.ActivityId)
+            Activity activity = await activityRepository.GetDetailAsync(request.ActivityId.ToString())
                 ?? throw new ArgumentException("De activiteit is niet gevonden.");
 
             if (activity.SignUps.Count >= activity.MaxParticipants)
