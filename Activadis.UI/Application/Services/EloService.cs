@@ -24,13 +24,13 @@ namespace Activadis.UI.Application.Services
         public async Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync()
             => await HttpService.GetAsync<List<CategoryDto>>("/Elo/categories");
 
-        public async Task<ApiResponse<List<LeaderboardEntryDto>>> GetCategoryLeaderboardAsync(Guid categoryId)
+        public async Task<ApiResponse<List<LeaderboardEntryDto>>> GetCategoryLeaderboardAsync(string categoryId)
             => await HttpService.GetAsync<List<LeaderboardEntryDto>>($"/Elo/leaderboard/category/{categoryId}");
 
         public async Task<ApiResponse<List<LeaderboardEntryDto>>> GetOverallLeaderboardAsync()
             => await HttpService.GetAsync<List<LeaderboardEntryDto>>("/Elo/leaderboard/overall");
 
-        public async Task<ApiResponse<PlayerProfileDto>> GetPlayerProfileAsync(Guid userId)
+        public async Task<ApiResponse<PlayerProfileDto>> GetPlayerProfileAsync(string userId)
             => await HttpService.GetAsync<PlayerProfileDto>($"/Elo/player/{userId}");
 
         public async Task<ApiResponse<MatchResultDto>> RecordMatchAsync(RecordMatchRequest request)

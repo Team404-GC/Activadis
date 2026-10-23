@@ -10,9 +10,8 @@ namespace Activadis.Application.Interfaces
     {
         Task<MatchResultDto> RecordMatchAsync(RecordMatchRequest request);
 
-        Task<PlayerProfileDto?> GetPlayerProfileAsync(Guid userId);
-
-        Task<List<LeaderboardEntryDto>> GetCategoryLeaderboardAsync(Guid categoryId);
+        Task<PlayerProfileDto?> GetPlayerProfileAsync(string identifier);
+        Task<List<LeaderboardEntryDto>> GetCategoryLeaderboardAsync(string identifier);
 
         Task<List<LeaderboardEntryDto>> GetOverallLeaderboardAsync();
 

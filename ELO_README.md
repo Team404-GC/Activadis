@@ -238,7 +238,7 @@ Non-admins get a 403 on every admin endpoint, also when calling it directly.
 ### UI
 - `PageCreateActivity` — checkboxes for the active ELO categories.
 - `PageActivityDetail` — shows the linked categories as pills (each links to its leaderboard) and the attached matches as cards (date, category, players with placement and rating change; the winner gets a gold badge). Administrators can change the categories, attach and detach matches, and use **Wedstrijd aanmaken**.
-- **Wedstrijd aanmaken** opens `PageRecordMatch` at `/wedstrijd/nieuw?activiteit={id}`: the date is taken from the activity's start date, the categories are limited to the activity's categories (the administrator still picks one), players are chosen from a list of the activity's participants, and the saved match is linked to the activity.
+- **Wedstrijd aanmaken** opens `PageRecordMatch` at `/wedstrijd/nieuw/{id}`: the date is taken from the activity's start date, the categories are limited to the activity's categories (the administrator still picks one), players are chosen from a list of the activity's participants, and the saved match is linked to the activity.
 - `PageRecordMatch` picks players with `UserSelectComponent`: a search box (name or e-mail) above a select. Without an activity the list holds every user, loaded from `GET /User` (Admin only, returns `UserResponse`: id, name, e-mail); with an activity it holds only the activity's participants.
 - `PagePlayer` — the match history shows the activity a match was played at, linking to the activity.
 

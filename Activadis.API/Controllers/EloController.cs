@@ -31,14 +31,14 @@ namespace Activadis.API.Controllers
         }
 
         [HttpGet("leaderboard/category/{categoryId}")]
-        public async Task<IActionResult> GetCategoryLeaderboard(Guid categoryId)
+        public async Task<IActionResult> GetCategoryLeaderboard(string categoryId)
         {
             var leaderboard = await _eloService.GetCategoryLeaderboardAsync(categoryId);
             return Ok(ApiResponse<List<LeaderboardEntryDto>>.Ok(leaderboard));
         }
 
         [HttpGet("player/{userId}")]
-        public async Task<IActionResult> GetPlayerProfile(Guid userId)
+        public async Task<IActionResult> GetPlayerProfile(string userId)
         {
             var profile = await _eloService.GetPlayerProfileAsync(userId);
             if (profile == null)

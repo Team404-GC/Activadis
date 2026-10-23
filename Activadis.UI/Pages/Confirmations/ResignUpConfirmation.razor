@@ -46,7 +46,7 @@
         }
 
         request.Request = resignUpResponse.Value;
-        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(request.Request.ActivityId);
+        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(request.Request.ActivityId.ToString());
         if (!activityResponse.Succeeded || activityResponse.Value is null)
         {
             response.Succeeded = false;
