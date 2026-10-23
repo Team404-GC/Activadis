@@ -274,12 +274,13 @@ else
         if (!response.Succeeded || response.Value is null)
         {
             Notifications.AddNotification(response.Message, true);
+            NavigationManager.NavigateTo("/");
             isLoading = false;
             return;
         }
 
         activity = response.Value;
-        if (!activity.ExternalAllowed && User?.Identity?.IsAuthenticated != true)
+        if (!activity.ExternalAllowed && (User is not null && User.Identity?.IsAuthenticated != true))
         {
             NavigationManager.NavigateTo("/");
             return;
