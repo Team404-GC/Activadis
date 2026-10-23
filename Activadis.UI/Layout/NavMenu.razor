@@ -30,14 +30,14 @@
                         <NavLink class="nm-link" href="/kalender">Kalender</NavLink>
                     </div>
                     <div class="nm-dropdown @(openDropdown == "elo" ? "open" : "")" @onclick:stopPropagation @onmouseenter="@(() => HoverDropdown("elo"))" @onmouseleave="ResumeHover">
-                        <button class="nm-link nm-dropdown-toggle" @onclick="@(() => ToggleDropdown("elo"))"> Elo ranking <i class="bi bi-chevron-down"></i> </button>
+                        <button class="nm-link nm-dropdown-toggle" @onclick="@(() => ToggleDropdown("elo"))"> ELO-ranking <i class="bi bi-chevron-down"></i> </button>
                         <div class="nm-dropdown-menu">
                             <AuthorizeView Roles="Admin" Context="eloAdmin">
                                 <NotAuthorized>
                                     <NavLink class="nm-dropdown-item" href="/categorieen" @onclick="ChoosePage"> Categorieen </NavLink>
                                 </NotAuthorized>
                             </AuthorizeView>
-                            <NavLink class="nm-dropdown-item" href="/ranglijst" @onclick="ChoosePage"> Rang lijst </NavLink>
+                            <NavLink class="nm-dropdown-item" href="/ranglijst" @onclick="ChoosePage"> Ranglijst </NavLink>
                             <NavLink class="nm-dropdown-item" href="/statistieken" @onclick="ChoosePage"> Statistieken </NavLink>
                         </div>
                     </div>

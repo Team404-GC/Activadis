@@ -307,7 +307,7 @@ else
         AuthenticationState state = await AuthenticationState;
         User = state.User;
 
-        if (activity?.ExternalAllowed == true || User?.Identity?.IsAuthenticated == true)
+        if (activity is null || activity.ExternalAllowed == true || User?.Identity?.IsAuthenticated == true)
             return;
 
         NavigationManager.NavigateTo("/");
