@@ -103,6 +103,8 @@ body {
     padding: 12px 16px 12px 24px;
     background: transparent;
     border-radius: 40px;
+    position: relative;
+    z-index: 1000;
 }
 
 .nm-brand {
@@ -197,12 +199,18 @@ body {
     position: relative;
 }
 
+.nm-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+}
+
 .nm-dropdown-menu {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
     z-index: 1001;
-    display: flex;
+    display: none;
     flex-direction: column;
     min-width: 200px;
     padding: 8px;
@@ -211,11 +219,42 @@ body {
     box-shadow: 0 8px 24px rgba(14, 30, 59, 0.15);
 }
 
+.nm-dropdown.open .nm-dropdown-menu {
+    display: flex;
+}
+
+@media (hover: hover) and (min-width: 1101px) {
+    .nm-navbar:not(.nm-hover-paused) .nm-dropdown:hover .nm-dropdown-menu {
+        display: flex;
+    }
+
+    .nm-dropdown-menu::before {
+        content: "";
+        position: absolute;
+        top: -8px;
+        left: 0;
+        right: 0;
+        height: 8px;
+    }
+}
+
+.nm-account {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+    .nm-account .nm-button {
+        margin-left: 0;
+    }
+
 .nm-dropdown-item {
     padding: 8px 12px;
     border-radius: 8px;
     color: var(--TextColor);
     font-weight: 500;
+    white-space: nowrap;
 }
 
     .nm-dropdown-item:hover,
@@ -247,6 +286,8 @@ body {
 .nm-scrolled .nm-link {
     color: var(--TextColor);
 }
+
+
 
     .nm-scrolled .nm-link:hover {
         border-color: rgba(250, 162, 27, 0.5);
@@ -300,6 +341,11 @@ body {
         .nm-menu.open {
             display: flex;
         }
+
+    .nm-account {
+        margin-left: 0;
+    }
+
 
     .nm-links {
         flex-direction: column;
