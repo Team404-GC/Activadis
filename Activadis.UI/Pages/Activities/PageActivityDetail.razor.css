@@ -4,6 +4,21 @@
     display: flex;
 }
 
+.ad-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ad-draft {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--AccentColor);
+    color: var(--ButtonTextColor);
+    font-size: 12px;
+    font-weight: 600;
+}
+
     .ad-header ::deep .ad-edit {
         background-color: var(--AccentColor);
         color: var(--TextColor);

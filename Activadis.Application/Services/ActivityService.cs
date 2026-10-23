@@ -96,12 +96,15 @@ namespace Activadis.Application.Services
 
 			return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
 		}
-		public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId)
+		public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId, bool isAdmin)
         {
             Activity activity = await ActivityRepository.GetDetailAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
-            if (userId == Guid.Empty && !activity.ExternalAllowed)
+			if (activity.PublishedOn is null && !isAdmin)
+				throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+			if (userId == Guid.Empty && !activity.ExternalAllowed)
                 throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
 
             bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);

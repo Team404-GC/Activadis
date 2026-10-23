@@ -30,10 +30,6 @@
         box-shadow: 0 0 0 3px var(--AccentColorSoft);
     }
 
-::deep .ao-card-draft {
-    opacity: 0.6;
-}
-
 ::deep .ao-card-deleted {
     --BorderColor: color-mix(red 40%, white 60%);
     --TaskbarColor: color-mix(red 10%, white 90%);
@@ -73,6 +69,11 @@
     color: var(--MutedText);
     font-size: 12px;
     font-weight: 600;
+}
+
+.ao-card-tag-draft {
+    background: var(--AccentColor);
+    color: var(--ButtonTextColor);
 }
 
 .ao-card-signed-up {

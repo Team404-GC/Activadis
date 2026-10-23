@@ -48,27 +48,30 @@ namespace Activadis.API.Controllers
 			return Ok(ApiResponse<IEnumerable<ActivityOverviewResponse>>.Ok(activities));
 		}
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetDetailAsync(Guid id)
-        {
-            string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (!Guid.TryParse(nameIdentifier, out Guid userId))
-                userId = Guid.Empty;
+		[HttpGet("{id:guid}")]
+		public async Task<IActionResult> GetDetailAsync(Guid id)
+		{
+			string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			if (!Guid.TryParse(nameIdentifier, out Guid userId))
+				userId = Guid.Empty;
 
-            try
-            {
-                ActivityDetailResponse activity = await ActivityService.GetDetailAsync(id, userId);
-                return Ok(ApiResponse<ActivityDetailResponse>.Ok(activity));
-            }
-            catch (ArgumentException exception)
-            {
-                return BadRequest(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
-            }
-            catch (KeyNotFoundException exception)
-            {
-                return NotFound(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
-            }
-        }
+			bool isAdmin = Enum.TryParse(Request.HttpContext.User.FindFirstValue(ClaimTypes.Role), out UserRole role)
+				&& role == UserRole.Admin;
+
+			try
+			{
+				ActivityDetailResponse activity = await ActivityService.GetDetailAsync(id, userId, isAdmin);
+				return Ok(ApiResponse<ActivityDetailResponse>.Ok(activity));
+			}
+			catch (ArgumentException exception)
+			{
+				return BadRequest(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<ActivityDetailResponse>.Fail(exception.Message));
+			}
+		}
 
 		[HttpPost]
 		[Authorize(Roles = "Admin")]
@@ -85,22 +88,22 @@ namespace Activadis.API.Controllers
 			}
 		}
 
-        [HttpPut]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> EditAsync([FromForm] EditActivityRequest request)
-        {
-            try
-            {
-                await ActivityService.EditAsync(request);
-                return Ok(ApiResponse<object>.Ok());
-            }
-            catch (ArgumentException exception)
-            {
-                return BadRequest(ApiResponse<object>.Fail(exception.Message));
-            }
-        }
+		[HttpPut]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> EditAsync([FromForm] EditActivityRequest request)
+		{
+			try
+			{
+				await ActivityService.EditAsync(request);
+				return Ok(ApiResponse<object>.Ok());
+			}
+			catch (ArgumentException exception)
+			{
+				return BadRequest(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
 
-        [HttpPut("{id:guid}/categories")]
+		[HttpPut("{id:guid}/categories")]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> UpdateCategoriesAsync(Guid id, [FromBody] UpdateActivityCategoriesRequest request)
 		{

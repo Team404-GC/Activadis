@@ -10,6 +10,11 @@ else
             <NavLink class="@($"ao-card {GetClasses(activity)}")" href="@($"/activiteit/{activity.Id}")">
                 <span class="ao-card-name">@activity.Name</span>
 
+                @if (activity.IsDraft)
+                {
+                    <span class="ao-card-tag ao-card-tag-draft">Concept</span>
+                }
+
                 <span class="ao-card-meta">
                     <i class="bi bi-calendar-event"></i>
                     <span>@FormatPeriod(activity)</span>
