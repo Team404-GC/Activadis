@@ -58,6 +58,14 @@ namespace Activadis.Infrastructure.Helpers
                 entity.Slug = await GenerateUniqueAsync(context, entity, source);
                 context.SaveChanges();
             }
+
+            context.SaveChanges();
         }
+
+        private static string RemoveAllNonLettersAndNumbers(this string text)
+            => NoLettersAndNumbers().Replace(text, string.Empty);
+
+        private static string RemoveAllDoubleSpaces(this string text)
+            => NoDoubleSpaces().Replace(text, " ").Trim();
     }
 }
