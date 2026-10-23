@@ -108,7 +108,7 @@ namespace Activadis.Application.Services
             return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty, photoIds);
         }
 
-        public async Task<ActivityPhotoResponse> GetPhotoAsync(Guid id)
+        public async Task<ActivityPhotoResponse> GetPhotoAsync(string identifier)
         {
             ActivityPhoto photo = await ActivityPhotoRepository.GetFirstByActivityIdAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit heeft geen foto.");
