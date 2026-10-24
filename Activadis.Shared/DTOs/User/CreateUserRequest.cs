@@ -11,7 +11,7 @@ namespace Activadis.Shared.DTOs.User
         [EmailAddress(ErrorMessage = "De e-mail is ongeldig.")]
         public string Email { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "De functie moet ingevuld worden.")]
+        [Required(ErrorMessage = "De functie moet gekozen worden.")]
         public string JobTitle { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "De rol moet gekozen worden.")]
