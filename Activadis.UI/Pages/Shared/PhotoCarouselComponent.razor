@@ -1,0 +1,145 @@
+﻿@inject IActivityService ActivityService
+
+@if (PhotoIds.Count == 0)
+{
+    <div class="pc-empty">
+        <i class="bi bi-image"></i>
+        <span>Er zijn nog geen foto's van deze activiteit.</span>
+    </div>
+}
+else
+{
+    <div class="pc">
+        <div class="pc-stage" tabindex="0" @onkeydown="OnKeyDown" @onpointerdown="OnPointerDown" @onpointerup="OnPointerUp">
+            <div class="pc-track" style="transform: translateX(-@(index * 100)%)">
+                @for (int slide = 0; slide < PhotoIds.Count; slide++)
+                {
+                    string url = ActivityService.GetPhotoUrl(ActivityId, PhotoIds[slide]);
+                    <figure @key="PhotoIds[slide]" class="pc-slide">
+                        <img class="pc-backdrop" src="@url" alt="" aria-hidden="true" />
+                        <img class="pc-photo" src="@url" alt="Foto @(slide + 1) van @Name" draggable="false" />
+                    </figure>
+                }
+            </div>
+            <div class="pc-shade"></div>
+            @if (PhotoIds.Count > 1)
+            {
+                <button type="button" class="pc-nav pc-previous" aria-label="Vorige foto" @onclick="() => Move(-1)">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="pc-nav pc-next" aria-label="Volgende foto" @onclick="() => Move(1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            }
+            <div class="pc-bar">
+                <span class="pc-count">@(index + 1) / @PhotoIds.Count</span>
+                <button type="button" class="pc-expand" @onclick="OpenFullscreen">
+                    <i class="bi bi-arrows-angle-expand"></i>
+                    <span>Vergroten</span>
+                </button>
+            </div>
+        </div>
+
+        @if (PhotoIds.Count > 1)
+        {
+            <div class="pc-thumbnails">
+                @for (int thumbnail = 0; thumbnail < PhotoIds.Count; thumbnail++)
+                {
+                    int current = thumbnail;
+                    <button @key="PhotoIds[current]" type="button" class="pc-thumbnail @(current == index ? "active" : "")" aria-label="Foto @(current + 1) tonen" @onclick="() => index = current">
+                        <img src="@ActivityService.GetPhotoUrl(ActivityId, PhotoIds[current])" alt="" loading="lazy" />
+                    </button>
+                }
+            </div>
+        }
+    </div>
+
+    @if (isFullscreen)
+    {
+        <div class="pc-lightbox" tabindex="-1" @ref="lightbox" @onclick="CloseFullscreen" @onkeydown="OnKeyDown">
+            <span class="pc-lightbox-count">@(index + 1) / @PhotoIds.Count</span>
+            <button type="button" class="pc-lightbox-close" aria-label="Sluiten" @onclick="CloseFullscreen">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            @if (PhotoIds.Count > 1)
+            {
+                <button type="button" class="pc-nav pc-previous" aria-label="Vorige foto" @onclick="() => Move(-1)" @onclick:stopPropagation="true">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="pc-nav pc-next" aria-label="Volgende foto" @onclick="() => Move(1)" @onclick:stopPropagation="true">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            }
+            <img class="pc-lightbox-photo" src="@ActivityService.GetPhotoUrl(ActivityId, PhotoIds[index])" alt="Foto @(index + 1) van @Name" @onclick:stopPropagation="true" />
+        </div>
+    }
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public Guid ActivityId { get; set; }
+
+    [Parameter, EditorRequired]
+    public List<Guid> PhotoIds { get; set; } = [];
+
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    private ElementReference lightbox;
+    private bool shouldFocusLightbox;
+    private bool isFullscreen;
+    private double? pointerStart;
+    private int index;
+
+    protected override void OnParametersSet()
+    {
+        if (index >= PhotoIds.Count)
+            index = 0;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!shouldFocusLightbox)
+            return;
+
+        shouldFocusLightbox = false;
+        await lightbox.FocusAsync();
+    }
+
+    private void Move(int step)
+        => index = (index + step + PhotoIds.Count) % PhotoIds.Count;
+
+    private void OpenFullscreen()
+    {
+        isFullscreen = true;
+        shouldFocusLightbox = true;
+    }
+
+    private void CloseFullscreen()
+        => isFullscreen = false;
+
+    private void OnKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "ArrowLeft")
+            Move(-1);
+        else if (args.Key == "ArrowRight")
+            Move(1);
+        else if (args.Key == "Escape")
+            CloseFullscreen();
+    }
+
+    private void OnPointerDown(PointerEventArgs args)
+        => pointerStart = args.ClientX;
+
+    private void OnPointerUp(PointerEventArgs args)
+    {
+        if (pointerStart is null)
+            return;
+
+        double distance = args.ClientX - pointerStart.Value;
+        pointerStart = null;
+
+        if (Math.Abs(distance) > 50)
+            Move(distance < 0 ? 1 : -1);
+    }
+}

@@ -14,6 +14,10 @@ namespace Activadis.Application.Interfaces
 
 		Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId, bool isAdmin);
 		Task<ActivityPhotoResponse> GetPhotoAsync(Guid id);
+		Task<ActivityPhotoResponse> GetPhotoByIdAsync(Guid id, Guid photoId);
+		Task AddPhotosAsync(Guid id, AddActivityPhotosRequest request);
+		Task UpdatePhotoOrderAsync(Guid id, UpdateActivityPhotoOrderRequest request);
+		Task DeletePhotoAsync(Guid id, Guid photoId);
 		Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId);
 
 		Task UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request);

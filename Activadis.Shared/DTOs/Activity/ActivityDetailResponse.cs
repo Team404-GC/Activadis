@@ -11,8 +11,7 @@ namespace Activadis.Shared.DTOs.Activity
         public decimal CostPerPerson { get; set; }
 
         public string Location { get; set; } = string.Empty;
-        public byte[] Image { get; set; } = [];
-        public string ImageContentType { get; set; } = string.Empty;
+        public List<Guid> PhotoIds { get; set; } = [];
 
         public int MinParticipants { get; set; }
         public int MaxParticipants { get; set; }

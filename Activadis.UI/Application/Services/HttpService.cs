@@ -69,7 +69,7 @@ namespace Activadis.UI.Application.Services
             }
         }
 
-        public async Task<ApiResponse<TResponse>> PostIncludeFileAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, IBrowserFile?>> property)
+        public async Task<ApiResponse<TResponse>> PostIncludeFilesAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, List<IBrowserFile>>> property)
         {
             try
             {
@@ -95,14 +95,14 @@ namespace Activadis.UI.Application.Services
                 using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(url, request);
                 ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
                 return result ?? throw new ArgumentException();
-        }
+            }
             catch
             {
                 return Error<TResponse>();
             }
-}
+        }
 
-        public async Task<ApiResponse<TResponse>> PutIncludeFileAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, IBrowserFile?>> property)
+        public async Task<ApiResponse<TResponse>> PutIncludeFilesAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, List<IBrowserFile>>> property)
         {
             try
             {
@@ -138,25 +138,24 @@ namespace Activadis.UI.Application.Services
         private static ApiResponse<TResponse> Error<TResponse>()
             => ApiResponse<TResponse>.Fail("Er is een onverwachte fout opgetreden.");
 
-        private static MultipartFormDataContent BuildContent<TResponse, TRequest>(TRequest request, Expression<Func<TRequest, IBrowserFile?>> property)
+        private static MultipartFormDataContent BuildContent<TResponse, TRequest>(TRequest request, Expression<Func<TRequest, List<IBrowserFile>>> property)
         {
             MultipartFormDataContent content = new MultipartFormDataContent();
-            IBrowserFile? file = property.Compile()(request);
+            List<IBrowserFile> files = property.Compile()(request);
 
             if (property.Body is not MemberExpression expression || expression.Member is not PropertyInfo filePropertyInfo)
                 throw new InvalidOperationException();
 
-            if (file is not null)
+            foreach (IBrowserFile file in files)
             {
+                if (file.ContentType.Trim().Length <= 0)
+                    throw new ArgumentException($"De foto {file.Name} heeft een ongeldig bestandstype.");
+
                 Stream stream = file.OpenReadStream(ApplicationConfiguration.AllowedSizeInMB);
                 StreamContent streamContent = new StreamContent(stream);
-                if (file.ContentType.Trim().Length <= 0)
-                    throw new ArgumentException("De foto heeft een ongeldig bestandstype.");
-
                 streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
 
-                string parameterName = filePropertyInfo.Name ?? "file";
-                content.Add(streamContent, parameterName, file.Name);
+                content.Add(streamContent, filePropertyInfo.Name, file.Name);
             }
 
             foreach (PropertyInfo propertyInfo in typeof(TRequest).GetProperties())
