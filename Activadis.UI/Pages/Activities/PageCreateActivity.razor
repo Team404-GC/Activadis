@@ -111,6 +111,7 @@ else if (context is not null)
                     </label>
                 }
                 <InfoBubbleComponent Text="Optioneel. Kies de ELO-categorieën waarvoor wedstrijden op deze activiteit meetellen." />
+                <ValidationMessage For="@(() => request.CategoryIds)" />
             </section>
             <br />
             <section>
@@ -122,6 +123,10 @@ else if (context is not null)
                 <ValidationMessage For="@(() => request.IsDraft)" />
                 <button type="submit" disabled="@isCreating">Aanmaken</button>
             </section>
+            @if (form?.FormError is not null)
+            {
+                <p class="validation-message">@form?.FormError</p>
+            }
         </EditForm>
     </div>
 }
@@ -130,6 +135,7 @@ else if (context is not null)
     CreateActivityRequest request = new CreateActivityRequest();
     List<CategoryDto> categories = [];
     EditContext? context = null;
+    ComponentRequest<CreateActivityRequest>? form = null;
     bool isCreating = false;
     bool isLoading = true;
 
@@ -144,7 +150,8 @@ else if (context is not null)
         }
 
         categories = response.Value ?? [];
-        context = new EditContext(request);
+        form = new ComponentRequest<CreateActivityRequest>(request);
+        context = form.Context;
         isLoading = false;
     }
 
@@ -154,6 +161,8 @@ else if (context is not null)
             request.CategoryIds.Add(categoryId);
         else
             request.CategoryIds.Remove(categoryId);
+
+        context?.NotifyFieldChanged(new FieldIdentifier(request, nameof(request.CategoryIds)));
     }
 
     public void OnFileChange(InputFileChangeEventArgs args)
@@ -175,6 +184,7 @@ else if (context is not null)
             date = DateTimeOffset.MinValue;
 
         property.SetValue(request, date.UtcDateTime);
+        context?.NotifyFieldChanged(new FieldIdentifier(request, property.Name));
     }
 
     public string GetDateValue(Expression<Func<CreateActivityRequest, DateTime>> selector)
@@ -203,7 +213,7 @@ else if (context is not null)
         ApiResponse<object> response = await ActivityService.CreateAsync(realRequest);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            form?.ShowErrors(response);
             isCreating = false;
             return;
         }

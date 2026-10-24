@@ -9,6 +9,7 @@ namespace Activadis.UI.Application.DTOs
         public bool IsLoading { get; set; }
         public EditContext Context { get; set; }
         public ValidationMessageStore MessageStore { get; set; }
+        public string? FormError { get; set; }
 
         public ComponentRequest(TRequest request)
         {
@@ -25,6 +26,7 @@ namespace Activadis.UI.Application.DTOs
         private void OnFieldChanged(object? sender, FieldChangedEventArgs args)
         {
             MessageStore.Clear(args.FieldIdentifier);
+            FormError = null;
             Context.MarkAsUnmodified(args.FieldIdentifier);
             Context.NotifyValidationStateChanged();
         }

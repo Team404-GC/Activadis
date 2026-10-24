@@ -1,4 +1,5 @@
-﻿@inject IEloService EloService
+﻿@using Activadis.UI.Application.Services
+@inject IEloService EloService
 @page "/categorieen"
 
 <PageTitle>Categorieën</PageTitle>
@@ -151,9 +152,10 @@ else
     private void CloseForm()
         => isFormOpen = false;
 
-    private async Task SubmitAsync(CreateCategoryRequest model)
+    private async Task<ApiResponse<object>> SubmitAsync(CreateCategoryRequest model)
     {
         isSaving = true;
+        StateHasChanged();
 
         ApiResponse<object> response;
         if (editingId is null)
@@ -179,18 +181,20 @@ else
                 RankTitles = model.RankTitles
             });
 
-            response = new ApiResponse<object>()
+            response = new HttpApiResponse<object>()
             {
                 Succeeded = updateResponse.Succeeded,
-                Message = updateResponse.Message
+                Message = updateResponse.Message,
+                Errors = updateResponse.Errors,
+                StatusCode = updateResponse.GetStatusCode()
             };
         }
 
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
             isSaving = false;
-            return;
+            StateHasChanged();
+            return response;
         }
 
         Notifications.AddNotification("De categorie is met succes opgeslagen.", false);
@@ -198,5 +202,7 @@ else
         isFormOpen = false;
 
         await LoadAsync();
+        StateHasChanged();
+        return response;
     }
 }

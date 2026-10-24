@@ -1,10 +1,18 @@
 ﻿<link rel="stylesheet" href="/css/signup-component.css" />
 <div class="signup-container @(Request.ShouldOpenComponent ? "container-visible" : "")" @onmousedown="CloseAsync">
     <EditForm EditContext="Request.Context" OnValidSubmit="OnSubmitAsync" class="form" @onmousedown:stopPropagation="true">
-        <section>
-            <label>Email</label>
-            <InputText @bind-Value="Request.Request.Email" />
-        </section>
+        @if (User?.Identity?.IsAuthenticated == false)
+        {
+            <section>
+                <label>Email</label>
+                <InputText @bind-Value="Request.Request.Email" />
+                <ValidationMessage For="@(() => Request.Request.Email)" />
+            </section>
+        }
+        @if (Request.FormError is not null)
+        {
+            <p class="validation-message">@Request.FormError</p>
+        }
         <section>
             <button type="submit">Uitschrijven</button>
         </section>

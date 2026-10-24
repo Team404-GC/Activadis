@@ -1,7 +1,7 @@
 ﻿<div class="cf-card">
     <h2>@(Model.Name.Length == 0 ? "Creëer categorie" : "Bewerk categorie")</h2>
 
-    <EditForm Model="Model" OnValidSubmit="HandleSubmit">
+    <EditForm EditContext="form.Context" OnValidSubmit="HandleSubmit">
         <DataAnnotationsValidator />
         <div class="cf-fields">
             <div class="cf-field">
@@ -44,6 +44,11 @@
             <RankTitlesComponent RankTitles="RankTitles" RankTitlesChanged="OnRankTitlesChanged" />
         </div>
 
+        @if (form.FormError is not null)
+        {
+            <p class="validation-message">@form.FormError</p>
+        }
+
         <div class="cf-actions">
             <button type="submit" class="cf-button" disabled="@IsSaving">
                 @(!IsSaving ? "Opslaan" : "Aan het laden..")
@@ -61,15 +66,18 @@
     public bool IsSaving { get; set; }
 
     [Parameter]
-    public EventCallback<CreateCategoryRequest> OnSubmit { get; set; }
+    public Func<CreateCategoryRequest, Task<ApiResponse<object>>> OnSubmit { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnCancel { get; set; }
 
     private Dictionary<double, string> RankTitles { get; set; } = new();
+    private ComponentRequest<CreateCategoryRequest> form = null!;
 
     protected override void OnInitialized()
     {
+        form = new ComponentRequest<CreateCategoryRequest>(Model);
+
         if (Model?.RankTitles != null && Model.RankTitles.Count > 0)
         {
             RankTitles = new Dictionary<double, string>(Model.RankTitles);
@@ -84,7 +92,9 @@
     private async Task HandleSubmit()
     {
         Model.RankTitles = new Dictionary<double, string>(RankTitles);
-        await OnSubmit.InvokeAsync(Model);
+        ApiResponse<object> response = await OnSubmit(Model);
+        if (!response.Succeeded)
+            form.ShowErrors(response);
     }
 
     private async Task OnRankTitlesChanged(Dictionary<double, string> updatedTitles)
