@@ -16,7 +16,10 @@ namespace Activadis.Application.Extensions
 				From = request.From,
 				To = request.To,
 				IncludePast = isAdmin && request.IncludePast,
-				ExcludeInternal = request.ExcludeInternal
+				ExcludeInternal = request.ExcludeInternal,
+				Time = request.Time?.ToTimeSpan(),
+				UtcOffsetMinutes = request.UtcOffsetMinutes,
+				SortDescending = request.SortDescending
 			};
 		}
 	}
