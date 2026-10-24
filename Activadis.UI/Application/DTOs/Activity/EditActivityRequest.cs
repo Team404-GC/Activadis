@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Forms;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Activadis.UI.Application.DTOs.Activity
 {
@@ -14,7 +13,6 @@ namespace Activadis.UI.Application.DTOs.Activity
 
         [Required(ErrorMessage = "De locatie moet ingevuld worden.")]
         public string Location { get; set; } = string.Empty;
-        public IBrowserFile? Image { get; set; } = null;
 
         public int? MinParticipants { get; set; }
         public int? MaxParticipants { get; set; }

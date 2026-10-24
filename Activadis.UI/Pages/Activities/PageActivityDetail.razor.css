@@ -19,21 +19,21 @@
     font-weight: 600;
 }
 
-    .ad-header ::deep .ad-edit {
-        background-color: var(--AccentColor);
-        color: var(--TextColor);
-        justify-content: center;
-        align-items: center;
-        aspect-ratio: 1 / 1;
-        border-radius: 10px;
-        display: flex;
-        height: 40px;
-        border: none;
-    }
+.ad-header ::deep .ad-edit {
+    background-color: var(--AccentColor);
+    color: var(--TextColor);
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    display: flex;
+    height: 40px;
+    border: none;
+}
 
-        .ad-header ::deep .ad-edit:hover {
-            background-color: var(--AccentColorHover);
-        }
+    .ad-header ::deep .ad-edit:hover {
+        background-color: var(--AccentColorHover);
+    }
 
 ::deep .ad-back {
     display: inline-flex;
@@ -376,10 +376,10 @@
     font-weight: 700;
 }
 
-.ad-match-placement.ad-match-winner {
-    background: var(--GoldColor);
-    color: var(--TextColor);
-}
+    .ad-match-placement.ad-match-winner {
+        background: var(--GoldColor);
+        color: var(--TextColor);
+    }
 
 .ad-match-result ::deep .ad-match-player {
     flex: 1;

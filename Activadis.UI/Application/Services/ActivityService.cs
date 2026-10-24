@@ -19,12 +19,12 @@ namespace Activadis.UI.Application.Services
 		}
 
 		public async Task<ApiResponse<object>> CreateAsync(CreateActivityRequest request)
-			=> await HttpService.PostIncludeFileAsync<object, CreateActivityRequest>("/Activity", request, x => x.Image);
+			=> await HttpService.PostIncludeFilesAsync<object, CreateActivityRequest>("/Activity", request, x => x.Photos);
 
-        public async Task<ApiResponse<object>> EditAsync(EditActivityRequest request)
-            => await HttpService.PutIncludeFileAsync<object, EditActivityRequest>("/Activity", request, x => x.Image);
+		public async Task<ApiResponse<object>> EditAsync(EditActivityRequest request)
+			=> await HttpService.PutAsync<object, EditActivityRequest>("/Activity", request);
 
-        public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter)
+		public async Task<ApiResponse<IEnumerable<ActivityOverviewResponse>>> GetActivitiesAsync(ActivityFilterRequest filter)
 			=> await HttpService.QueryAsync<IEnumerable<ActivityOverviewResponse>, ActivityFilterRequest>("/Activity", filter);
 
 		public async Task<ApiResponse<ActivityDetailResponse>> GetDetailAsync(Guid id)
@@ -50,5 +50,17 @@ namespace Activadis.UI.Application.Services
 
 		public string GetPhotoUrl(ActivityOverviewResponse activity)
 			=> $"{ApiBaseUrl}/Activity/{activity.Id}/Photo?v={activity.PhotoVersion}";
+
+		public string GetPhotoUrl(Guid id, Guid photoId)
+			=> $"{ApiBaseUrl}/Activity/{id}/Photos/{photoId}";
+
+		public async Task<ApiResponse<object>> AddPhotosAsync(Guid id, AddActivityPhotosRequest request)
+			=> await HttpService.PostIncludeFilesAsync<object, AddActivityPhotosRequest>($"/Activity/{id}/Photos", request, x => x.Photos);
+
+		public async Task<ApiResponse<object>> UpdatePhotoOrderAsync(Guid id, UpdateActivityPhotoOrderRequest request)
+			=> await HttpService.PutAsync<object, UpdateActivityPhotoOrderRequest>($"/Activity/{id}/Photos/Order", request);
+
+		public async Task<ApiResponse<object>> DeletePhotoAsync(Guid id, Guid photoId)
+			=> await HttpService.DeleteAsync<object>($"/Activity/{id}/Photos/{photoId}");
 	}
 }

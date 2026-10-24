@@ -3,6 +3,7 @@
     public static class ApplicationConfiguration
     {
         public static long AllowedSizeInMB = SizeInMB(10);
+        public static int MaxPhotos = 10;
         public static string BaseUrl = string.Empty;
 
         public static class RedirectLinks
