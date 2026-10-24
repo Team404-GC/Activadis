@@ -16,8 +16,28 @@
     {
         <div class="ao-filters">
             <input class="ao-input" type="search" placeholder="Zoek op naam" @bind="name" @bind:after="LoadAsync" />
-            <input class="ao-input" type="date" @bind="date" @bind:after="LoadAsync" />
-            <input class="ao-input" type="time" @bind="time" @bind:after="LoadAsync" disabled="@(date is null)" />
+            <select class="ao-input" aria-label="Periode" @bind="period" @bind:after="LoadAsync">
+                <option value="">Alle data</option>
+                <option value="today">Vandaag</option>
+                <option value="week">Deze week</option>
+                <option value="month">Deze maand</option>
+                <option value="threeMonths">Komende 3 maanden</option>
+                <option value="custom">Aangepaste periode</option>
+            </select>
+
+            @if (period == "custom")
+            {
+                <input class="ao-input" type="date" aria-label="Van" title="Van" @bind="customFrom" @bind:after="LoadAsync" />
+                <span class="ao-separator">t/m</span>
+                <input class="ao-input" type="date" aria-label="Tot en met" title="Tot en met" @bind="customTo" @bind:after="LoadAsync" />
+            }
+
+            <input class="ao-input" type="time" aria-label="Tijd" title="Tijd" @bind="time" @bind:after="LoadAsync" />
+
+            <button type="button" class="ao-filter" @onclick="ToggleSortAsync">
+                <i class="bi @(sortDescending ? "bi-sort-down" : "bi-sort-up")"></i>
+                <span>@(sortDescending ? "Laatste eerst" : "Vroegste eerst")</span>
+            </button>
 
             @if (isAdmin)
             {
@@ -39,7 +59,7 @@
 else
 {
     <ListOverviewComponent Activities="activities"
-                           EmptyMessage="@(showMine ? "Je bent nog niet ingeschreven voor een activiteit." : "Er zijn op dit moment geen activiteiten.")" />
+                           EmptyMessage="@ToEmptyMessage()" />
 }
 
 @code {
@@ -49,8 +69,11 @@ else
     private bool showPast = false;
 
     private string? name;
-    private DateTime? date;
+    private string period = string.Empty;
+    private DateTime? customFrom;
+    private DateTime? customTo;
     private TimeOnly? time;
+    private bool sortDescending = false;
 
     [CascadingParameter]
     public Task<AuthenticationState>? AuthenticationState { get; set; }
@@ -74,6 +97,12 @@ else
             return;
 
         showMine = mine;
+        await LoadAsync();
+    }
+
+    private async Task ToggleSortAsync()
+    {
+        sortDescending = !sortDescending;
         await LoadAsync();
     }
 
@@ -105,21 +134,45 @@ else
 
     private ActivityFilterRequest BuildFilter()
     {
-        ActivityFilterRequest filter = new ActivityFilterRequest()
+        (DateTime? from, DateTime? to) = GetPeriod();
+
+        return new ActivityFilterRequest()
         {
             Name = string.IsNullOrWhiteSpace(name) ? null : name.Trim(),
-            IncludePast = isAdmin && showPast
+            IncludePast = isAdmin && showPast,
+            From = from is DateTime start ? DateTime.SpecifyKind(start, DateTimeKind.Local).ToUniversalTime() : null,
+            To = to is DateTime end ? DateTime.SpecifyKind(end, DateTimeKind.Local).ToUniversalTime() : null,
+            Time = time,
+            UtcOffsetMinutes = (int)TimeZoneInfo.Local.GetUtcOffset(DateTime.Now).TotalMinutes,
+            SortDescending = sortDescending
         };
+    }
 
-        if (date is DateTime day)
+    private (DateTime? From, DateTime? To) GetPeriod()
+    {
+        DateTime today = DateTime.Today;
+        DateTime monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+        DateTime firstOfMonth = new DateTime(today.Year, today.Month, 1);
+
+        return period switch
         {
-            DateTime from = time is TimeOnly moment ? day.Date.Add(moment.ToTimeSpan()) : day.Date;
-            DateTime to = time is null ? day.Date.AddDays(1).AddTicks(-1) : from;
+            "today" => (today, today.AddDays(1).AddTicks(-1)),
+            "week" => (monday, monday.AddDays(7).AddTicks(-1)),
+            "month" => (firstOfMonth, firstOfMonth.AddMonths(1).AddTicks(-1)),
+            "threeMonths" => (today, today.AddMonths(3).AddTicks(-1)),
+            "custom" => (customFrom?.Date, customTo?.Date.AddDays(1).AddTicks(-1)),
+            _ => (null, null)
+        };
+    }
 
-            filter.From = DateTime.SpecifyKind(from, DateTimeKind.Local).ToUniversalTime();
-            filter.To = DateTime.SpecifyKind(to, DateTimeKind.Local).ToUniversalTime();
-        }
+    private string ToEmptyMessage()
+    {
+        if (showMine)
+            return "Je bent nog niet ingeschreven voor een activiteit.";
 
-        return filter;
+        bool hasFilters = !string.IsNullOrWhiteSpace(name) || period != string.Empty || time is not null;
+        return hasFilters
+            ? "Er zijn geen activiteiten gevonden die passen bij je zoekopdracht. Pas de filters aan."
+            : "Er zijn op dit moment geen activiteiten.";
     }
 }

@@ -68,6 +68,15 @@
         opacity: 0.5;
     }
 
+    .ao-input option {
+        color: var(--TextColor);
+    }
+
+.ao-separator {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 14px;
+}
+
 .ao-filter {
     display: inline-flex;
     align-items: center;
