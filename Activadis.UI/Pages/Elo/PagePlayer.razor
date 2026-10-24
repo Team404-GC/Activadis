@@ -116,7 +116,7 @@ else
                         @foreach (MatchHistoryDto match in profile.RecentMatches)
                         {
                             <tr>
-                                <td>@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
+                                <td>@match.MatchDate.ToDisplayDateTime()</td>
                                 <td>@match.CategoryName</td>
                                 <td class="pl-hide-small">
                                     @if (match.ActivityId is not null)
