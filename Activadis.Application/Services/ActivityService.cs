@@ -57,6 +57,7 @@ namespace Activadis.Application.Services
 
             activity.Name = request.Name;
             activity.Description = request.Description;
+            activity.Requirements = string.IsNullOrWhiteSpace(request.Requirements) ? null : request.Requirements.Trim();
             activity.CostPerPerson = request.CostPerPerson;
             activity.Location = request.Location;
 

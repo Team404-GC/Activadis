@@ -166,8 +166,8 @@ else
 
         return view switch
         {
-            CalendarView.WorkWeek => $"{monday.ToString("dd MMM", Dutch)} - {monday.AddDays(4).ToString("dd MMM yyyy", Dutch)}",
-            CalendarView.Week => $"{monday.ToString("dd MMM", Dutch)} - {monday.AddDays(6).ToString("dd MMM yyyy", Dutch)}",
+            CalendarView.WorkWeek => $"{monday.ToString("d MMMM", Dutch)} - {monday.AddDays(4).ToString("d MMMM yyyy", Dutch)}",
+            CalendarView.Week => $"{monday.ToString("d MMMM", Dutch)} - {monday.AddDays(6).ToString("d MMMM yyyy", Dutch)}",
             _ => current.ToString("MMMM yyyy", Dutch)
         };
     }

@@ -10,6 +10,7 @@ namespace Activadis.UI.Application.Extensions
             {
                 Name = activity.Name,
                 Description = activity.Description,
+                Requirements = activity.Requirements,
                 CostPerPerson = activity.CostPerPerson <= 0 ? null : activity.CostPerPerson,
                 Location = activity.Location,
                 
