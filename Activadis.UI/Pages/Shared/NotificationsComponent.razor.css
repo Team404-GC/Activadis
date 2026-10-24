@@ -1,5 +1,5 @@
 ﻿.notifications {
-    --notification-color: var(--AccentColor);
+    --notification-color: var(--SuccessText);
     flex-direction: column;
     justify-content: end;
     pointer-events: none;
@@ -14,22 +14,33 @@
     top: 0;
 
     .notification {
-        background-color: color-mix(var(--notification-color) 10%, white 90%);
+        background-color: color-mix(in srgb, var(--notification-color) 10%, white);
         border: 1px solid var(--notification-color);
         corner-shape: squircle;
         pointer-events: auto;
-        place-items: center;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+        gap: 12px;
         border-radius: 30px;
         padding: 10px 20px;
-        text-align: center;
+        text-align: left;
         user-select: none;
         cursor: pointer;
         display: grid;
         height: 80px;
-        width: 400px;
+        width: min(400px, 100%);
+
+        &.notification-success {
+            --notification-color: var(--SuccessText);
+        }
 
         &.notification-error {
             --notification-color: var(--DangerText);
+        }
+
+        i {
+            color: var(--notification-color);
+            font-size: 20px;
         }
 
         p {

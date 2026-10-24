@@ -8,7 +8,7 @@
 <p class="cu-intro">De nieuwe gebruiker krijgt een e-mail met een link om zelf een wachtwoord in te stellen.</p>
 
 <div class="cu-card">
-    <EditForm Model="request" OnValidSubmit="CreateAsync">
+    <EditForm EditContext="form.Context" OnValidSubmit="CreateAsync">
         <DataAnnotationsValidator />
 
         <div class="cu-field">
@@ -38,6 +38,11 @@
             <ValidationMessage For="@(() => request.Role)" />
         </div>
 
+        @if (form.FormError is not null)
+        {
+            <p class="validation-message">@form.FormError</p>
+        }
+
         <button type="submit" class="cu-button" disabled="@isLoading">
             @if (isLoading)
             {
@@ -53,7 +58,11 @@
 
 @code {
     private CreateUserRequest request = new CreateUserRequest();
+    private ComponentRequest<CreateUserRequest> form = null!;
     private bool isLoading = false;
+
+    protected override void OnInitialized()
+        => form = new ComponentRequest<CreateUserRequest>(request);
 
     private async Task CreateAsync()
     {
@@ -62,13 +71,14 @@
         ApiResponse<object> response = await UserService.CreateAsync(request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            form.ShowErrors(response);
             isLoading = false;
             return;
         }
 
         Notifications.AddNotification("Het account is aangemaakt en de uitnodiging is verstuurd.", false);
         request = new CreateUserRequest();
+        form = new ComponentRequest<CreateUserRequest>(request);
         isLoading = false;
     }
 }

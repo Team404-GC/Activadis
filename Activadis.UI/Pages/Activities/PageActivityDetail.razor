@@ -146,6 +146,10 @@ else
                                     </label>
                                 }
                             </div>
+                            @if (categoryError is not null)
+                            {
+                                <p class="validation-message">@categoryError</p>
+                            }
                             <button type="button" class="ad-elo-button-secondary" @onclick="SaveCategoriesAsync" disabled="@isSavingCategories">
                                 @(!isSavingCategories ? "Categorieën opslaan" : "Aan het laden..")
                             </button>
@@ -205,6 +209,10 @@ else
                     {
                         <div class="ad-elo-card">
                             <span class="ad-elo-card-title">Bestaande wedstrijd koppelen</span>
+                            @if (matchError is not null)
+                            {
+                                <p class="validation-message">@matchError</p>
+                            }
                             <div class="ad-elo-link">
                                 <select class="ad-elo-select" @bind="selectedMatchId">
                                     <option value="@Guid.Empty">Kies een wedstrijd</option>
@@ -252,10 +260,12 @@ else
     private List<CategoryDto> activeCategories = [];
     private List<Guid> selectedCategoryIds = [];
     private bool isSavingCategories = false;
+    private string? categoryError;
 
     private List<RecentMatchDto> linkableMatches = [];
     private Guid selectedMatchId = Guid.Empty;
     private bool isLinkingMatch = false;
+    private string? matchError;
 
     private bool IsAdmin => User?.IsInRole("Admin") == true;
 
@@ -382,10 +392,11 @@ else
             CategoryIds = selectedCategoryIds
         };
 
+        categoryError = null;
         ApiResponse<object> response = await ActivityService.UpdateCategoriesAsync(Id, request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            categoryError = response.HandleError();
             isSavingCategories = false;
             return;
         }
@@ -397,9 +408,10 @@ else
 
     public async Task LinkMatchAsync()
     {
+        matchError = null;
         if (selectedMatchId == Guid.Empty)
         {
-            Notifications.AddNotification("Kies eerst een wedstrijd.", true);
+            matchError = "Kies eerst een wedstrijd.";
             return;
         }
 
@@ -408,7 +420,7 @@ else
         ApiResponse<object> response = await ActivityService.LinkMatchAsync(Id, new LinkMatchRequest() { MatchId = selectedMatchId });
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            matchError = response.HandleError();
             isLinkingMatch = false;
             return;
         }
@@ -422,10 +434,11 @@ else
     {
         isLinkingMatch = true;
 
+        matchError = null;
         ApiResponse<object> response = await ActivityService.UnlinkMatchAsync(Id, match.MatchId);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            matchError = response.HandleError();
             isLinkingMatch = false;
             return;
         }
@@ -439,6 +452,8 @@ else
     {
         if (activity is null)
             return;
+
+        request.FormError = null;
 
         if (typeof(TRequest) != typeof(SignOutRequest) || action is null || User?.Identity?.IsAuthenticated == false)
         {
@@ -464,23 +479,9 @@ else
         ApiResponse<object> response = await SignUpService.SignUpAsync(signUpRequest.Request);
         if (!response.Succeeded)
         {
-            signUpRequest.ShouldOpenComponent = true;
+            signUpRequest.ShouldOpenComponent = response.IsInputError();
             signUpRequest.IsLoading = false;
-
-            if (response.Errors.Any())
-            {
-                foreach (ApiErrors errors in response.Errors)
-                {
-                    FieldIdentifier field = signUpRequest.Context.Field(errors.Key);
-                    foreach (string error in errors.Errors)
-                        signUpRequest.MessageStore.Add(field, error);
-                }
-
-                signUpRequest.Context.NotifyValidationStateChanged();
-                return;
-            }
-
-            Notifications.AddNotification(response.Message, true);
+            signUpRequest.ShowErrors(response);
             return;
         }
 
@@ -514,23 +515,9 @@ else
         ApiResponse<object> response = await SignUpService.EditSignUpAsync(editSignUpRequest.Request);
         if (!response.Succeeded)
         {
-            editSignUpRequest.ShouldOpenComponent = true;
+            editSignUpRequest.ShouldOpenComponent = response.IsInputError();
             editSignUpRequest.IsLoading = false;
-
-            if (response.Errors.Any())
-            {
-                foreach (ApiErrors errors in response.Errors)
-                {
-                    FieldIdentifier field = editSignUpRequest.Context.Field(errors.Key);
-                    foreach (string error in errors.Errors)
-                        editSignUpRequest.MessageStore.Add(field, error);
-                }
-
-                editSignUpRequest.Context.NotifyValidationStateChanged();
-                return;
-            }
-
-            Notifications.AddNotification(response.Message, true);
+            editSignUpRequest.ShowErrors(response);
             return;
         }
 
@@ -556,23 +543,9 @@ else
         ApiResponse<object> response = await SignUpService.SignOutAsync(signOutRequest.Request);
         if (!response.Succeeded)
         {
-            signOutRequest.ShouldOpenComponent = true;
+            signOutRequest.ShouldOpenComponent = response.IsInputError();
             signOutRequest.IsLoading = false;
-
-            if (response.Errors.Any())
-            {
-                foreach (ApiErrors errors in response.Errors)
-                {
-                    FieldIdentifier field = signOutRequest.Context.Field(errors.Key);
-                    foreach (string error in errors.Errors)
-                        signOutRequest.MessageStore.Add(field, error);
-                }
-
-                signOutRequest.Context.NotifyValidationStateChanged();
-                return;
-            }
-
-            Notifications.AddNotification(response.Message, true);
+            signOutRequest.ShowErrors(response);
             return;
         }
 

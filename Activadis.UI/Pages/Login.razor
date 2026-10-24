@@ -18,7 +18,7 @@
         <div class="login-right">
             <h1>Activadis</h1>
             <h2>Inloggen met e-mail</h2>
-            <EditForm Model="request" OnValidSubmit="HandleLogin">
+            <EditForm EditContext="form.Context" OnValidSubmit="HandleLogin">
                 <DataAnnotationsValidator />
 
                 <div class="form-group">
@@ -42,6 +42,11 @@
                     <ValidationMessage For="@(() => request.Password)" />
                 </div>
 
+                @if (form.FormError is not null)
+                {
+                    <p class="validation-message">@form.FormError</p>
+                }
+
                 <button type="submit" class="btn-login" disabled="@isLoading">
                     @if (isLoading)
                     {
@@ -59,7 +64,11 @@
 
 @code {
     private LoginRequest request = new LoginRequest();
+    private ComponentRequest<LoginRequest> form = null!;
     private bool isLoading = false;
+
+    protected override void OnInitialized()
+        => form = new ComponentRequest<LoginRequest>(request);
 
     private async Task HandleLogin()
     {
@@ -68,7 +77,11 @@
         ApiResponse<Token> response = await AuthService.LoginAsync(request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            if (response.GetStatusCode() == 401)
+                form.ShowFormError(response.Message ?? "Het e-mailadres of wachtwoord is onjuist.");
+            else
+                form.ShowErrors(response);
+
             isLoading = false;
             return;
         }

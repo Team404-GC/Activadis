@@ -3,7 +3,8 @@
 <div class="notifications">
     @foreach (Notification notification in notifications.Where(x => !x.IsDeleted).OrderByDescending(x => x.SendOn))
     {
-        <div @key="notification.Id" class="notification @(notification.HasErrored ? "notification-error" : "")" @onclick="@(() => notification.IsDeleted = true)">
+        <div @key="notification.Id" class="notification @(notification.HasErrored ? "notification-error" : "notification-success")" role="@(notification.HasErrored ? "alert" : "status")" @onclick="@(() => notification.IsDeleted = true)">
+            <i class="bi @(notification.HasErrored ? "bi-exclamation-triangle-fill" : "bi-check-circle-fill")"></i>
             <p>@notification.Message</p>
         </div>
     }

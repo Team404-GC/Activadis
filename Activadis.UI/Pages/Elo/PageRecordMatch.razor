@@ -35,13 +35,17 @@ else
                     <label for="rm-category">Categorie</label>
                     <InfoBubbleComponent Text="Kies de categorie waarin de wedstrijd is gespeeld. De ratings veranderen alleen in deze categorie." />
                 </div>
-                <select id="rm-category" class="rm-input" @bind="categoryId">
+                <select id="rm-category" class="rm-input" @bind="categoryId" @bind:after="@(() => categoryError = null)">
                     <option value="@Guid.Empty">Kies een categorie</option>
                     @foreach (CategoryDto category in categories)
                     {
                         <option value="@category.Id">@category.Name</option>
                     }
                 </select>
+                @if (categoryError is not null)
+                {
+                    <p class="rm-hint">@categoryError</p>
+                }
                 @if (activity is not null && !categories.Any())
                 {
                     <p class="rm-hint">Deze activiteit heeft geen ELO-categorieën. Koppel eerst een categorie aan de activiteit.</p>
@@ -132,6 +136,11 @@ else
             </div>
         }
 
+        @if (participantError is not null)
+        {
+            <p class="rm-hint">@participantError</p>
+        }
+
         <button type="button" class="rm-button-secondary" @onclick="AddParticipant">
             <i class="bi bi-plus-lg"></i>
             <span>Deelnemer toevoegen</span>
@@ -139,6 +148,10 @@ else
     </div>
 
     <div class="rm-actions">
+        @if (formError is not null)
+        {
+            <p class="validation-message">@formError</p>
+        }
         <button type="button" class="rm-button" @onclick="SubmitAsync" disabled="@isSubmitting">
             @(isSubmitting ? "Aan het laden.." : "Registreren")
         </button>
@@ -198,6 +211,10 @@ else
 
     private bool isLoading = true;
     private bool isSubmitting;
+
+    private string? categoryError;
+    private string? participantError;
+    private string? formError;
 
     private bool IsTeamMatch => matchType == "team";
 
@@ -263,22 +280,25 @@ else
 
     private async Task SubmitAsync()
     {
+        categoryError = null;
+        participantError = null;
+        formError = null;
+
         if (categoryId == Guid.Empty)
         {
-            Notifications.AddNotification("Kies eerst een categorie.", true);
+            categoryError = "Kies eerst een categorie.";
             return;
         }
 
         if (participants.Any(x => !Guid.TryParse(x.UserId, out _)))
         {
-            Notifications.AddNotification("Kies voor elke deelnemer een speler.", true);
+            participantError = "Kies voor elke deelnemer een speler.";
             return;
         }
 
         isSubmitting = true;
         result = null;
 
-        // Participants with the same team number share one generated team id.
         Dictionary<int, Guid> teams = participants
             .Select(x => x.TeamNumber)
             .Distinct()
@@ -305,7 +325,7 @@ else
         ApiResponse<MatchResultDto> response = await EloService.RecordMatchAsync(request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            formError = response.HandleError();
             isSubmitting = false;
             return;
         }

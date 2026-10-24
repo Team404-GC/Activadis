@@ -8,6 +8,7 @@
             <section>
                 <label>Email</label>
                 <InputText @bind-Value="Request.Request.Email" />
+                <ValidationMessage For="@(() => Request.Request.Email)" />
             </section>
         }
         <section>
@@ -27,6 +28,10 @@
                     <span class="slider round"></span>
                 </label>
             </section>
+        }
+        @if (Request.FormError is not null)
+        {
+            <p class="validation-message">@Request.FormError</p>
         }
         <section>
             <button type="submit">Inschrijven wijzigen</button>
