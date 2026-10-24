@@ -14,3 +14,16 @@
     width: 225px;
     height: 32px;
 }
+
+.form-container ::deep .form-photos {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+}
+
+.form-container ::deep .form-photo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}

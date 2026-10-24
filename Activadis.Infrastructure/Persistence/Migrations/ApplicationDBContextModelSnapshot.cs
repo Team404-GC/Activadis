@@ -50,14 +50,6 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Property<bool>("FoodIncluded")
                         .HasColumnType("bit");
 
-                    b.Property<byte[]>("Image")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("ImageContentType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Location")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -93,6 +85,42 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Activities");
+                });
+
+            modelBuilder.Entity("Activadis.Domain.Entities.ActivityPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ActivityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ImageContentType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ActivityId", "SortOrder");
+
+                    b.ToTable("ActivityPhotos");
                 });
 
             modelBuilder.Entity("Activadis.Domain.Entities.Category", b =>
@@ -407,6 +435,17 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.ToTable("ActivityCategories", (string)null);
                 });
 
+            modelBuilder.Entity("Activadis.Domain.Entities.ActivityPhoto", b =>
+                {
+                    b.HasOne("Activadis.Domain.Entities.Activity", "Activity")
+                        .WithMany("Photos")
+                        .HasForeignKey("ActivityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Activity");
+                });
+
             modelBuilder.Entity("Activadis.Domain.Entities.Leaderboard", b =>
                 {
                     b.HasOne("Activadis.Domain.Entities.Category", "Category")
@@ -508,6 +547,8 @@ namespace Activadis.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("Activadis.Domain.Entities.Activity", b =>
                 {
                     b.Navigation("Matches");
+
+                    b.Navigation("Photos");
 
                     b.Navigation("SignUps");
                 });

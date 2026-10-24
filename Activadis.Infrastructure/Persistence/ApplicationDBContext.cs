@@ -10,6 +10,7 @@ namespace Activadis.Infrastructure.Persistence
         public DbSet<User> Users => Set<User>();
         public DbSet<SignUp> SignUps => Set<SignUp>();
         public DbSet<Activity> Activities => Set<Activity>();
+        public DbSet<ActivityPhoto> ActivityPhotos => Set<ActivityPhoto>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Match> Matches => Set<Match>();
         public DbSet<MatchParticipant> MatchParticipants => Set<MatchParticipant>();
@@ -23,6 +24,7 @@ namespace Activadis.Infrastructure.Persistence
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<Activity>(options => options.Configure());
+            builder.Entity<ActivityPhoto>(options => options.Configure());
             builder.Entity<SignUp>(options => options.Configure());
             builder.Entity<User>(options => options.Configure());
             builder.Entity<Category>(options => options.Configure());

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Activadis.Application.DTOs.Activity
+﻿namespace Activadis.Application.DTOs.Activity
 {
     public class ActivityRequest
     {
@@ -9,7 +7,6 @@ namespace Activadis.Application.DTOs.Activity
         public decimal CostPerPerson { get; set; }
 
         public string Location { get; set; } = string.Empty;
-        public virtual IFormFile? Image { get; set; } = null;
 
         public int MinParticipants { get; set; }
         public int MaxParticipants { get; set; }

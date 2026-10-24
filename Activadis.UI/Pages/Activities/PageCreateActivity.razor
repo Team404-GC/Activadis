@@ -38,10 +38,25 @@ else if (context is not null)
                 <ValidationMessage For="@(() => request.Location)" />
             </section>
             <section>
-                <label>Foto</label>
-                <InputFile OnChange="OnFileChange" accept="image/png,image/jpeg,image/webp" />
-                <ValidationMessage For="@(() => request.Image)" />
+                <label>Foto's</label>
+                <InputFile OnChange="OnFilesChange" accept="image/png,image/jpeg,image/webp" multiple />
+                <InfoBubbleComponent Text="@($"Optioneel. Kies alle foto's in één keer, maximaal {ApplicationConfiguration.MaxPhotos}. De eerste foto komt op het kaartje.")" />
             </section>
+            @if (request.Photos.Count > 0)
+            {
+                <ol class="form-photos">
+                    @for (int index = 0; index < request.Photos.Count; index++)
+                    {
+                        int current = index;
+                        <li class="form-photo">
+                            <span>@request.Photos[current].Name</span>
+                            <button type="button" title="Omhoog" disabled="@(current == 0)" @onclick="() => MovePhoto(current, -1)"><i class="bi bi-arrow-up"></i></button>
+                            <button type="button" title="Omlaag" disabled="@(current == request.Photos.Count - 1)" @onclick="() => MovePhoto(current, 1)"><i class="bi bi-arrow-down"></i></button>
+                            <button type="button" title="Verwijderen" @onclick="() => RemovePhoto(current)"><i class="bi bi-x-lg"></i></button>
+                        </li>
+                    }
+                </ol>
+            }
             <br />
             <section>
                 <label>Minimaal aantal deelnemers</label>
@@ -156,15 +171,29 @@ else if (context is not null)
             request.CategoryIds.Remove(categoryId);
     }
 
-    public void OnFileChange(InputFileChangeEventArgs args)
+    public void OnFilesChange(InputFileChangeEventArgs args)
     {
-        request.Image = args.File;
-        if (context is null)
+        if (args.FileCount > ApplicationConfiguration.MaxPhotos)
+        {
+            Notifications.AddNotification($"Je kunt maximaal {ApplicationConfiguration.MaxPhotos} foto's kiezen.", true);
             return;
+        }
 
-        FieldIdentifier field = FieldIdentifier.Create(() => request.Image);
-        context.NotifyFieldChanged(field);
+        List<IBrowserFile> photos = args.GetMultipleFiles(ApplicationConfiguration.MaxPhotos).ToList();
+        if (photos.Sum(x => x.Size) > ApplicationConfiguration.AllowedSizeInMB)
+        {
+            Notifications.AddNotification($"De foto's zijn samen groter dan {ApplicationConfiguration.AllowedSizeInMB / 1024 / 1024} MB. Kies minder of kleinere foto's.", true);
+            return;
+        }
+
+        request.Photos = photos;
     }
+
+    public void MovePhoto(int index, int step)
+        => (request.Photos[index], request.Photos[index + step]) = (request.Photos[index + step], request.Photos[index]);
+
+    public void RemovePhoto(int index)
+        => request.Photos.RemoveAt(index);
 
     public void OnDateChange(ChangeEventArgs args, Expression<Func<CreateActivityRequest, DateTime>> selector)
     {

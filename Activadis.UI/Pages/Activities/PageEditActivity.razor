@@ -45,11 +45,6 @@ else if (context is not null)
                 <InputText @bind-Value="request.Location" />
                 <ValidationMessage For="@(() => request.Location)" />
             </section>
-            <section>
-                <label>Foto</label>
-                <InputFile OnChange="OnFileChange" accept="image/png,image/jpeg,image/webp" />
-                <ValidationMessage For="@(() => request.Image)" />
-            </section>
             <br />
             <section>
                 <label>Minimaal aantal deelnemers</label>
@@ -103,6 +98,38 @@ else if (context is not null)
                 <button type="submit" disabled="@isEditing">Bewerken</button>
             </section>
         </EditForm>
+
+        <div class="form-photo-manager">
+            <h4>
+                Foto's
+                <InfoBubbleComponent Text="@($"Wijzigingen aan foto's worden direct opgeslagen. De eerste foto staat op het kaartje. Maximaal {ApplicationConfiguration.MaxPhotos} foto's.")" />
+            </h4>
+            @if (photoIds.Count == 0)
+            {
+                <p>Deze activiteit heeft nog geen foto's.</p>
+            }
+            else
+            {
+                <ol class="form-photos">
+                    @for (int index = 0; index < photoIds.Count; index++)
+                    {
+                        int current = index;
+                        Guid photoId = photoIds[current];
+                        <li class="form-photo">
+                            <img class="form-photo-preview" src="@ActivityService.GetPhotoUrl(Id, photoId)" alt="Foto @(current + 1)" />
+                            <button type="button" title="Omhoog" disabled="@(current == 0 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, -1)"><i class="bi bi-arrow-up"></i></button>
+                            <button type="button" title="Omlaag" disabled="@(current == photoIds.Count - 1 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, 1)"><i class="bi bi-arrow-down"></i></button>
+                            <button type="button" title="Verwijderen" disabled="@isSavingPhotos" @onclick="() => RemovePhotoAsync(photoId)"><i class="bi bi-x-lg"></i></button>
+                        </li>
+                    }
+                </ol>
+            }
+            @if (photoIds.Count < ApplicationConfiguration.MaxPhotos)
+            {
+                <label>Foto's toevoegen</label>
+                <InputFile OnChange="OnPhotosChangeAsync" accept="image/png,image/jpeg,image/webp" multiple disabled="@isSavingPhotos" />
+            }
+        </div>
     </div>
 }
 
@@ -113,6 +140,8 @@ else if (context is not null)
     EditActivityRequest request = new EditActivityRequest();
     ActivityDetailResponse? activity = null;
     EditContext? context = null;
+    List<Guid> photoIds = [];
+    bool isSavingPhotos = false;
     bool isEditing = false;
     bool isLoading = true;
 
@@ -130,19 +159,10 @@ else if (context is not null)
         }
 
         activity = activityResponse.Value;
+        photoIds = activity.PhotoIds;
         request = activity.ToEditActivityRequest();
         context = new EditContext(request);
         isLoading = false;
-    }
-
-    public void OnFileChange(InputFileChangeEventArgs args)
-    {
-        request.Image = args.File;
-        if (context is null)
-            return;
-
-        FieldIdentifier field = FieldIdentifier.Create(() => request.Image);
-        context.NotifyFieldChanged(field);
     }
 
     public void OnDateChange(ChangeEventArgs args, Expression<Func<EditActivityRequest, DateTime>> selector)
@@ -168,9 +188,6 @@ else if (context is not null)
 
         foreach (PropertyInfo property in typeof(EditActivityRequest).GetProperties())
         {
-            if (property.Name == nameof(EditActivityRequest.Image))
-                continue;
-
             object? value = property.GetValue(request);
             if (property.PropertyType == typeof(decimal?))
                 property.SetValue(request, value ?? 0.0m);
@@ -190,5 +207,84 @@ else if (context is not null)
         Notifications.AddNotification("De activiteit is met succes bijgewerkt.", false);
         NavigationManager.NavigateTo($"/activiteit/{Id}");
         isEditing = false;
+    }
+
+    public async Task OnPhotosChangeAsync(InputFileChangeEventArgs args)
+    {
+        int maxPhotos = ApplicationConfiguration.MaxPhotos - photoIds.Count;
+        if (args.FileCount > maxPhotos)
+        {
+            Notifications.AddNotification($"Je kunt nog maximaal {maxPhotos} foto's toevoegen.", true);
+            return;
+        }
+
+        List<IBrowserFile> photos = args.GetMultipleFiles(maxPhotos).ToList();
+        if (photos.Sum(x => x.Size) > ApplicationConfiguration.AllowedSizeInMB)
+        {
+            Notifications.AddNotification($"De foto's zijn samen groter dan {ApplicationConfiguration.AllowedSizeInMB / 1024 / 1024} MB. Kies minder of kleinere foto's.", true);
+            return;
+        }
+
+        isSavingPhotos = true;
+
+        ApiResponse<object> response = await ActivityService.AddPhotosAsync(Id, new AddActivityPhotosRequest() { Photos = photos });
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSavingPhotos = false;
+            return;
+        }
+
+        await ReloadPhotosAsync();
+        Notifications.AddNotification("De foto's zijn met succes toegevoegd.", false);
+        isSavingPhotos = false;
+    }
+
+    public async Task MovePhotoAsync(int index, int step)
+    {
+        List<Guid> order = photoIds.ToList();
+        (order[index], order[index + step]) = (order[index + step], order[index]);
+
+        isSavingPhotos = true;
+
+        ApiResponse<object> response = await ActivityService.UpdatePhotoOrderAsync(Id, new UpdateActivityPhotoOrderRequest() { PhotoIds = order });
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSavingPhotos = false;
+            return;
+        }
+
+        photoIds = order;
+        isSavingPhotos = false;
+    }
+
+    public async Task RemovePhotoAsync(Guid photoId)
+    {
+        isSavingPhotos = true;
+
+        ApiResponse<object> response = await ActivityService.DeletePhotoAsync(Id, photoId);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isSavingPhotos = false;
+            return;
+        }
+
+        photoIds.Remove(photoId);
+        Notifications.AddNotification("De foto is met succes verwijderd.", false);
+        isSavingPhotos = false;
+    }
+
+    private async Task ReloadPhotosAsync()
+    {
+        ApiResponse<ActivityDetailResponse> response = await ActivityService.GetDetailAsync(Id);
+        if (!response.Succeeded || response.Value is null)
+        {
+            Notifications.AddNotification(response.Message, true);
+            return;
+        }
+
+        photoIds = response.Value.PhotoIds;
     }
 }

@@ -88,6 +88,74 @@ namespace Activadis.API.Controllers
 			}
 		}
 
+		[HttpGet("{id:guid}/Photos/{photoId:guid}")]
+		[ResponseCache(Duration = 3600)]
+		public async Task<IActionResult> GetPhotoByIdAsync(Guid id, Guid photoId)
+		{
+			try
+			{
+				ActivityPhotoResponse photo = await ActivityService.GetPhotoByIdAsync(id, photoId);
+				return File(photo.Image, photo.ImageContentType);
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
+		[HttpPost("{id:guid}/Photos")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> AddPhotosAsync(Guid id, [FromForm] AddActivityPhotosRequest request)
+		{
+			try
+			{
+				await ActivityService.AddPhotosAsync(id, request);
+				return Ok(ApiResponse<object>.Ok());
+			}
+			catch (ArgumentException exception)
+			{
+				return BadRequest(ApiResponse<object>.Fail(exception.Message));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
+		[HttpPut("{id:guid}/Photos/Order")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> UpdatePhotoOrderAsync(Guid id, [FromBody] UpdateActivityPhotoOrderRequest request)
+		{
+			try
+			{
+				await ActivityService.UpdatePhotoOrderAsync(id, request);
+				return Ok(ApiResponse<object>.Ok());
+			}
+			catch (ArgumentException exception)
+			{
+				return BadRequest(ApiResponse<object>.Fail(exception.Message));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
+		[HttpDelete("{id:guid}/Photos/{photoId:guid}")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> DeletePhotoAsync(Guid id, Guid photoId)
+		{
+			try
+			{
+				await ActivityService.DeletePhotoAsync(id, photoId);
+				return Ok(ApiResponse<object>.Ok());
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<object>.Fail(exception.Message));
+			}
+		}
+
 		[HttpPost]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> CreateAsync([FromForm] CreateActivityRequest request)
@@ -105,7 +173,7 @@ namespace Activadis.API.Controllers
 
 		[HttpPut]
 		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> EditAsync([FromForm] EditActivityRequest request)
+		public async Task<IActionResult> EditAsync([FromBody] EditActivityRequest request)
 		{
 			try
 			{
