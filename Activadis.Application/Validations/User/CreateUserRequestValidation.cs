@@ -18,8 +18,8 @@ namespace Activadis.Application.Validations.User
             if (!new EmailAddressAttribute().IsValid(request.Email))
                 throw new ArgumentException("De e-mail is ongeldig.");
 
-            if (string.IsNullOrWhiteSpace(request.JobTitle))
-                throw new ArgumentException("De functie moet ingevuld worden.");
+            if (!JobTitles.IsValid(request.JobTitle))
+                throw new ArgumentException("Kies een functie uit de lijst.");
 
             if (!Enum.TryParse(request.Role, out UserRole role) || !Enum.IsDefined(role))
                 throw new ArgumentException("De rol is ongeldig.");

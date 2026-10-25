@@ -25,7 +25,13 @@
 
         <div class="cu-field">
             <label for="jobTitle">Functie</label>
-            <InputText id="jobTitle" class="form-control" @bind-Value="request.JobTitle" />
+            <InputSelect id="jobTitle" class="form-control" @bind-Value="request.JobTitle">
+                <option value="">Kies een functie</option>
+                @foreach (string jobTitle in JobTitles.All)
+                {
+                    <option value="@jobTitle">@jobTitle</option>
+                }
+            </InputSelect>
             <ValidationMessage For="@(() => request.JobTitle)" />
         </div>
 
