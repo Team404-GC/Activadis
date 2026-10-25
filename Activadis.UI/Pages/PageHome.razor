@@ -39,7 +39,7 @@
 
         if (state.User.Identity?.IsAuthenticated == true)
         {
-            Navigation.NavigateTo("/activiteiten");
+            Navigation.NavigateTo("/activiteiten", replace: true);
             return;
         }
 
