@@ -78,6 +78,9 @@ namespace Activadis.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("PublishedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Requirements")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("SignOutDeadline")
                         .HasColumnType("datetime2");
 

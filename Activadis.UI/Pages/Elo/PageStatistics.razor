@@ -270,7 +270,7 @@ else
                         @foreach (RecentMatchDto match in recentMatches)
                         {
                             <tr>
-                                <td class="st-nowrap">@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</td>
+                                <td class="st-nowrap">@match.MatchDate.ToDisplayDateTime()</td>
                                 <td class="st-hide-small">@match.CategoryName</td>
                                 <td>@ToResult(match)</td>
                                 <td class="st-hide-small st-muted">@match.Notes</td>
@@ -414,7 +414,7 @@ else
 
         List<RatingChangeItem> changes = recentMatches
             .SelectMany(m => m.Participants.Select(p => new RatingChangeItem(
-                $"{p.FullName} ({m.MatchDate.ToLocalTime():dd-MM})",
+                $"{p.FullName} ({m.MatchDate.ToDisplayDate()})",
                 p.RatingChange)))
             .ToList();
 
@@ -453,5 +453,5 @@ else
         };
 
     private static string ToMonthLabel(int year, int month)
-        => new DateTime(year, month, 1).ToString("MMM yyyy", new CultureInfo("nl-NL"));
+        => new DateTime(year, month, 1).ToString("MMMM yyyy", new CultureInfo("nl-NL"));
 }
