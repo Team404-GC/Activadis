@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Components.Forms;
+using Activadis.UI.Application.DTOs;
 using Activadis.UI.Application.Interfaces;
 using System.Linq.Expressions;
+using System.Net;
 using System.Net.Http.Headers;
 using Activadis.Shared.DTOs;
 using System.Net.Http.Json;
@@ -28,8 +30,7 @@ namespace Activadis.UI.Application.Services
             try
             {
                 using HttpResponseMessage response = await HttpClient.GetAsync(url);
-                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
-                return result ?? throw new ArgumentException();
+                return await ReadAsync<TResponse>(response);
             }
             catch
             {
@@ -46,8 +47,7 @@ namespace Activadis.UI.Application.Services
                 };
 
                 using HttpResponseMessage response = await HttpClient.SendAsync(message);
-                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
-                return result ?? throw new ArgumentException();
+                return await ReadAsync<TResponse>(response);
             }
             catch
             {
@@ -60,8 +60,7 @@ namespace Activadis.UI.Application.Services
             try
             {
                 using HttpResponseMessage response = await HttpClient.PostAsJsonAsync(url, request);
-                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
-                return result ?? throw new ArgumentException();
+                return await ReadAsync<TResponse>(response);
             }
             catch
             {
@@ -75,12 +74,11 @@ namespace Activadis.UI.Application.Services
             {
                 using MultipartFormDataContent content = BuildContent<TResponse, TRequest>(request, property);
                 using HttpResponseMessage response = await HttpClient.PostAsync(url, content);
-                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
-                return result ?? throw new InvalidOperationException();
+                return await ReadAsync<TResponse>(response);
             }
             catch (ArgumentException exception)
             {
-                return ApiResponse<TResponse>.Fail(exception.Message);
+                return InputError<TResponse>(exception.Message);
             }
             catch
             {
@@ -93,14 +91,13 @@ namespace Activadis.UI.Application.Services
             try
             {
                 using HttpResponseMessage response = await HttpClient.PutAsJsonAsync(url, request);
-                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
-                return result ?? throw new ArgumentException();
-        }
+                return await ReadAsync<TResponse>(response);
+            }
             catch
             {
                 return Error<TResponse>();
             }
-}
+        }
 
         public async Task<ApiResponse<TResponse>> PutIncludeFileAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, IBrowserFile?>> property)
         {
@@ -108,12 +105,11 @@ namespace Activadis.UI.Application.Services
             {
                 using MultipartFormDataContent content = BuildContent<TResponse, TRequest>(request, property);
                 using HttpResponseMessage response = await HttpClient.PutAsync(url, content);
-                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
-                return result ?? throw new InvalidOperationException();
+                return await ReadAsync<TResponse>(response);
             }
             catch (ArgumentException exception)
             {
-                return ApiResponse<TResponse>.Fail(exception.Message);
+                return InputError<TResponse>(exception.Message);
             }
             catch
             {
@@ -126,8 +122,7 @@ namespace Activadis.UI.Application.Services
             try
             {
                 using HttpResponseMessage response = await HttpClient.DeleteAsync(url);
-                ApiResponse<TResponse>? result = await response.Content.ReadFromJsonAsync<ApiResponse<TResponse>>(JsonOptions);
-                return result ?? throw new ArgumentException();
+                return await ReadAsync<TResponse>(response);
             }
             catch
             {
@@ -135,8 +130,27 @@ namespace Activadis.UI.Application.Services
             }
         }
 
+        private async Task<ApiResponse<TResponse>> ReadAsync<TResponse>(HttpResponseMessage response)
+        {
+            HttpApiResponse<TResponse> result = await response.Content.ReadFromJsonAsync<HttpApiResponse<TResponse>>(JsonOptions)
+                ?? throw new InvalidOperationException();
+
+            result.StatusCode = (int)response.StatusCode;
+            return result;
+        }
+
         private static ApiResponse<TResponse> Error<TResponse>()
             => ApiResponse<TResponse>.Fail("Er is een onverwachte fout opgetreden.");
+
+        private static ApiResponse<TResponse> InputError<TResponse>(string message)
+        {
+            return new HttpApiResponse<TResponse>()
+            {
+                Succeeded = false,
+                Message = message,
+                StatusCode = (int)HttpStatusCode.BadRequest
+            };
+        }
 
         private static MultipartFormDataContent BuildContent<TResponse, TRequest>(TRequest request, Expression<Func<TRequest, IBrowserFile?>> property)
         {
@@ -187,5 +201,10 @@ namespace Activadis.UI.Application.Services
 
             return content;
         }
+    }
+
+    public class HttpApiResponse<T> : ApiResponse<T>
+    {
+        public int StatusCode { get; set; }
     }
 }

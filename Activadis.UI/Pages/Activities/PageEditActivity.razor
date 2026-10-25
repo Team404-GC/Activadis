@@ -107,6 +107,10 @@ else if (context is not null)
                 <ValidationMessage For="@(() => request.IsDraft)" />
                 <button type="submit" disabled="@isEditing">Bewerken</button>
             </section>
+            @if (form?.FormError is not null)
+            {
+                <p class="validation-message">@form?.FormError</p>
+            }
         </EditForm>
     </div>
 }
@@ -118,6 +122,7 @@ else if (context is not null)
     EditActivityRequest request = new EditActivityRequest();
     ActivityDetailResponse? activity = null;
     EditContext? context = null;
+    ComponentRequest<EditActivityRequest>? form = null;
     ValidationMessageStore? dateMessages = null;
     Dictionary<string, string> typedDates = [];
     bool isEditing = false;
@@ -130,7 +135,7 @@ else if (context is not null)
         ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(Id);
         if (!activityResponse.Succeeded || activityResponse.Value is null)
         {
-            Notifications.AddNotification(activityResponse.Message, false);
+            Notifications.AddNotification(activityResponse.Message, true);
             NavigationManager.NavigateTo($"/activiteit/{Id}");
             isLoading = false;
             return;
@@ -138,7 +143,8 @@ else if (context is not null)
 
         activity = activityResponse.Value;
         request = activity.ToEditActivityRequest();
-        context = new EditContext(request);
+        form = new ComponentRequest<EditActivityRequest>(request);
+        context = form.Context;
         dateMessages = new ValidationMessageStore(context);
         isLoading = false;
     }
@@ -176,6 +182,7 @@ else if (context is not null)
                 dateMessages.Add(field, "Deze datum kan niet gelezen worden. Typ bijvoorbeeld 12-10-2026 19:30.");
         }
 
+        context.NotifyFieldChanged(field);
         context.NotifyValidationStateChanged();
     }
 
@@ -208,7 +215,7 @@ else if (context is not null)
         ApiResponse<object> response = await ActivityService.EditAsync(request);
         if (!response.Succeeded)
         {
-            Notifications.AddNotification(response.Message, true);
+            form?.ShowErrors(response);
             isEditing = false;
             return;
         }
