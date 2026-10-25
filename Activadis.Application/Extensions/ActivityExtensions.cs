@@ -12,6 +12,7 @@ namespace Activadis.Application.Extensions
             {
                 Name = request.Name,
                 Description = request.Description,
+                Requirements = string.IsNullOrWhiteSpace(request.Requirements) ? null : request.Requirements.Trim(),
                 CostPerPerson = request.CostPerPerson,
 
                 Location = request.Location,
@@ -81,6 +82,7 @@ namespace Activadis.Application.Extensions
                 Id = activity.Id,
                 Name = activity.Name,
                 Description = activity.Description,
+                Requirements = activity.Requirements,
                 CostPerPerson = activity.CostPerPerson,
 
                 Location = activity.Location,

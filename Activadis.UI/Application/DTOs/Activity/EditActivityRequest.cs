@@ -9,6 +9,7 @@ namespace Activadis.UI.Application.DTOs.Activity
         public string Name { get; set; } = string.Empty;
         [Required(ErrorMessage = "De beschrijving moet ingevuld worden.")]
         public string Description { get; set; } = string.Empty;
+        public string? Requirements { get; set; }
         public decimal? CostPerPerson { get; set; }
 
         [Required(ErrorMessage = "De locatie moet ingevuld worden.")]

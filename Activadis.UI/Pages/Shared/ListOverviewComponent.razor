@@ -70,9 +70,7 @@ else
     public string EmptyMessage { get; set; } = "Er zijn op dit moment geen activiteiten.";
 
     private static string FormatPeriod(ActivityOverviewResponse activity)
-        => activity.StartDate.Date == activity.EndDate.Date
-            ? $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():HH:mm}"
-            : $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():dd-MM-yyyy HH:mm}";
+        => DateExtensions.ToDisplayPeriod(activity.StartDate, activity.EndDate);
 
     private static string GetClasses(ActivityOverviewResponse activity)
     {
