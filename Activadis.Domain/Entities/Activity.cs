@@ -7,6 +7,7 @@ namespace Activadis.Domain.Entities
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string? Requirements { get; set; }
         public decimal CostPerPerson { get; set; }
 
         public string Location { get; set; } = string.Empty;

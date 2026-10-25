@@ -35,6 +35,11 @@ else if (context is not null)
                 <ValidationMessage For="@(() => request.Description)" />
             </section>
             <section>
+                <label>Benodigdheden (optioneel)</label>
+                <InputTextArea @bind-Value="request.Requirements" />
+                <ValidationMessage For="@(() => request.Requirements)" />
+            </section>
+            <section>
                 <label>Kosten per persoon</label>
                 <InputNumber step="0.01" @bind-Value="request.CostPerPerson" />
                 <ValidationMessage For="@(() => request.CostPerPerson)" />
@@ -73,23 +78,23 @@ else if (context is not null)
             <br />
             <section>
                 <label>Startdatum</label>
-                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
+                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
                 <ValidationMessage For="@(() => request.StartDate)" />
             </section>
             <section>
                 <label>Einddatum</label>
-                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
+                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
                 <ValidationMessage For="@(() => request.EndDate)" />
             </section>
             <br />
             <section>
                 <label>Inschrijfdeadline</label>
-                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
+                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
                 <ValidationMessage For="@(() => request.SignUpDeadline)" />
             </section>
             <section>
                 <label>Uitschrijfdeadline</label>
-                <input type="datetime-local" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
+                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
                 <ValidationMessage For="@(() => request.SignOutDeadline)" />
             </section>
             <br />
@@ -118,6 +123,8 @@ else if (context is not null)
     ActivityDetailResponse? activity = null;
     EditContext? context = null;
     ComponentRequest<EditActivityRequest>? form = null;
+    ValidationMessageStore? dateMessages = null;
+    Dictionary<string, string> typedDates = [];
     bool isEditing = false;
     bool isLoading = true;
 
@@ -138,6 +145,7 @@ else if (context is not null)
         request = activity.ToEditActivityRequest();
         form = new ComponentRequest<EditActivityRequest>(request);
         context = form.Context;
+        dateMessages = new ValidationMessageStore(context);
         isLoading = false;
     }
 
@@ -153,20 +161,38 @@ else if (context is not null)
 
     public void OnDateChange(ChangeEventArgs args, Expression<Func<EditActivityRequest, DateTime>> selector)
     {
-        if (selector.Body is not MemberExpression expression || expression.Member is not PropertyInfo property)
+        if (selector.Body is not MemberExpression expression || expression.Member is not PropertyInfo property || context is null || dateMessages is null)
             return;
 
-        if (args.Value is not string dateString || !DateTimeOffset.TryParse(dateString, out DateTimeOffset date))
-            date = DateTimeOffset.MinValue;
+        string text = args.Value?.ToString() ?? string.Empty;
+        FieldIdentifier field = new FieldIdentifier(request, property.Name);
+        dateMessages.Clear(field);
 
-        property.SetValue(request, date.UtcDateTime);
-        context?.NotifyFieldChanged(new FieldIdentifier(request, property.Name));
+        if (DateExtensions.TryParseInput(text, out DateTime date))
+        {
+            typedDates.Remove(property.Name);
+            property.SetValue(request, DateTime.SpecifyKind(date, DateTimeKind.Local).ToUniversalTime());
+        }
+        else
+        {
+            typedDates[property.Name] = text;
+            property.SetValue(request, DateTime.MinValue);
+
+            if (!string.IsNullOrWhiteSpace(text))
+                dateMessages.Add(field, "Deze datum kan niet gelezen worden. Typ bijvoorbeeld 12-10-2026 19:30.");
+        }
+
+        context.NotifyFieldChanged(field);
+        context.NotifyValidationStateChanged();
     }
 
     public string GetDateValue(Expression<Func<EditActivityRequest, DateTime>> selector)
     {
+        if (selector.Body is MemberExpression expression && typedDates.TryGetValue(expression.Member.Name, out string? text))
+            return text;
+
         DateTime date = selector.Compile()(request);
-        return date.ToLocalTime().ToString("yyyy-MM-ddTHH:mm");
+        return date == DateTime.MinValue ? string.Empty : date.ToDisplayDateTime();
     }
 
     public async Task EditAsync()

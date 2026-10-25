@@ -69,6 +69,14 @@ else
                 <p class="ad-description">@activity.Description</p>
             </section>
 
+            @if (!string.IsNullOrWhiteSpace(activity.Requirements))
+            {
+                <section class="ad-section">
+                    <h2>Benodigdheden</h2>
+                    <p class="ad-description">@activity.Requirements</p>
+                </section>
+            }
+
             <section class="ad-section">
                 <h2>Voorwaarden</h2>
 
@@ -86,10 +94,10 @@ else
                     <dd>@ToAnswer(activity.PlusOneAllowed)</dd>
 
                     <dt>Inschrijven kan tot</dt>
-                    <dd>@activity.SignUpDeadline.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</dd>
+                    <dd>@activity.SignUpDeadline.ToDisplayDateTime()</dd>
 
                     <dt>Uitschrijven kan tot</dt>
-                    <dd>@activity.SignOutDeadline.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</dd>
+                    <dd>@activity.SignOutDeadline.ToDisplayDateTime()</dd>
                 </dl>
             </section>
 
@@ -180,7 +188,7 @@ else
                             {
                                 <div class="ad-match">
                                     <div class="ad-match-header">
-                                        <span class="ad-match-date">@match.MatchDate.ToLocalTime().ToString("dd-MM-yyyy HH:mm")</span>
+                                        <span class="ad-match-date">@match.MatchDate.ToDisplayDateTime()</span>
                                         <NavLink class="ad-match-category" href="@($"/ranglijst?categorie={match.CategoryId}")">@match.CategoryName</NavLink>
                                     </div>
                                     <ol class="ad-match-results">
@@ -572,9 +580,7 @@ else
         => $"data:{activity.ImageContentType};base64,{Convert.ToBase64String(activity.Image)}";
 
     private static string ToPeriod(ActivityDetailResponse activity)
-        => activity.StartDate.Date == activity.EndDate.Date
-            ? $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():HH:mm}"
-            : $"{activity.StartDate.ToLocalTime():dd-MM-yyyy HH:mm} - {activity.EndDate.ToLocalTime():dd-MM-yyyy HH:mm}";
+        => DateExtensions.ToDisplayPeriod(activity.StartDate, activity.EndDate);
 
     private static string ToCost(decimal cost)
         => cost <= 0
@@ -593,7 +599,7 @@ else
         => change > 0 ? "ad-positive" : change < 0 ? "ad-negative" : string.Empty;
 
     private static string ToMatchDescription(RecentMatchDto match)
-        => $"{match.MatchDate.ToLocalTime():dd-MM-yyyy HH:mm} - {match.CategoryName} - {string.Join(", ", match.Participants.Select(x => $"{x.Placement}. {x.FullName}"))}";
+        => $"{match.MatchDate.ToDisplayDateTime()} - {match.CategoryName} - {string.Join(", ", match.Participants.Select(x => $"{x.Placement}. {x.FullName}"))}";
 
     private static string ToSignUpState(ActivityDetailResponse activity)
     {

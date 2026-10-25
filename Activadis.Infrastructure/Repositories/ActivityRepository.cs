@@ -18,10 +18,15 @@ namespace Activadis.Infrastructure.Repositories
 		}
 
 		public async Task<IEnumerable<Activity>> GetListAsync(bool isAdmin, ActivityFilter filter)
-			=> await Context.Activities
-				.ApplyFilter(isAdmin, filter)
-				.OrderBy(x => x.StartDate)
-				.ToListAsync();
+		{
+			IQueryable<Activity> activities = Context.Activities.ApplyFilter(isAdmin, filter);
+
+			activities = filter.SortDescending
+				? activities.OrderByDescending(x => x.StartDate)
+				: activities.OrderBy(x => x.StartDate);
+
+			return await activities.ToListAsync();
+		}
 
 		public async Task<Activity?> GetDetailAsync(Guid id)
 			=> await Context.Activities
