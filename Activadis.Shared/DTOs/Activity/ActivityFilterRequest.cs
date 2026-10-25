@@ -11,5 +11,9 @@ namespace Activadis.Shared.DTOs.Activity
 		public DateTime? To { get; set; }
 		public bool IncludePast { get; set; }
 		public bool ExcludeInternal { get; set; } = false;
+
+		public TimeOnly? Time { get; set; }
+		public int UtcOffsetMinutes { get; set; }
+		public bool SortDescending { get; set; }
 	}
 }
