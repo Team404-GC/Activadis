@@ -156,7 +156,7 @@ namespace Activadis.Application.Services
 
         public async Task DeletePhotoAsync(Guid id, Guid photoId)
         {
-            Activity activity = await ActivityRepository.GetByIdAsync(id)
+            Activity activity = await ActivityRepository.GetByIdentifierAsync(identifier)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
             ActivityPhoto photo = await ActivityPhotoRepository.GetByIdAndActivityIdAsync(photoId, id)
