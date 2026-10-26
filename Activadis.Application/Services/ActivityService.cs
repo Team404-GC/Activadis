@@ -12,14 +12,16 @@ namespace Activadis.Application.Services
 {
     public class ActivityService : IActivityService
     {
+        private readonly IActivityPhotoRepository ActivityPhotoRepository;
         private readonly IActivityRepository ActivityRepository;
         private readonly ISignUpRepository SignUpRepository;
         private readonly ICategoryRepository CategoryRepository;
         private readonly IMatchRepository MatchRepository;
 
-        public ActivityService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, ICategoryRepository categoryRepository, IMatchRepository matchRepository)
+        public ActivityService(IActivityRepository activityRepository, IActivityPhotoRepository activityPhotoRepository, ISignUpRepository signUpRepository, ICategoryRepository categoryRepository, IMatchRepository matchRepository)
         {
             ActivityRepository = activityRepository;
+            ActivityPhotoRepository = activityPhotoRepository;
             SignUpRepository = signUpRepository;
             CategoryRepository = categoryRepository;
             MatchRepository = matchRepository;
@@ -28,14 +30,14 @@ namespace Activadis.Application.Services
         public async Task CreateAsync(CreateActivityRequest request)
         {
             request.Validate();
+            request.Photos.ValidatePhotos(0);
 
             IEnumerable<Category> categories = await CategoryRepository.GetByIdsAsync(request.CategoryIds);
             request.CategoryIds.ValidateCategories(categories, []);
 
-            using MemoryStream image = new MemoryStream();
-            await request.Image!.CopyToAsync(image);
+            List<ActivityPhoto> photos = await request.Photos.ToActivityPhotosAsync(0);
 
-            Activity activity = request.ToActivity(image.ToArray(), categories);
+            Activity activity = request.ToActivity(photos, categories);
             activity = await ActivityRepository.AddAsync(activity);
         }
 
@@ -45,15 +47,6 @@ namespace Activadis.Application.Services
 
             Activity activity = await ActivityRepository.GetDetailAsync(request.ActivityId)
                 ?? throw new ArgumentException("De activiteit is niet gevonden.");
-
-            if (request.Image is not null)
-            {
-                using MemoryStream image = new MemoryStream();
-                await request.Image.CopyToAsync(image);
-
-                activity.Image = image.ToArray();
-                activity.ImageContentType = request.Image!.ContentType;
-            }
 
             activity.Name = request.Name;
             activity.Description = request.Description;
@@ -82,45 +75,96 @@ namespace Activadis.Application.Services
             await ActivityRepository.UpdateAsync(activity);
         }
 
-		public async Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role, ActivityFilterRequest request)
-		{
-			bool isAdmin = role == UserRole.Admin;
+        public async Task<IEnumerable<ActivityOverviewResponse>> GetActivitiesAsync(Guid userId, UserRole role, ActivityFilterRequest request)
+        {
+            bool isAdmin = role == UserRole.Admin;
 
-			IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin, request.ToFilter(isAdmin));
+            IEnumerable<Activity> activities = await ActivityRepository.GetListAsync(isAdmin, request.ToFilter(isAdmin));
 
-			Dictionary<Guid, bool> activitiesSignedIn = activities.ToDictionary(x => x.Id, x => false);
-			foreach (Activity activity in activities)
-			{
-				bool hasSignedIn = await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
-				activitiesSignedIn[activity.Id] = hasSignedIn;
-			}
+            Dictionary<Guid, bool> activitiesSignedIn = activities.ToDictionary(x => x.Id, x => false);
+            foreach (Activity activity in activities)
+            {
+                bool hasSignedIn = await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
+                activitiesSignedIn[activity.Id] = hasSignedIn;
+            }
 
-			return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
-		}
-		public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId, bool isAdmin)
+            IEnumerable<Guid> activityIdsWithPhotos = await ActivityPhotoRepository.GetActivityIdsWithPhotosAsync(activities.Select(x => x.Id));
+            return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id], activityIdsWithPhotos.Contains(activity.Id)));
+        }
+
+        public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId, bool isAdmin)
         {
             Activity activity = await ActivityRepository.GetDetailAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
-			if (activity.PublishedOn is null && !isAdmin)
-				throw new KeyNotFoundException("De activiteit is niet gevonden.");
+            if (activity.PublishedOn is null && !isAdmin)
+                throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
-			if (userId == Guid.Empty && !activity.ExternalAllowed)
+            if (userId == Guid.Empty && !activity.ExternalAllowed)
                 throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
 
             bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);
-            return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty);
+            IEnumerable<Guid> photoIds = await ActivityPhotoRepository.GetIdsByActivityIdAsync(id);
+            return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty, photoIds);
         }
 
         public async Task<ActivityPhotoResponse> GetPhotoAsync(Guid id)
         {
+            ActivityPhoto photo = await ActivityPhotoRepository.GetFirstByActivityIdAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit heeft geen foto.");
+
+            return photo.ToPhotoResponse();
+        }
+
+        public async Task<ActivityPhotoResponse> GetPhotoByIdAsync(Guid id, Guid photoId)
+        {
+            ActivityPhoto photo = await ActivityPhotoRepository.GetByIdAndActivityIdAsync(photoId, id)
+                ?? throw new KeyNotFoundException("De foto is niet gevonden.");
+
+            return photo.ToPhotoResponse();
+        }
+
+        public async Task AddPhotosAsync(Guid id, AddActivityPhotosRequest request)
+        {
             Activity activity = await ActivityRepository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
-            if (activity.Image.Length <= 0)
-                throw new KeyNotFoundException("De activiteit heeft geen foto.");
+            int photoCount = await ActivityPhotoRepository.CountByActivityIdAsync(id);
+            request.Photos.ValidatePhotos(photoCount);
 
-            return activity.ToPhotoResponse();
+            List<ActivityPhoto> photos = await request.Photos.ToActivityPhotosAsync(photoCount);
+            foreach (ActivityPhoto photo in photos)
+            {
+                photo.ActivityId = id;
+                await ActivityPhotoRepository.AddAsync(photo);
+            }
+
+            await ActivityRepository.UpdateAsync(activity);
+        }
+
+        public async Task UpdatePhotoOrderAsync(Guid id, UpdateActivityPhotoOrderRequest request)
+        {
+            Activity activity = await ActivityRepository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            IEnumerable<Guid> photoIds = await ActivityPhotoRepository.GetIdsByActivityIdAsync(id);
+            request.PhotoIds.ValidatePhotoOrder(photoIds);
+
+            await SavePhotoOrderAsync(request.PhotoIds);
+            await ActivityRepository.UpdateAsync(activity);
+        }
+
+        public async Task DeletePhotoAsync(Guid id, Guid photoId)
+        {
+            Activity activity = await ActivityRepository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            ActivityPhoto photo = await ActivityPhotoRepository.GetByIdAndActivityIdAsync(photoId, id)
+                ?? throw new KeyNotFoundException("De foto is niet gevonden.");
+
+            await ActivityPhotoRepository.DeleteAsync(photo);
+            await SavePhotoOrderAsync(await ActivityPhotoRepository.GetIdsByActivityIdAsync(id));
+            await ActivityRepository.UpdateAsync(activity);
         }
 
         public async Task<IEnumerable<ActivityOverviewResponse>> GetSignedUpAsync(Guid userId)
@@ -134,7 +178,8 @@ namespace Activadis.Application.Services
                 activitiesSignedIn[activity.Id] = hasSignedIn;
             }
 
-            return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id]));
+            IEnumerable<Guid> activityIdsWithPhotos = await ActivityPhotoRepository.GetActivityIdsWithPhotosAsync(activities.Select(x => x.Id));
+            return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id], activityIdsWithPhotos.Contains(activity.Id)));
         }
 
         public async Task UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request)
@@ -196,6 +241,13 @@ namespace Activadis.Application.Services
 
             match.ActivityId = null;
             await MatchRepository.UpdateAsync(match);
+        }
+
+        private async Task SavePhotoOrderAsync(IEnumerable<Guid> photoIds)
+        {
+            int sortOrder = 0;
+            foreach (Guid photoId in photoIds)
+                await ActivityPhotoRepository.UpdateSortOrderAsync(photoId, sortOrder++);
         }
     }
 }

@@ -14,8 +14,7 @@ namespace Activadis.UI.Application.DTOs.Activity
 
         [Required(ErrorMessage = "De locatie moet ingevuld worden.")]
         public string Location { get; set; } = string.Empty;
-        [Required(ErrorMessage = "Een foto moet geüpload worden.")]
-        public IBrowserFile? Image { get; set; }
+        public List<IBrowserFile> Photos { get; set; } = [];
 
         public int? MinParticipants { get; set; }
         public int? MaxParticipants { get; set; }

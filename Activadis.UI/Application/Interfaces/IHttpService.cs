@@ -7,11 +7,11 @@ namespace Activadis.UI.Application.Interfaces
     public interface IHttpService
     {
         Task<ApiResponse<TResponse>> GetAsync<TResponse>(string url);
-		Task<ApiResponse<TResponse>> QueryAsync<TResponse, TRequest>(string url, TRequest request);
-		Task<ApiResponse<TResponse>> PostAsync<TResponse, TRequest>(string url, TRequest request);
-        Task<ApiResponse<TResponse>> PostIncludeFileAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, IBrowserFile?>> property);
+        Task<ApiResponse<TResponse>> QueryAsync<TResponse, TRequest>(string url, TRequest request);
+        Task<ApiResponse<TResponse>> PostAsync<TResponse, TRequest>(string url, TRequest request);
+        Task<ApiResponse<TResponse>> PostIncludeFilesAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, List<IBrowserFile>>> property);
         Task<ApiResponse<TResponse>> PutAsync<TResponse, TRequest>(string url, TRequest request);
-        Task<ApiResponse<TResponse>> PutIncludeFileAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, IBrowserFile?>> property);
+        Task<ApiResponse<TResponse>> PutIncludeFilesAsync<TResponse, TRequest>(string url, TRequest request, Expression<Func<TRequest, List<IBrowserFile>>> property);
         Task<ApiResponse<TResponse>> DeleteAsync<TResponse>(string url);
     }
 }

@@ -239,13 +239,18 @@ else
             }
         </div>
 
-        @if (activity.Image is { Length: > 0 })
+        @if (activity.PhotoIds.Count > 0)
         {
             <aside class="ad-aside">
-                <img class="ad-image" src="@ToImageSource(activity)" alt="@activity.Name" />
+                <img class="ad-image" src="@ActivityService.GetPhotoUrl(activity.Id, activity.PhotoIds[0])" alt="@activity.Name" />
             </aside>
         }
     </div>
+
+    <section class="ad-section">
+        <h2>Foto's</h2>
+        <PhotoCarouselComponent ActivityId="activity.Id" PhotoIds="activity.PhotoIds" Name="@activity.Name" />
+    </section>
 
     <SignUpComponent PlusOneAllowed="activity.PlusOneAllowed"  @bind-Request="signUpRequest" OnSubmit="@(() => SubmitComponentAsync(signUpRequest, SignUpAsync))" />
     <EditSignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-Request="editSignUpRequest" OnSubmit="@(() => SubmitComponentAsync(editSignUpRequest, EditSignUpAsync))" />
@@ -575,9 +580,6 @@ else
         signOutRequest.Request = new SignOutRequest() { ActivityId = activity.Id };
         signOutRequest.IsLoading = false;
     }
-
-    private static string ToImageSource(ActivityDetailResponse activity)
-        => $"data:{activity.ImageContentType};base64,{Convert.ToBase64String(activity.Image)}";
 
     private static string ToPeriod(ActivityDetailResponse activity)
         => DateExtensions.ToDisplayPeriod(activity.StartDate, activity.EndDate);

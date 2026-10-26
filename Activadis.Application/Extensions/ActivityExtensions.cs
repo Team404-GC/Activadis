@@ -1,12 +1,14 @@
-﻿using Activadis.Application.DTOs.Activity;
+﻿using Activadis.Application.Validations.Activity;
+using Activadis.Application.DTOs.Activity;
 using Activadis.Shared.DTOs.Activity;
+using Microsoft.AspNetCore.Http;
 using Activadis.Domain.Entities;
 
 namespace Activadis.Application.Extensions
 {
     public static class ActivityExtensions
     {
-        public static Activity ToActivity(this CreateActivityRequest request, byte[] image, IEnumerable<Category> categories)
+        public static Activity ToActivity(this CreateActivityRequest request, List<ActivityPhoto> photos, IEnumerable<Category> categories)
         {
             return new Activity()
             {
@@ -16,8 +18,7 @@ namespace Activadis.Application.Extensions
                 CostPerPerson = request.CostPerPerson,
 
                 Location = request.Location,
-                Image = image,
-                ImageContentType = request.Image!.ContentType,
+                Photos = photos,
                 Categories = categories.ToList(),
 
                 MinParticipants = request.MinParticipants,
@@ -36,6 +37,28 @@ namespace Activadis.Application.Extensions
             };
         }
 
+        public async static Task<List<ActivityPhoto>> ToActivityPhotosAsync(this IEnumerable<IFormFile> files, int sortOrder)
+        {
+            List<ActivityPhoto> photos = [];
+            foreach (IFormFile file in files)
+            {
+                using MemoryStream stream = new MemoryStream();
+                await file.CopyToAsync(stream);
+
+                byte[] image = stream.ToArray();
+                image.ValidateImage(file.FileName);
+
+                photos.Add(new ActivityPhoto()
+                {
+                    Image = image,
+                    ImageContentType = file.ContentType,
+                    SortOrder = sortOrder++,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+
+            return photos;
+        }
         public static ActivityParticipantResponse ToParticipantResponse(this SignUp signUp)
         {
             return new ActivityParticipantResponse()
@@ -45,7 +68,7 @@ namespace Activadis.Application.Extensions
             };
         }
 
-        public static ActivityOverviewResponse ToOverviewResponse(this Activity activity, bool hasSignedIn)
+        public static ActivityOverviewResponse ToOverviewResponse(this Activity activity, bool hasSignedIn, bool hasPhoto)
         {
             return new ActivityOverviewResponse()
             {
@@ -53,7 +76,7 @@ namespace Activadis.Application.Extensions
                 Name = activity.Name,
 
                 Location = activity.Location,
-                HasPhoto = activity.Image.Length > 0,
+                HasPhoto = hasPhoto,
                 PhotoVersion = (activity.UpdatedAt ?? activity.CreatedAt).Ticks,
                 IsDraft = activity.PublishedOn is null,
                 IsDeleted = activity.DeletedAt is not null,
@@ -66,16 +89,16 @@ namespace Activadis.Application.Extensions
             };
         }
 
-        public static ActivityPhotoResponse ToPhotoResponse(this Activity activity)
+        public static ActivityPhotoResponse ToPhotoResponse(this ActivityPhoto photo)
         {
             return new ActivityPhotoResponse()
             {
-                Image = activity.Image,
-                ImageContentType = activity.ImageContentType
+                Image = photo.Image,
+                ImageContentType = photo.ImageContentType
             };
         }
 
-        public static ActivityDetailResponse ToDetailResponse(this Activity activity, bool hasSignedUp, bool includeElo)
+        public static ActivityDetailResponse ToDetailResponse(this Activity activity, bool hasSignedUp, bool includeElo, IEnumerable<Guid> photoIds)
         {
             return new ActivityDetailResponse()
             {
@@ -86,8 +109,7 @@ namespace Activadis.Application.Extensions
                 CostPerPerson = activity.CostPerPerson,
 
                 Location = activity.Location,
-                Image = activity.Image,
-                ImageContentType = activity.ImageContentType,
+                PhotoIds = photoIds.ToList(),
 
                 MinParticipants = activity.MinParticipants,
                 MaxParticipants = activity.MaxParticipants,

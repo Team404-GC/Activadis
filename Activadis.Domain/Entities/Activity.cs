@@ -11,8 +11,6 @@ namespace Activadis.Domain.Entities
         public decimal CostPerPerson { get; set; }
 
         public string Location { get; set; } = string.Empty;
-        public byte[] Image { get; set; } = [];
-        public string ImageContentType { get; set; } = string.Empty;
 
         public int MinParticipants { get; set; }
         public int MaxParticipants { get; set; }
@@ -36,5 +34,6 @@ namespace Activadis.Domain.Entities
         public ICollection<SignUp> SignUps { get; set; } = [];
         public ICollection<Category> Categories { get; set; } = [];
         public ICollection<Match> Matches { get; set; } = [];
+        public ICollection<ActivityPhoto> Photos { get; set; } = [];
     }
 }
