@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Activadis.Infrastructure.Persistence.Interceptors;
+using Microsoft.Extensions.DependencyInjection;
 using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Infrastructure.Repositories;
 using Activadis.Infrastructure.Persistence;
@@ -23,10 +24,12 @@ namespace Activadis.Infrastructure
         {
             services.AddDbContext<ApplicationDBContext>(options =>
             {
-                options.UseSqlServer(connectionString, sqlOptions =>
+                DbContextOptionsBuilder builder = options.UseSqlServer(connectionString, sqlOptions =>
                 {
                     sqlOptions.MigrationsHistoryTable("Migrations");
                 });
+
+                builder.AddInterceptors([new SlugInterceptor()]);
             });
 
             return services;

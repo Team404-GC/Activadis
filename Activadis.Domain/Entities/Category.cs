@@ -1,10 +1,14 @@
+using Activadis.Domain.Attributes;
 using Activadis.Domain.Interfaces;
 
 namespace Activadis.Domain.Entities
 {
-    public class Category : IEntity
+    public class Category : IEntity, IHasSlug
     {
         public Guid Id { get; set; }
+        public string? Slug { get; set; }
+
+        [SlugSource]
         public required string Name { get; set; }
         public string? Description { get; set; }
         public int DisplayOrder { get; set; }

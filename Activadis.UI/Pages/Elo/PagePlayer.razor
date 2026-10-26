@@ -1,5 +1,5 @@
 ﻿@inject IEloService EloService
-@page "/speler/{Id:guid}"
+@page "/speler/{Id}"
 
 <PageTitle>@(profile?.FullName ?? "Speler")</PageTitle>
 
@@ -73,7 +73,7 @@ else
                 {
                     <div class="pl-rating">
                         <div class="pl-rating-header">
-                            <NavLink class="pl-rating-category" href="@($"/ranglijst?categorie={rating.CategoryId}")">@rating.CategoryName</NavLink>
+                            <NavLink class="pl-rating-category" href="@($"/ranglijst/{rating.CategorySlug ?? rating.CategoryId.ToString()}")">@rating.CategoryName</NavLink>
                             @if (!string.IsNullOrWhiteSpace(rating.RankTitle))
                             {
                                 <span class="pl-title">@rating.RankTitle</span>
@@ -121,7 +121,7 @@ else
                                 <td class="pl-hide-small">
                                     @if (match.ActivityId is not null)
                                     {
-                                        <NavLink class="pl-link" href="@($"/activiteit/{match.ActivityId}")">@match.ActivityName</NavLink>
+                                        <NavLink class="pl-link" href="@($"/activiteit/{match.ActivitySlug ?? match.ActivityId?.ToString()}")">@match.ActivityName</NavLink>
                                     }
                                 </td>
                                 <td class="pl-number">@match.Placement</td>
@@ -139,13 +139,21 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
+    public string Id { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
 
     private PlayerProfileDto? profile;
     private bool isLoading = true;
 
     protected override async Task OnParametersSetAsync()
     {
+        if (AuthenticationState is null)
+            return;
+
+        await AuthenticationState;
+
         isLoading = true;
         profile = null;
 

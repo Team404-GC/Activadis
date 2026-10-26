@@ -11,8 +11,8 @@ namespace Activadis.UI.Application.Interfaces
     public interface IEloService
     {
         Task<ApiResponse<List<LeaderboardEntryDto>>> GetOverallLeaderboardAsync();
-        Task<ApiResponse<List<LeaderboardEntryDto>>> GetCategoryLeaderboardAsync(Guid categoryId);
-        Task<ApiResponse<PlayerProfileDto>> GetPlayerProfileAsync(Guid userId);
+        Task<ApiResponse<List<LeaderboardEntryDto>>> GetCategoryLeaderboardAsync(string categoryId);
+        Task<ApiResponse<PlayerProfileDto>> GetPlayerProfileAsync(string userId);
         Task<ApiResponse<List<CategoryDto>>> GetCategoriesAsync();
         Task<ApiResponse<MatchResultDto>> RecordMatchAsync(RecordMatchRequest request);
         Task<ApiResponse<object>> CreateCategoryAsync(CreateCategoryRequest request);

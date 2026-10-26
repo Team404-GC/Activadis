@@ -45,7 +45,7 @@ namespace Activadis.Application.Services
         {
             request.Validate();
 
-            Activity activity = await ActivityRepository.GetDetailAsync(request.ActivityId)
+            Activity activity = await ActivityRepository.GetDetailAsync(request.ActivityId.ToString())
                 ?? throw new ArgumentException("De activiteit is niet gevonden.");
 
             activity.Name = request.Name;
@@ -92,9 +92,9 @@ namespace Activadis.Application.Services
             return activities.Select(activity => activity.ToOverviewResponse(activitiesSignedIn[activity.Id], activityIdsWithPhotos.Contains(activity.Id)));
         }
 
-        public async Task<ActivityDetailResponse> GetDetailAsync(Guid id, Guid userId, bool isAdmin)
+        public async Task<ActivityDetailResponse> GetDetailAsync(string identifier, Guid userId, bool isAdmin)
         {
-            Activity activity = await ActivityRepository.GetDetailAsync(id)
+            Activity activity = await ActivityRepository.GetDetailAsync(identifier)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
             if (activity.PublishedOn is null && !isAdmin)
@@ -103,8 +103,8 @@ namespace Activadis.Application.Services
             if (userId == Guid.Empty && !activity.ExternalAllowed)
                 throw new ArgumentException("Deze activiteit accepteert geen externe deelnemers.");
 
-            bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, id);
-            IEnumerable<Guid> photoIds = await ActivityPhotoRepository.GetIdsByActivityIdAsync(id);
+            bool hasSignedUp = userId != Guid.Empty && await SignUpRepository.HasSignedUpAsync(userId, activity.Id);
+            IEnumerable<Guid> photoIds = await ActivityPhotoRepository.GetIdsByActivityIdAsync(activity.Id);
             return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty, photoIds);
         }
 
@@ -200,7 +200,7 @@ namespace Activadis.Application.Services
 
         public async Task<IEnumerable<ActivityParticipantResponse>> GetParticipantsAsync(Guid id)
         {
-            Activity activity = await ActivityRepository.GetDetailAsync(id)
+            Activity activity = await ActivityRepository.GetDetailAsync(id.ToString())
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
             return activity.SignUps

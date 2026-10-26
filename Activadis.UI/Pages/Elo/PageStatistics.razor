@@ -231,7 +231,7 @@ else
                         {
                             <tr>
                                 <td>@entry.Rank</td>
-                                <td><NavLink class="st-link" href="@($"/speler/{entry.UserId}")">@entry.FullName</NavLink></td>
+                                <td><NavLink class="st-link" href="@($"/speler/{entry.UserSlug ?? entry.UserId.ToString()}")">@entry.FullName</NavLink></td>
                                 <td>
                                     @if (!string.IsNullOrWhiteSpace(entry.RankTitle))
                                     {
@@ -358,7 +358,7 @@ else
 
         Task<ApiResponse<EloSummaryDto>> summaryTask = EloService.GetSummaryAsync(selectedCategoryId);
         Task<ApiResponse<List<LeaderboardEntryDto>>> leaderboardTask = selectedCategoryId.HasValue
-            ? EloService.GetCategoryLeaderboardAsync(selectedCategoryId.Value)
+            ? EloService.GetCategoryLeaderboardAsync(selectedCategoryId.Value.ToString())
             : EloService.GetOverallLeaderboardAsync();
         Task<ApiResponse<List<ActivityPointDto>>> activityTask = EloService.GetActivityAsync(selectedCategoryId, 12);
         Task<ApiResponse<List<RecentMatchDto>>> recentTask = EloService.GetRecentMatchesAsync(selectedCategoryId, 20);

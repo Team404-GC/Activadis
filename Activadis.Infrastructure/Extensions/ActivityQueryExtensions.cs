@@ -1,8 +1,5 @@
 ﻿using Activadis.Domain.Entities;
 using Activadis.Domain.Filters;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Activadis.Infrastructure.Extensions
 {

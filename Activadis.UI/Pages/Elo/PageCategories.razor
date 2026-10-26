@@ -55,7 +55,7 @@ else
                 @foreach (CategoryDto category in categories)
                 {
                     <tr>
-                        <td><NavLink class="ca-name" href="@($"/ranglijst?categorie={category.Id}")">@category.Name</NavLink></td>
+                        <td><NavLink class="ca-name" href="@($"/ranglijst/{category.Slug ?? category.Id.ToString()}")">@category.Name</NavLink></td>
                         <td class="ca-hide-small ca-muted">@category.Description</td>
                         <td class="ca-hide-small">@category.DisplayOrder</td>
                         <td>

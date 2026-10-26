@@ -1,9 +1,9 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IActivityService ActivityService
 @attribute [Authorize(Roles = "Admin")]
-@page "/activiteit/bewerk/{Id:guid}"
+@page "/activiteit/bewerk/{Id}"
 
-<NavLink class="ad-back" href="@($"/activiteit/{Id}")" Match="NavLinkMatch.Prefix">
+<NavLink class="ad-back" href="@($"/activiteit/{activity?.Slug ?? Id}")" Match="NavLinkMatch.Prefix">
     <i class="bi bi-arrow-left"></i>
     <span>Terug naar de activiteit</span>
 </NavLink>
@@ -125,7 +125,7 @@ else if (context is not null)
                         int current = index;
                         Guid photoId = photoIds[current];
                         <li class="form-photo">
-                            <img class="form-photo-preview" src="@ActivityService.GetPhotoUrl(Id, photoId)" alt="Foto @(current + 1)" />
+                            <img class="form-photo-preview" src="@ActivityService.GetPhotoUrl(activity?.Id ?? Guid.Empty, photoId)" alt="Foto @(current + 1)" />
                             <button type="button" title="Omhoog" disabled="@(current == 0 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, -1)"><i class="bi bi-arrow-up"></i></button>
                             <button type="button" title="Omlaag" disabled="@(current == photoIds.Count - 1 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, 1)"><i class="bi bi-arrow-down"></i></button>
                             <button type="button" title="Verwijderen" disabled="@isSavingPhotos" @onclick="() => RemovePhotoAsync(photoId)"><i class="bi bi-x-lg"></i></button>
@@ -144,7 +144,10 @@ else if (context is not null)
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
+    public string Id { get; set; } = string.Empty;
+
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
 
     EditActivityRequest request = new EditActivityRequest();
     ActivityDetailResponse? activity = null;
@@ -157,15 +160,25 @@ else if (context is not null)
     bool isEditing = false;
     bool isLoading = true;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
+
+        if (AuthenticationState is null)
+            return;
+
+        AuthenticationState state = await AuthenticationState;
+        if (!state.User.IsInRole("Admin") || string.IsNullOrWhiteSpace(Id))
+        {
+            NavigationManager.NavigateTo("/activiteiten");
+            return;
+        }
 
         ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(Id);
         if (!activityResponse.Succeeded || activityResponse.Value is null)
         {
             Notifications.AddNotification(activityResponse.Message, true);
-            NavigationManager.NavigateTo($"/activiteit/{Id}");
+            NavigationManager.NavigateTo($"/activiteit/{activity?.Slug ?? Id}");
             isLoading = false;
             return;
         }
@@ -260,7 +273,7 @@ else if (context is not null)
 
         isSavingPhotos = true;
 
-        ApiResponse<object> response = await ActivityService.AddPhotosAsync(Id, new AddActivityPhotosRequest() { Photos = photos });
+        ApiResponse<object> response = await ActivityService.AddPhotosAsync(activity?.Id ?? Guid.Empty, new AddActivityPhotosRequest() { Photos = photos });
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
@@ -280,7 +293,7 @@ else if (context is not null)
 
         isSavingPhotos = true;
 
-        ApiResponse<object> response = await ActivityService.UpdatePhotoOrderAsync(Id, new UpdateActivityPhotoOrderRequest() { PhotoIds = order });
+        ApiResponse<object> response = await ActivityService.UpdatePhotoOrderAsync(activity?.Id ?? Guid.Empty, new UpdateActivityPhotoOrderRequest() { PhotoIds = order });
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);
@@ -296,7 +309,7 @@ else if (context is not null)
     {
         isSavingPhotos = true;
 
-        ApiResponse<object> response = await ActivityService.DeletePhotoAsync(Id, photoId);
+        ApiResponse<object> response = await ActivityService.DeletePhotoAsync(activity?.Id ?? Guid.Empty, photoId);
         if (!response.Succeeded)
         {
             Notifications.AddNotification(response.Message, true);

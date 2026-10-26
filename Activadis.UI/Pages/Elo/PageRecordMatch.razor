@@ -3,13 +3,14 @@
 @inject IUserService UserService
 @attribute [Authorize(Roles = "Admin")]
 @page "/wedstrijd/nieuw"
+@page "/wedstrijd/nieuw/{ActivityId}"
 
 <PageTitle>Wedstrijd registreren</PageTitle>
 
 @if (activity is not null)
 {
     <div class="rm-back-wrapper">
-        <NavLink class="rm-back" href="@($"/activiteit/{activity.Id}")">
+        <NavLink class="rm-back" href="@($"/activiteit/{activity.Slug ?? activity.Id.ToString() ?? ActivityId}")">
             <i class="bi bi-arrow-left"></i>
             <span>Terug naar @activity.Name</span>
         </NavLink>
@@ -179,7 +180,7 @@ else
                 @foreach (ParticipantResultDto participant in result.Results)
                 {
                     <tr>
-                        <td><NavLink class="rm-link" href="@($"/speler/{participant.UserId}")">@participant.FullName</NavLink></td>
+                        <td><NavLink class="rm-link" href="@($"/speler/{participant.UserSlug ?? participant.UserId.ToString()}")">@participant.FullName</NavLink></td>
                         <td class="rm-number">@participant.Placement</td>
                         <td class="rm-number rm-hide-small">@participant.ExpectedScore.ToString("0.00")</td>
                         <td class="rm-number rm-hide-small">@participant.ActualScore.ToString("0.00")</td>
@@ -194,8 +195,8 @@ else
 }
 
 @code {
-    [SupplyParameterFromQuery(Name = "activiteit")]
-    public Guid? ActivityId { get; set; }
+    [Parameter]
+    public string? ActivityId { get; set; }
 
     private ActivityDetailResponse? activity;
     private List<UserResponse> users = [];
@@ -220,9 +221,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (ActivityId is not null)
+        if (!string.IsNullOrWhiteSpace(ActivityId))
         {
-            await LoadActivityAsync(ActivityId.Value);
+            await LoadActivityAsync(ActivityId);
             isLoading = false;
             return;
         }
@@ -248,23 +249,24 @@ else
         isLoading = false;
     }
 
-    private async Task LoadActivityAsync(Guid activityId)
+    private async Task LoadActivityAsync(string activityIdentifier)
     {
-        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(activityId);
+        ApiResponse<ActivityDetailResponse> activityResponse = await ActivityService.GetDetailAsync(activityIdentifier);
         if (!activityResponse.Succeeded || activityResponse.Value is null)
         {
             Notifications.AddNotification(activityResponse.Message, true);
             return;
         }
 
-        ApiResponse<IEnumerable<ActivityParticipantResponse>> participantResponse = await ActivityService.GetParticipantsAsync(activityId);
+        ActivityDetailResponse loadedActivity = activityResponse.Value;
+        ApiResponse<IEnumerable<ActivityParticipantResponse>> participantResponse = await ActivityService.GetParticipantsAsync(loadedActivity.Id);
         if (!participantResponse.Succeeded)
         {
             Notifications.AddNotification(participantResponse.Message, true);
             return;
         }
 
-        activity = activityResponse.Value;
+        activity = loadedActivity;
         users = participantResponse.Value?
             .Select(x => new UserResponse() { Id = x.UserId, FullName = x.FullName })
             .ToList() ?? [];

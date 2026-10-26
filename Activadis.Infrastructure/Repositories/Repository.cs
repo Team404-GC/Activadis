@@ -1,5 +1,6 @@
 ﻿using Activadis.Domain.Interfaces.Repositories;
 using Activadis.Infrastructure.Persistence;
+using Activadis.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Interfaces;
 
@@ -23,6 +24,10 @@ namespace Activadis.Infrastructure.Repositories
 
         public async Task<TEntity?> GetByIdAsync(Guid id)
             => await Set.SingleOrDefaultAsync(x => x.Id == id && x.DeletedAt == null);
+
+        public async Task<TEntity?> GetByIdentifierAsync(string identifier)
+            => await Set.WithIdentifier(identifier)
+                .SingleOrDefaultAsync(x => x.DeletedAt == null);
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {

@@ -5,6 +5,7 @@ namespace Activadis.Shared.DTOs.Elo
     public class PlayerProfileDto
     {
         public Guid UserId { get; set; }
+        public string? UserSlug { get; set; }
         public required string FullName { get; set; }
         public string? JobTitle { get; set; }
         public required string Email { get; set; }

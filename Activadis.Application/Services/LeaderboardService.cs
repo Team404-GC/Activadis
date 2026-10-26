@@ -25,6 +25,7 @@ namespace Activadis.Application.Services
         public class LeaderboardEntry
         {
             public Guid UserId { get; set; }
+            public string? UserSlug { get; set; }
             public required string FullName { get; set; }
             public string? JobTitle { get; set; }
             public double Rating { get; set; }
