@@ -24,7 +24,7 @@ namespace Activadis.Infrastructure.Repositories
 
 		public async Task<ActivityPhoto?> GetFirstByActivityIdAsync(Guid activityId)
 			=> await Context.ActivityPhotos
-				.Where(x => x.ActivityId == activityId && x.DeletedAt == null && x.Activity.DeletedAt == null)
+				.Where(x => x.ActivityId == activityId && x.DeletedAt == null)
 				.OrderBy(x => x.SortOrder)
 				.FirstOrDefaultAsync();
 

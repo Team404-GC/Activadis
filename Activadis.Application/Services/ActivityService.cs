@@ -108,7 +108,7 @@ namespace Activadis.Application.Services
             return activity.ToDetailResponse(hasSignedUp, userId != Guid.Empty, photoIds);
         }
 
-        public async Task<ActivityPhotoResponse> GetPhotoAsync(string identifier)
+        public async Task<ActivityPhotoResponse> GetPhotoAsync(Guid id)
         {
             ActivityPhoto photo = await ActivityPhotoRepository.GetFirstByActivityIdAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit heeft geen foto.");
@@ -156,7 +156,7 @@ namespace Activadis.Application.Services
 
         public async Task DeletePhotoAsync(Guid id, Guid photoId)
         {
-            Activity activity = await ActivityRepository.GetByIdentifierAsync(identifier)
+            Activity activity = await ActivityRepository.GetByIdAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
             ActivityPhoto photo = await ActivityPhotoRepository.GetByIdAndActivityIdAsync(photoId, id)

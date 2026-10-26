@@ -306,9 +306,6 @@ else
         if (activity is not null)
             return;
 
-        AuthenticationState state = await AuthenticationState;
-        User = state.User;
-
         if (string.IsNullOrWhiteSpace(Id))
         {
             NavigationManager.NavigateTo("/");

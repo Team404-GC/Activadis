@@ -73,13 +73,13 @@ namespace Activadis.API.Controllers
 			}
 		}
 
-		[HttpGet("{identifier}/Photo")]
+		[HttpGet("{id:guid}/Photo")]
 		[ResponseCache(Duration = 3600)]
-		public async Task<IActionResult> GetPhotoAsync(string identifier)
+		public async Task<IActionResult> GetPhotoAsync(Guid id)
 		{
 			try
 			{
-				ActivityPhotoResponse photo = await ActivityService.GetPhotoAsync(identifier);
+				ActivityPhotoResponse photo = await ActivityService.GetPhotoAsync(id);
 				return File(photo.Image, photo.ImageContentType);
 			}
 			catch (KeyNotFoundException exception)
