@@ -69,6 +69,43 @@ namespace Activadis.Application.Extensions
             };
         }
 
+        public static ActivitySignUpResponse ToSignUpResponse(this SignUp signUp)
+        {
+            return new ActivitySignUpResponse()
+            {
+                Id = signUp.Id,
+                UserId = signUp.UserId,
+                UserSlug = signUp.User?.Slug,
+                FullName = signUp.User?.FullName ?? signUp.FullName,
+                Email = signUp.IsExternal ? signUp.Email : null,
+                Comment = signUp.Comment,
+                HasPlusOne = signUp.HasPlusOne,
+                IsExternal = signUp.IsExternal,
+                WaitlistPosition = signUp.WaitlistPosition
+            };
+        }
+
+        public static ActivitySignUpListResponse ToSignUpListResponse(this IEnumerable<SignUp> signUps)
+        {
+            List<ActivitySignUpResponse> participants = signUps
+                .Where(x => x.WaitlistPosition is null)
+                .Select(x => x.ToSignUpResponse())
+                .OrderBy(x => x.FullName)
+                .ToList();
+
+            return new ActivitySignUpListResponse()
+            {
+                Participants = participants,
+                Waitlist = signUps
+                    .Where(x => x.WaitlistPosition is not null)
+                    .OrderBy(x => x.WaitlistPosition)
+                    .Select(x => x.ToSignUpResponse())
+                    .ToList(),
+                TotalParticipants = participants.Count,
+                TotalPlusOnes = participants.Count(x => x.HasPlusOne)
+            };
+        }
+
         public static ActivityOverviewResponse ToOverviewResponse(this Activity activity, bool hasSignedIn, bool hasPhoto)
         {
             return new ActivityOverviewResponse()
