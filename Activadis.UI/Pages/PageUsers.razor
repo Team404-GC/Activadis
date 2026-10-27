@@ -1,0 +1,95 @@
+﻿@inject IUserService UserService
+@attribute [Authorize(Roles = "Admin")]
+@page "/gebruikers"
+
+<PageTitle>Gebruikers</PageTitle>
+
+<div class="gu-header">
+    <h1>Gebruikers</h1>
+    <NavLink class="gu-button" href="/gebruiker/nieuw">
+        <i class="bi bi-plus-lg"></i>
+        <span>Gebruiker aanmaken</span>
+    </NavLink>
+</div>
+
+<input class="gu-search" type="search" placeholder="Zoek op naam of e-mail" @bind="search" @bind:event="oninput" />
+
+@if (isLoading)
+{
+    <div class="gu-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (hasFailed)
+{
+    <p class="gu-state">De gebruikers konden niet worden geladen.</p>
+}
+else if (!FilteredUsers.Any())
+{
+    <p class="gu-state">Er zijn geen gebruikers gevonden die passen bij je zoekopdracht.</p>
+}
+else
+{
+    <div class="gu-card">
+        <table class="gu-table">
+            <thead>
+                <tr>
+                    <th>Naam</th>
+                    <th class="gu-hide-small">E-mail</th>
+                    <th class="gu-hide-small">Functie</th>
+                    <th>Rol</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (UserResponse user in FilteredUsers)
+                {
+                    <tr>
+                        <td class="gu-name">@user.FullName</td>
+                        <td class="gu-hide-small gu-muted">@user.Email</td>
+                        <td class="gu-hide-small gu-muted">@user.JobTitle</td>
+                        <td>
+                            <span class="gu-role @(user.Role == "Admin" ? "gu-role-admin" : "")">@ToRoleName(user.Role)</span>
+                        </td>
+                        <td class="gu-actions">
+                            <NavLink class="gu-button-secondary" href="@($"/gebruiker/{user.Id}/wijzigen")">
+                                <i class="bi bi-pencil"></i>
+                                <span>Wijzigen</span>
+                            </NavLink>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    private List<UserResponse> users = [];
+    private string search = string.Empty;
+    private bool isLoading = true;
+    private bool hasFailed;
+
+    private IEnumerable<UserResponse> FilteredUsers
+        => users.Where(x => string.IsNullOrWhiteSpace(search)
+            || x.FullName.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase)
+            || x.Email.Contains(search.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        ApiResponse<IEnumerable<UserResponse>> response = await UserService.GetAllAsync();
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            hasFailed = true;
+            isLoading = false;
+            return;
+        }
+
+        users = response.Value?.ToList() ?? [];
+        isLoading = false;
+    }
+
+    private static string ToRoleName(string role)
+        => role == "Admin" ? "Beheerder" : "Medewerker";
+}

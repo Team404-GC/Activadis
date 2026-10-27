@@ -27,7 +27,9 @@ namespace Activadis.Application.Extensions
             {
                 Id = user.Id,
                 FullName = user.FullName,
-                Email = user.Email
+                Email = user.Email,
+                JobTitle = user.JobTitle,
+                Role = user.Role.ToString()
             };
         }
 

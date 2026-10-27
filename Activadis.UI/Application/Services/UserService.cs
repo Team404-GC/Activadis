@@ -18,5 +18,11 @@ namespace Activadis.UI.Application.Services
 
         public async Task<ApiResponse<IEnumerable<UserResponse>>> GetAllAsync()
             => await HttpService.GetAsync<IEnumerable<UserResponse>>("/User");
+
+        public async Task<ApiResponse<UserResponse>> GetByIdAsync(Guid id)
+            => await HttpService.GetAsync<UserResponse>($"/User/{id}");
+
+        public async Task<ApiResponse<object>> UpdateAsync(UpdateUserRequest request)
+            => await HttpService.PutAsync<object, UpdateUserRequest>("/User", request);
     }
 }
