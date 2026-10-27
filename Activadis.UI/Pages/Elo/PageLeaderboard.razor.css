@@ -97,17 +97,17 @@
 
 .lb-position-gold {
     background: var(--GoldColor);
-    color: var(--TextColor);
+    color: var(--ButtonTextColor);
 }
 
 .lb-position-silver {
     background: var(--SilverColor);
-    color: var(--TextColor);
+    color: var(--ButtonTextColor);
 }
 
 .lb-position-bronze {
     background: var(--BronzeColor);
-    color: var(--TextColor);
+    color: var(--ButtonTextColor);
 }
 
 .lb-top td {

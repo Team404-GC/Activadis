@@ -27,7 +27,7 @@
     <div class="cal-calendar">
         <CalendarContainer DisplayedView="DisplayedView.Monthly" TasksList="tasks" FirstDate="GetFirstDate()">
             <MonthlyView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
-                         WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
+                         WeekDaysColor="transparent" SaturdayColor="rgba(255, 255, 255, 0.03)" SundayColor="rgba(255, 255, 255, 0.03)" FontColor="rgba(255, 255, 255, 0.7)" />
         </CalendarContainer>
     </div>
 }
@@ -57,7 +57,7 @@ else
             <div class="cal-week-grid @(view == CalendarView.WorkWeek ? "cal-workweek" : "")">
                 <CalendarContainer DisplayedView="DisplayedView.Weekly" TasksList="tasks" FirstDate="GetFirstDate()">
                     <WeekView PriorityDisplay="PriorityLabel.Caption" HighlightToday="true" TaskClick="OnTaskClick"
-                              WeekDaysColor="#ffffff" SaturdayColor="#f7f8fa" SundayColor="#f2f4f7" FontColor="#5b6478" />
+                              WeekDaysColor="transparent" SaturdayColor="rgba(255, 255, 255, 0.03)" SundayColor="rgba(255, 255, 255, 0.03)" FontColor="rgba(255, 255, 255, 0.7)" />
                 </CalendarContainer>
             </div>
         </div>

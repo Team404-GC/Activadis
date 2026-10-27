@@ -679,7 +679,7 @@
 
     .ad-match-placement.ad-match-winner {
         background: var(--GoldColor);
-        color: var(--TextColor);
+        color: var(--ButtonTextColor);
     }
 
 .ad-match-result ::deep .ad-match-player {

@@ -161,6 +161,7 @@
 
     .ca-modal ::deep .cf-card {
         margin-top: 0;
+        background: var(--PopoverColor);
     }
 
 @keyframes ca-fade-in {

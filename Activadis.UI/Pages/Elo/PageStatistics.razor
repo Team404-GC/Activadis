@@ -445,11 +445,15 @@ else
     private static ApexChartOptions<T> CreateOptions<T>() where T : class
         => new ApexChartOptions<T>()
         {
-            Chart = new Chart()
+                        Chart = new Chart()
             {
+                ForeColor = "rgba(255, 255, 255, 0.7)",
                 Toolbar = new Toolbar() { Show = false },
                 Zoom = new Zoom() { Enabled = false }
-            }
+            },
+            Grid = new Grid() { BorderColor = "rgba(255, 255, 255, 0.08)" },
+            Title = new Title() { Style = new TitleStyle() { Color = "#ffffff" } },
+            Tooltip = new Tooltip() { Theme = Mode.Dark }
         };
 
     private static string ToMonthLabel(int year, int month)

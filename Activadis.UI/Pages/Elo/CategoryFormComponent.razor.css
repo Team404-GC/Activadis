@@ -52,8 +52,13 @@
 
     .cf-field ::deep input:not([type="checkbox"]):focus {
         border-color: var(--AccentColor);
+        box-shadow: 0 0 0 3px var(--AccentColorSoft);
         outline: none;
     }
+
+.cf-field ::deep input.invalid {
+    border-color: #ff6b6b;
+}
 
 .cf-field ::deep .validation-message {
     font-size: 13px;
