@@ -7,136 +7,134 @@
 
 <PageTitle>@(activity?.Name ?? "Activiteit")</PageTitle>
 
-<NavLink class="ad-back" href="@(User?.Identity?.IsAuthenticated == true ? "/activiteiten" : "/")" Match="NavLinkMatch.Prefix">
-    <i class="bi bi-arrow-left"></i>
-    <span>Terug naar activiteiten</span>
-</NavLink>
+<div class="ad-page">
+    <NavLink class="ad-back" href="@(User?.Identity?.IsAuthenticated == true ? "/activiteiten" : "/")" Match="NavLinkMatch.Prefix">
+        <i class="bi bi-arrow-left"></i>
+        <span>Terug naar activiteiten</span>
+    </NavLink>
 
-@if (isLoading)
-{
-    <div class="ad-state">
-        <div class="spinner-border" role="status"></div>
-    </div>
-}
-else if (activity is null)
-{
-    <p class="ad-state">Deze activiteit is niet gevonden.</p>
-}
-else
-{
-    <div class="ad-header">
-        <div class="ad-title">
-            <h1>@activity.Name</h1>
-            @if (activity.IsDraft)
-            {
-                <span class="ad-draft">Concept</span>
-            }
+    @if (isLoading)
+    {
+        <div class="ad-state">
+            <div class="spinner-border" role="status"></div>
         </div>
-        @if (User?.IsInRole("Admin") ?? false)
-        {
-            <div class="ad-admin-actions">
-                <button type="button" class="ad-cancel" title="Activiteit annuleren" @onclick="@(() => showCancelPrompt = true)">
-                    <i class="bi bi-calendar-x"></i>
-                </button>
-                <NavLink class="ad-edit" href="@($"/activiteit/bewerk/{activity.Slug ?? activity.Id.ToString() ?? Id}")">
-                    <i class="bi bi-pencil-fill"></i>
-                </NavLink>
-            </div>
-        }
-    </div>
-    <div class="ad-layout">
-        <div class="ad-content">
-            <div class="ad-status @(activity.IsOpenForSignUp ? "ad-status-open" : "ad-status-closed")">
-                <i class="bi @(activity.IsOpenForSignUp ? "bi-check-circle" : "bi-x-circle")"></i>
-                <span>@ToSignUpState(activity)</span>
-            </div>
-
-            <dl class="ad-facts">
-                <dt>Datum en tijd</dt>
-                <dd>@ToPeriod(activity)</dd>
-
-                <dt>Locatie</dt>
-                <dd>@activity.Location</dd>
-
-                <dt>Kosten per persoon</dt>
-                <dd>@ToCost(activity.CostPerPerson)</dd>
-
-                <dt>Eten inbegrepen</dt>
-                <dd>@ToAnswer(activity.FoodIncluded)</dd>
-
-                <dt>Deelnemers</dt>
-                <dd>@ToSpots(activity)</dd>
-            </dl>
-
-            <section class="ad-section">
-                <h2>Beschrijving</h2>
-                <p class="ad-description">@activity.Description</p>
-            </section>
-
-            @if (!string.IsNullOrWhiteSpace(activity.Requirements))
-            {
-                <section class="ad-section">
-                    <h2>Benodigdheden</h2>
-                    <p class="ad-description">@activity.Requirements</p>
-                </section>
-            }
-
-            <section class="ad-section">
-                <h2>Voorwaarden</h2>
-
-                <dl class="ad-facts">
-                    <dt>Minimaal aantal deelnemers</dt>
-                    <dd>@(activity.MinParticipants > 0 ? activity.MinParticipants.ToString() : "Geen minimum")</dd>
-
-                    <dt>Maximaal aantal deelnemers</dt>
-                    <dd>@(activity.MaxParticipants > 0 ? activity.MaxParticipants.ToString() : "Geen maximum")</dd>
-
-                    <dt>Externen toegestaan</dt>
-                    <dd>@ToAnswer(activity.ExternalAllowed)</dd>
-
-                    <dt>Introducé toegestaan</dt>
-                    <dd>@ToAnswer(activity.PlusOneAllowed)</dd>
-
-                    <dt>Inschrijven kan tot</dt>
-                    <dd>@activity.SignUpDeadline.ToDisplayDateTime()</dd>
-
-                    <dt>Uitschrijven kan tot</dt>
-                    <dd>@activity.SignOutDeadline.ToDisplayDateTime()</dd>
-                </dl>
-            </section>
-
-            <div class="ad-actions">
-                @if (!activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
+    }
+    else if (activity is null)
+    {
+        <p class="ad-state">Deze activiteit is niet gevonden.</p>
+    }
+    else
+    {
+        <header class="ad-header">
+            <div class="ad-title">
+                <h1>@activity.Name</h1>
+                @if (activity.IsDraft)
                 {
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signUpRequest))" disabled="@(!activity.IsOpenForSignUp || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
-                        @(!signUpRequest.IsLoading ? "Inschrijven" : "Aan het laden..")
-                    </button>
-                }
-                @if (activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
-                {
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(editSignUpRequest))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
-                        @(!editSignUpRequest.IsLoading ? "Inschrijving wijzigen" : "Aan het laden..")
-                    </button>
-                    <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signOutRequest, SignOutAsync))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
-                        @(!signOutRequest.IsLoading ? "Uitschrijven" : "Aan het laden..")
-                    </button>
+                    <span class="ad-draft">Concept</span>
                 }
             </div>
-
             @if (IsAdmin)
             {
-                <section class="ad-section">
-                    <h2>Deelnemers</h2>
+                <div class="ad-admin-actions">
+                    <button type="button" class="ad-cancel" @onclick="@(() => showCancelPrompt = true)">
+                        <i class="bi bi-calendar-x"></i>
+                        <span>Annuleren</span>
+                    </button>
+                    <NavLink class="ad-edit" href="@($"/activiteit/bewerk/{activity.Slug ?? activity.Id.ToString() ?? Id}")">
+                        <i class="bi bi-pencil-fill"></i>
+                        <span>Bewerken</span>
+                    </NavLink>
+                </div>
+            }
+        </header>
 
-                    @if (signUps is null)
-                    {
-                        <p class="ad-empty">De deelnemers konden niet worden geladen.</p>
-                    }
-                    else
-                    {
-                        <p class="ad-participant-total">@ToParticipantTotal(signUps)</p>
+        <div class="ad-layout">
+            <div class="ad-content">
+                <section class="ad-card">
+                    <div class="ad-facts">
+                        <div class="ad-fact">
+                            <i class="bi bi-calendar-event"></i>
+                            <div>
+                                <span>Datum en tijd</span>
+                                <strong>@ToPeriod(activity)</strong>
+                            </div>
+                        </div>
+                        <div class="ad-fact">
+                            <i class="bi bi-geo-alt"></i>
+                            <div>
+                                <span>Locatie</span>
+                                <strong>@activity.Location</strong>
+                            </div>
+                        </div>
+                        <div class="ad-fact">
+                            <i class="bi bi-wallet2"></i>
+                            <div>
+                                <span>Kosten per persoon</span>
+                                <strong>@ToCost(activity.CostPerPerson)</strong>
+                            </div>
+                        </div>
+                        <div class="ad-fact">
+                            <i class="bi bi-cup-hot"></i>
+                            <div>
+                                <span>Eten inbegrepen</span>
+                                <strong>@ToAnswer(activity.FoodIncluded)</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-                        @if (!signUps.Participants.Any())
+                <section class="ad-card">
+                    <h2>Beschrijving</h2>
+                    <p class="ad-description">@activity.Description</p>
+                </section>
+
+                @if (!string.IsNullOrWhiteSpace(activity.Requirements))
+                {
+                    <section class="ad-card">
+                        <h2>Benodigdheden</h2>
+                        <p class="ad-description">@activity.Requirements</p>
+                    </section>
+                }
+
+                <section class="ad-card">
+                    <h2>Voorwaarden</h2>
+                    <dl class="ad-terms">
+                        <dt>Minimaal aantal deelnemers</dt>
+                        <dd>@(activity.MinParticipants > 0 ? activity.MinParticipants.ToString() : "Geen minimum")</dd>
+
+                        <dt>Maximaal aantal deelnemers</dt>
+                        <dd>@(activity.MaxParticipants > 0 ? activity.MaxParticipants.ToString() : "Geen maximum")</dd>
+
+                        <dt>Externen toegestaan</dt>
+                        <dd>@ToAnswer(activity.ExternalAllowed)</dd>
+
+                        <dt>Introducé toegestaan</dt>
+                        <dd>@ToAnswer(activity.PlusOneAllowed)</dd>
+
+                        <dt>Inschrijven kan tot</dt>
+                        <dd>@activity.SignUpDeadline.ToDisplayDateTime()</dd>
+
+                        <dt>Uitschrijven kan tot</dt>
+                        <dd>@activity.SignOutDeadline.ToDisplayDateTime()</dd>
+                    </dl>
+                </section>
+
+                @if (IsAdmin)
+                {
+                    <section class="ad-card">
+                        <div class="ad-card-header">
+                            <h2>Deelnemers</h2>
+                            @if (signUps is not null)
+                            {
+                                <span class="ad-participant-total">@ToParticipantTotal(signUps)</span>
+                            }
+                        </div>
+
+                        @if (signUps is null)
+                        {
+                            <p class="ad-empty">De deelnemers konden niet worden geladen.</p>
+                        }
+                        else if (!signUps.Participants.Any())
                         {
                             <p class="ad-empty">Er zijn nog geen deelnemers.</p>
                         }
@@ -173,210 +171,257 @@ else
                                 }
                             </ul>
                         }
-                    }
-                </section>
+                    </section>
 
-                <section class="ad-section">
-                    <h2>Wachtlijst</h2>
+                    <section class="ad-card">
+                        <h2>Wachtlijst</h2>
 
-                    @if (signUps is null)
-                    {
-                        <p class="ad-empty">De wachtlijst kon niet worden geladen.</p>
-                    }
-                    else if (!signUps.Waitlist.Any())
-                    {
-                        <p class="ad-empty">Er staat niemand op de wachtlijst.</p>
-                    }
-                    else
-                    {
-                        <ul class="ad-participants">
-                            @foreach (ActivitySignUpResponse signUp in signUps.Waitlist)
-                            {
-                                <li class="ad-participant">
-                                    <div class="ad-participant-header">
-                                        <span class="ad-participant-position">@signUp.WaitlistPosition</span>
-                                        <span class="ad-participant-name">@signUp.FullName</span>
+                        @if (signUps is null)
+                        {
+                            <p class="ad-empty">De wachtlijst kon niet worden geladen.</p>
+                        }
+                        else if (!signUps.Waitlist.Any())
+                        {
+                            <p class="ad-empty">Er staat niemand op de wachtlijst.</p>
+                        }
+                        else
+                        {
+                            <ul class="ad-participants">
+                                @foreach (ActivitySignUpResponse signUp in signUps.Waitlist)
+                                {
+                                    <li class="ad-participant">
+                                        <div class="ad-participant-header">
+                                            <span class="ad-participant-position">@signUp.WaitlistPosition</span>
+                                            <span class="ad-participant-name">@signUp.FullName</span>
+                                            @if (signUp.IsExternal)
+                                            {
+                                                <span class="ad-participant-tag">Extern</span>
+                                            }
+                                            @if (signUp.HasPlusOne)
+                                            {
+                                                <span class="ad-participant-tag ad-participant-tag-plus-one">+1</span>
+                                            }
+                                        </div>
                                         @if (signUp.IsExternal)
                                         {
-                                            <span class="ad-participant-tag">Extern</span>
+                                            <span class="ad-participant-email">@signUp.Email</span>
                                         }
-                                        @if (signUp.HasPlusOne)
+                                        @if (!string.IsNullOrWhiteSpace(signUp.Comment))
                                         {
-                                            <span class="ad-participant-tag ad-participant-tag-plus-one">+1</span>
+                                            <p class="ad-participant-comment">@signUp.Comment</p>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </section>
+                }
+
+                @if (User?.Identity?.IsAuthenticated == true)
+                {
+                    <section class="ad-card">
+                        <h2>ELO-categorieën</h2>
+
+                        @if (!activity.Categories.Any())
+                        {
+                            <p class="ad-empty">Er zijn geen ELO-categorieën gekoppeld aan deze activiteit.</p>
+                        }
+                        else
+                        {
+                            <div class="ad-elo-tags">
+                                @foreach (CategoryDto category in activity.Categories)
+                                {
+                                    <NavLink class="ad-elo-tag" href="@($"/ranglijst/{category.Slug ?? category.Id.ToString()}")">
+                                        <i class="bi bi-trophy"></i>
+                                        <span>@category.Name</span>
+                                    </NavLink>
+                                }
+                            </div>
+                        }
+
+                        @if (IsAdmin)
+                        {
+                            <div class="ad-admin">
+                                <span class="ad-admin-title">Categorieën wijzigen</span>
+                                <div class="ad-elo-options">
+                                    @foreach (CategoryDto category in SelectableCategories)
+                                    {
+                                        <label class="ad-elo-option @(selectedCategoryIds.Contains(category.Id) ? "selected" : "")">
+                                            <input type="checkbox" checked="@selectedCategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
+                                            <span>@category.Name</span>
+                                        </label>
+                                    }
+                                </div>
+                                @if (categoryError is not null)
+                                {
+                                    <p class="validation-message">@categoryError</p>
+                                }
+                                <button type="button" class="ad-button-secondary" @onclick="SaveCategoriesAsync" disabled="@isSavingCategories">
+                                    @(!isSavingCategories ? "Categorieën opslaan" : "Aan het laden..")
+                                </button>
+                            </div>
+                        }
+                    </section>
+
+                    <section class="ad-card">
+                        <div class="ad-card-header">
+                            <h2>Wedstrijden</h2>
+                            @if (IsAdmin)
+                            {
+                                <button type="button" class="ad-button" @onclick="@(() => NavigationManager.NavigateTo($"/wedstrijd/nieuw/{activity.Slug ?? activity.Id.ToString() ?? Id}"))">
+                                    <i class="bi bi-plus-lg"></i>
+                                    <span>Wedstrijd aanmaken</span>
+                                </button>
+                            }
+                        </div>
+
+                        @if (!activity.Matches.Any())
+                        {
+                            <p class="ad-empty">Er zijn geen wedstrijden gekoppeld aan deze activiteit.</p>
+                        }
+                        else
+                        {
+                            <div class="ad-matches">
+                                @foreach (RecentMatchDto match in activity.Matches)
+                                {
+                                    <div class="ad-match">
+                                        <div class="ad-match-header">
+                                            <span class="ad-match-date">@match.MatchDate.ToDisplayDateTime()</span>
+                                            <NavLink class="ad-match-category" href="@($"/ranglijst?categorie={match.CategorySlug ?? match.CategoryId.ToString()}")">@match.CategoryName</NavLink>
+                                        </div>
+                                        <ol class="ad-match-results">
+                                            @foreach (RecentMatchParticipantDto participant in match.Participants)
+                                            {
+                                                <li class="ad-match-result">
+                                                    <span class="ad-match-placement @(participant.Placement == 1 ? "ad-match-winner" : "")">@participant.Placement</span>
+                                                    <NavLink class="ad-match-player" href="@($"/speler/{participant.UserSlug ?? participant.UserId.ToString()}")">@participant.FullName</NavLink>
+                                                    <span class="ad-match-change @ToChangeClass(participant.RatingChange)">@participant.RatingChange.ToRatingChange()</span>
+                                                </li>
+                                            }
+                                        </ol>
+                                        @if (IsAdmin)
+                                        {
+                                            <button type="button" class="ad-button-danger" @onclick="@(() => UnlinkMatchAsync(match))" disabled="@isLinkingMatch">
+                                                <i class="bi bi-link-45deg"></i>
+                                                <span>Ontkoppelen</span>
+                                            </button>
                                         }
                                     </div>
-                                    @if (signUp.IsExternal)
-                                    {
-                                        <span class="ad-participant-email">@signUp.Email</span>
-                                    }
-                                    @if (!string.IsNullOrWhiteSpace(signUp.Comment))
-                                    {
-                                        <p class="ad-participant-comment">@signUp.Comment</p>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    }
-                </section>
-            }
+                                }
+                            </div>
+                        }
 
-            @if (User?.Identity?.IsAuthenticated == true)
-            {
-                <section class="ad-section">
-                    <h2>ELO-categorieën</h2>
+                        @if (IsAdmin)
+                        {
+                            <div class="ad-admin">
+                                <span class="ad-admin-title">Bestaande wedstrijd koppelen</span>
+                                @if (matchError is not null)
+                                {
+                                    <p class="validation-message">@matchError</p>
+                                }
+                                <div class="ad-elo-link">
+                                    <select class="ad-select" @bind="selectedMatchId">
+                                        <option value="@Guid.Empty">Kies een wedstrijd</option>
+                                        @foreach (RecentMatchDto match in linkableMatches)
+                                        {
+                                            <option value="@match.MatchId">@ToMatchDescription(match)</option>
+                                        }
+                                    </select>
+                                    <button type="button" class="ad-button-secondary" @onclick="LinkMatchAsync" disabled="@isLinkingMatch">
+                                        @(!isLinkingMatch ? "Wedstrijd koppelen" : "Aan het laden..")
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </section>
+                }
+            </div>
 
-                    @if (!activity.Categories.Any())
+            <aside class="ad-aside">
+                @if (activity.PhotoIds.Count > 0)
+                {
+                    <img class="ad-image" src="@ActivityService.GetPhotoUrl(activity.Id, activity.PhotoIds[0])" alt="@activity.Name" />
+                }
+
+                <section class="ad-card ad-signup">
+                    <div class="ad-status @(activity.IsOpenForSignUp ? "ad-status-open" : "ad-status-closed")">
+                        <i class="bi @(activity.IsOpenForSignUp ? "bi-check-circle" : "bi-x-circle")"></i>
+                        <span>@ToSignUpState(activity)</span>
+                    </div>
+
+                    @if (activity.HasParticipantLimit)
                     {
-                        <p class="ad-empty">Er zijn geen ELO-categorieën gekoppeld aan deze activiteit.</p>
+                        <div class="ad-spots">
+                            <div class="ad-spots-text">
+                                <span><strong>@activity.TotalSignUps</strong> van @activity.MaxParticipants plekken bezet</span>
+                                <span>nog @activity.AvailableSpots vrij</span>
+                            </div>
+                            <div class="ad-progress">
+                                <span style="width: @(ToSpotsPercentage(activity))%"></span>
+                            </div>
+                        </div>
                     }
                     else
                     {
-                        <div class="ad-elo-tags">
-                            @foreach (CategoryDto category in activity.Categories)
-                            {
-                                <NavLink class="ad-elo-tag" href="@($"/ranglijst/{category.Slug ?? category.Id.ToString()}")">
-                                    <i class="bi bi-trophy"></i>
-                                    <span>@category.Name</span>
-                                </NavLink>
-                            }
-                        </div>
+                        <p class="ad-spots-text"><span><strong>@activity.TotalSignUps</strong> aanmeldingen</span></p>
                     }
 
-                    @if (IsAdmin)
-                    {
-                        <div class="ad-elo-card">
-                            <span class="ad-elo-card-title">Categorieën wijzigen</span>
-                            <div class="ad-elo-options">
-                                @foreach (CategoryDto category in SelectableCategories)
-                                {
-                                    <label class="ad-elo-option @(selectedCategoryIds.Contains(category.Id) ? "selected" : "")">
-                                        <input type="checkbox" checked="@selectedCategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
-                                        <span>@category.Name</span>
-                                    </label>
-                                }
-                            </div>
-                            @if (categoryError is not null)
-                            {
-                                <p class="validation-message">@categoryError</p>
-                            }
-                            <button type="button" class="ad-elo-button-secondary" @onclick="SaveCategoriesAsync" disabled="@isSavingCategories">
-                                @(!isSavingCategories ? "Categorieën opslaan" : "Aan het laden..")
-                            </button>
-                        </div>
-                    }
-                </section>
-
-                <section class="ad-section">
-                    <div class="ad-elo-header">
-                        <h2>Wedstrijden</h2>
-                        @if (IsAdmin)
+                    <div class="ad-actions">
+                        @if (!activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
                         {
-                            <button type="button" class="ad-elo-button" @onclick="@(() => NavigationManager.NavigateTo($"/wedstrijd/nieuw/{activity.Slug ?? activity.Id.ToString() ?? Id}"))">
-                                <i class="bi bi-plus-lg"></i>
-                                <span>Wedstrijd aanmaken</span>
+                            <button class="ad-register" type="button" @onclick="@(() => OpenComponentAsync(signUpRequest))" disabled="@(!activity.IsOpenForSignUp || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                                @(!signUpRequest.IsLoading ? "Inschrijven" : "Aan het laden..")
+                            </button>
+                        }
+                        @if (activity.HasSignedUp || User?.Identity?.IsAuthenticated != true)
+                        {
+                            <button class="ad-register ad-register-secondary" type="button" @onclick="@(() => OpenComponentAsync(editSignUpRequest))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                                @(!editSignUpRequest.IsLoading ? "Inschrijving wijzigen" : "Aan het laden..")
+                            </button>
+                            <button class="ad-register ad-register-danger" type="button" @onclick="@(() => OpenComponentAsync(signOutRequest, SignOutAsync))" disabled="@(DateTime.UtcNow >= activity.SignOutDeadline || signUpRequest.IsLoading || editSignUpRequest.IsLoading || signOutRequest.IsLoading)">
+                                @(!signOutRequest.IsLoading ? "Uitschrijven" : "Aan het laden..")
                             </button>
                         }
                     </div>
 
-                    @if (!activity.Matches.Any())
-                    {
-                        <p class="ad-empty">Er zijn geen wedstrijden gekoppeld aan deze activiteit.</p>
-                    }
-                    else
-                    {
-                        <div class="ad-matches">
-                            @foreach (RecentMatchDto match in activity.Matches)
-                            {
-                                <div class="ad-match">
-                                    <div class="ad-match-header">
-                                        <span class="ad-match-date">@match.MatchDate.ToDisplayDateTime()</span>
-                                        <NavLink class="ad-match-category" href="@($"/ranglijst?categorie={match.CategorySlug ?? match.CategoryId.ToString()}")">@match.CategoryName</NavLink>
-                                    </div>
-                                    <ol class="ad-match-results">
-                                        @foreach (RecentMatchParticipantDto participant in match.Participants)
-                                        {
-                                            <li class="ad-match-result">
-                                                <span class="ad-match-placement @(participant.Placement == 1 ? "ad-match-winner" : "")">@participant.Placement</span>
-                                                <NavLink class="ad-match-player" href="@($"/speler/{participant.UserSlug ?? participant.UserId.ToString()}")">@participant.FullName</NavLink>
-                                                <span class="ad-match-change @ToChangeClass(participant.RatingChange)">@participant.RatingChange.ToRatingChange()</span>
-                                            </li>
-                                        }
-                                    </ol>
-                                    @if (IsAdmin)
-                                    {
-                                        <button type="button" class="ad-elo-button-danger" @onclick="@(() => UnlinkMatchAsync(match))" disabled="@isLinkingMatch">
-                                            <i class="bi bi-link-45deg"></i>
-                                            <span>Ontkoppelen</span>
-                                        </button>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
-
-                    @if (IsAdmin)
-                    {
-                        <div class="ad-elo-card">
-                            <span class="ad-elo-card-title">Bestaande wedstrijd koppelen</span>
-                            @if (matchError is not null)
-                            {
-                                <p class="validation-message">@matchError</p>
-                            }
-                            <div class="ad-elo-link">
-                                <select class="ad-elo-select" @bind="selectedMatchId">
-                                    <option value="@Guid.Empty">Kies een wedstrijd</option>
-                                    @foreach (RecentMatchDto match in linkableMatches)
-                                    {
-                                        <option value="@match.MatchId">@ToMatchDescription(match)</option>
-                                    }
-                                </select>
-                                <button type="button" class="ad-elo-button-secondary" @onclick="LinkMatchAsync" disabled="@isLinkingMatch">
-                                    @(!isLinkingMatch ? "Wedstrijd koppelen" : "Aan het laden..")
-                                </button>
-                            </div>
-                        </div>
-                    }
+                    <p class="ad-deadline">
+                        <i class="bi bi-clock"></i>
+                        <span>Inschrijven kan tot @activity.SignUpDeadline.ToDisplayDateTime()</span>
+                    </p>
                 </section>
-            }
-        </div>
-
-        @if (activity.PhotoIds.Count > 0)
-        {
-            <aside class="ad-aside">
-                <img class="ad-image" src="@ActivityService.GetPhotoUrl(activity.Id, activity.PhotoIds[0])" alt="@activity.Name" />
             </aside>
-        }
-    </div>
-
-    <section class="ad-section">
-        <h2>Foto's</h2>
-        <PhotoCarouselComponent ActivityId="activity.Id" PhotoIds="activity.PhotoIds" Name="@activity.Name" />
-    </section>
-
-    <SignUpComponent PlusOneAllowed="activity.PlusOneAllowed"  @bind-Request="signUpRequest" OnSubmit="@(() => SubmitComponentAsync(signUpRequest, SignUpAsync))" />
-    <EditSignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-Request="editSignUpRequest" OnSubmit="@(() => SubmitComponentAsync(editSignUpRequest, EditSignUpAsync))" />
-    <SignOutComponent @bind-Request="signOutRequest" OnSubmit="@(() => SubmitComponentAsync(signOutRequest, SignOutAsync))" />
-
-    @if (IsAdmin)
-    {
-        <div class="signup-container @(showCancelPrompt ? "container-visible" : "")" @onmousedown="@(() => showCancelPrompt = isCancelling)">
-            <div class="form" @onmousedown:stopPropagation="true">
-                <section>
-                    <label>Activiteit annuleren</label>
-                    <p>Weet je zeker dat je <strong>@activity.Name</strong> wilt annuleren? Alle ingeschreven deelnemers en mensen op de wachtlijst krijgen automatisch een e-mail. Dit kan niet ongedaan worden gemaakt.</p>
-                </section>
-                <section>
-                    <button type="button" @onclick="CancelActivityAsync" disabled="@isCancelling">
-                        @(!isCancelling ? "Activiteit annuleren" : "Aan het laden..")
-                    </button>
-                </section>
-                <section>
-                    <button type="button" @onclick="@(() => showCancelPrompt = false)" disabled="@isCancelling">Terug</button>
-                </section>
-            </div>
         </div>
+
+        <section class="ad-photos">
+            <h2>Foto's</h2>
+            <PhotoCarouselComponent ActivityId="activity.Id" PhotoIds="activity.PhotoIds" Name="@activity.Name" />
+        </section>
+
+        <SignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-Request="signUpRequest" OnSubmit="@(() => SubmitComponentAsync(signUpRequest, SignUpAsync))" />
+        <EditSignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-Request="editSignUpRequest" OnSubmit="@(() => SubmitComponentAsync(editSignUpRequest, EditSignUpAsync))" />
+        <SignOutComponent @bind-Request="signOutRequest" OnSubmit="@(() => SubmitComponentAsync(signOutRequest, SignOutAsync))" />
+
+        @if (IsAdmin)
+        {
+            <div class="signup-container @(showCancelPrompt ? "container-visible" : "")" @onmousedown="@(() => showCancelPrompt = isCancelling)">
+                <div class="form" @onmousedown:stopPropagation="true">
+                    <section>
+                        <label>Activiteit annuleren</label>
+                        <p>Weet je zeker dat je <strong>@activity.Name</strong> wilt annuleren? Alle ingeschreven deelnemers en mensen op de wachtlijst krijgen automatisch een e-mail. Dit kan niet ongedaan worden gemaakt.</p>
+                    </section>
+                    <section>
+                        <button type="button" @onclick="CancelActivityAsync" disabled="@isCancelling">
+                            @(!isCancelling ? "Activiteit annuleren" : "Aan het laden..")
+                        </button>
+                    </section>
+                    <section>
+                        <button type="button" @onclick="@(() => showCancelPrompt = false)" disabled="@isCancelling">Terug</button>
+                    </section>
+                </div>
+            </div>
+        }
     }
-}
+</div>
 
 @code {
     [CascadingParameter] public Task<AuthenticationState>? AuthenticationState { get; set; }
@@ -775,10 +820,10 @@ else
             ? "Gratis"
             : cost.ToString("C", CultureInfo.GetCultureInfo("nl-NL"));
 
-    private static string ToSpots(ActivityDetailResponse activity)
-        => activity.HasParticipantLimit
-            ? $"{activity.TotalSignUps} van {activity.MaxParticipants} plekken bezet, nog {activity.AvailableSpots} beschikbaar"
-            : $"{activity.TotalSignUps} aanmeldingen";
+    private static int ToSpotsPercentage(ActivityDetailResponse activity)
+        => activity.MaxParticipants > 0
+            ? Math.Min(100, activity.TotalSignUps * 100 / activity.MaxParticipants)
+            : 0;
 
     private static string ToParticipantTotal(ActivitySignUpListResponse signUps)
         => $"{signUps.TotalParticipants} deelnemers en {signUps.TotalPlusOnes} introducés";

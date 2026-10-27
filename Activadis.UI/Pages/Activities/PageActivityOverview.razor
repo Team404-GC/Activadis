@@ -14,38 +14,102 @@
 
     @if (!showMine)
     {
-        <div class="ao-filters">
-            <input class="ao-input" type="search" placeholder="Zoek op naam" @bind="name" @bind:after="LoadAsync" />
-            <select class="ao-input" aria-label="Periode" @bind="period" @bind:after="LoadAsync">
-                <option value="">Alle data</option>
-                <option value="today">Vandaag</option>
-                <option value="week">Deze week</option>
-                <option value="month">Deze maand</option>
-                <option value="threeMonths">Komende 3 maanden</option>
-                <option value="custom">Aangepaste periode</option>
-            </select>
+        <div class="ao-actions">
+            <div class="ao-search">
+                <i class="bi bi-search"></i>
+                <input type="search" placeholder="Zoek op naam" @bind="name" @bind:after="LoadAsync" />
+            </div>
 
-            @if (period == "custom")
-            {
-                <input class="ao-input" type="date" aria-label="Van" title="Van" @bind="customFrom" @bind:after="LoadAsync" />
-                <span class="ao-separator">t/m</span>
-                <input class="ao-input" type="date" aria-label="Tot en met" title="Tot en met" @bind="customTo" @bind:after="LoadAsync" />
-            }
-
-            <input class="ao-input" type="time" aria-label="Tijd" title="Tijd" @bind="time" @bind:after="LoadAsync" />
-
-            <button type="button" class="ao-filter" @onclick="ToggleSortAsync">
+            <button type="button" class="ao-button" @onclick="ToggleSortAsync">
                 <i class="bi @(sortDescending ? "bi-sort-down" : "bi-sort-up")"></i>
                 <span>@(sortDescending ? "Laatste eerst" : "Vroegste eerst")</span>
             </button>
 
-            @if (isAdmin)
-            {
-                <button type="button" class="ao-filter @(showPast ? "active" : "")" @onclick="TogglePastActivitiesAsync">
-                    <i class="bi bi-clock-history"></i>
-                    <span>Toon afgelopen</span>
+            <div class="ao-filter">
+                <button type="button" class="ao-button @(FilterCount > 0 ? "active" : "")" aria-expanded="@isFilterOpen" @onclick="() => isFilterOpen = !isFilterOpen">
+                    <i class="bi bi-sliders"></i>
+                    <span>Filters</span>
+                    @if (FilterCount > 0)
+                    {
+                        <span class="ao-count">@FilterCount</span>
+                    }
                 </button>
-            }
+
+                @if (isFilterOpen)
+                {
+                    <div class="ao-backdrop" @onclick="() => isFilterOpen = false"></div>
+                    <div class="ao-popup">
+                        <div class="ao-popup-header">
+                            <h2>Filters</h2>
+                            <button type="button" class="ao-close" aria-label="Sluiten" @onclick="() => isFilterOpen = false">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+
+                        <section class="ao-group">
+                            <h3>Periode</h3>
+                            <div class="ao-chips">
+                                @foreach ((string value, string label) in Periods)
+                                {
+                                    <button type="button" class="ao-chip @(period == value ? "active" : "")" @onclick="() => SelectPeriodAsync(value)">@label</button>
+                                }
+                            </div>
+                            @if (period == "custom")
+                            {
+                                <div class="ao-range">
+                                    <label>
+                                        <span>Van</span>
+                                        <input type="date" @bind="customFrom" @bind:after="LoadAsync" />
+                                    </label>
+                                    <label>
+                                        <span>Tot en met</span>
+                                        <input type="date" @bind="customTo" @bind:after="LoadAsync" />
+                                    </label>
+                                </div>
+                            }
+                        </section>
+
+                        <section class="ao-group">
+                            <h3>Tijd</h3>
+                            <div class="ao-chips">
+                                @foreach ((string value, string label) in TimesOfDay)
+                                {
+                                    <button type="button" class="ao-chip @(timeOfDay == value ? "active" : "")" @onclick="() => SelectTimeOfDayAsync(value)">@label</button>
+                                }
+                            </div>
+                            @if (timeOfDay == "custom")
+                            {
+                                <div class="ao-range">
+                                    <label>
+                                        <span>Van</span>
+                                        <input type="time" @bind="customTimeFrom" @bind:after="LoadAsync" />
+                                    </label>
+                                    <label>
+                                        <span>Tot</span>
+                                        <input type="time" @bind="customTimeTo" @bind:after="LoadAsync" />
+                                    </label>
+                                </div>
+                            }
+                        </section>
+
+                        @if (isAdmin)
+                        {
+                            <section class="ao-group ao-toggle">
+                                <span>Toon afgelopen activiteiten</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked="@showPast" @onchange="TogglePastActivitiesAsync" />
+                                    <span class="slider round"></span>
+                                </label>
+                            </section>
+                        }
+
+                        <div class="ao-popup-footer">
+                            <button type="button" class="ao-clear" disabled="@(FilterCount == 0)" @onclick="ClearFiltersAsync">Wissen</button>
+                            <button type="button" class="ao-done" @onclick="() => isFilterOpen = false">Klaar</button>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     }
 </div>
@@ -63,22 +127,38 @@ else
 }
 
 @code {
+    private static readonly (string Value, string Label)[] Periods =
+    [
+        ("", "Alle data"), ("today", "Vandaag"), ("week", "Deze week"), ("month", "Deze maand"), ("threeMonths", "Komende 3 maanden"), ("custom", "Aangepast")
+    ];
+
+    private static readonly (string Value, string Label)[] TimesOfDay =
+    [
+        ("", "Hele dag"), ("morning", "Ochtend"), ("afternoon", "Middag"), ("evening", "Avond"), ("custom", "Aangepast")
+    ];
+
     private IEnumerable<ActivityOverviewResponse> activities = [];
     private bool isLoading = true;
     private bool showMine = false;
     private bool showPast = false;
+    private bool isFilterOpen = false;
 
     private string? name;
     private string period = string.Empty;
     private DateTime? customFrom;
     private DateTime? customTo;
-    private TimeOnly? time;
+    private string timeOfDay = string.Empty;
+    private TimeOnly? customTimeFrom;
+    private TimeOnly? customTimeTo;
     private bool sortDescending = false;
 
     [CascadingParameter]
     public Task<AuthenticationState>? AuthenticationState { get; set; }
 
     private bool isAdmin;
+
+    private int FilterCount
+        => (period != string.Empty ? 1 : 0) + (timeOfDay != string.Empty ? 1 : 0) + (showPast ? 1 : 0);
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,6 +177,19 @@ else
             return;
 
         showMine = mine;
+        isFilterOpen = false;
+        await LoadAsync();
+    }
+
+    private async Task SelectPeriodAsync(string value)
+    {
+        period = value;
+        await LoadAsync();
+    }
+
+    private async Task SelectTimeOfDayAsync(string value)
+    {
+        timeOfDay = value;
         await LoadAsync();
     }
 
@@ -109,6 +202,18 @@ else
     private async Task TogglePastActivitiesAsync()
     {
         showPast = !showPast;
+        await LoadAsync();
+    }
+
+    private async Task ClearFiltersAsync()
+    {
+        period = string.Empty;
+        customFrom = null;
+        customTo = null;
+        timeOfDay = string.Empty;
+        customTimeFrom = null;
+        customTimeTo = null;
+        showPast = false;
         await LoadAsync();
     }
 
@@ -135,6 +240,7 @@ else
     private ActivityFilterRequest BuildFilter()
     {
         (DateTime? from, DateTime? to) = GetPeriod();
+        (TimeOnly? timeFrom, TimeOnly? timeTo) = GetTimeWindow();
 
         return new ActivityFilterRequest()
         {
@@ -142,7 +248,8 @@ else
             IncludePast = isAdmin && showPast,
             From = from is DateTime start ? DateTime.SpecifyKind(start, DateTimeKind.Local).ToUniversalTime() : null,
             To = to is DateTime end ? DateTime.SpecifyKind(end, DateTimeKind.Local).ToUniversalTime() : null,
-            Time = time,
+            TimeFrom = timeFrom,
+            TimeTo = timeTo,
             UtcOffsetMinutes = (int)TimeZoneInfo.Local.GetUtcOffset(DateTime.Now).TotalMinutes,
             SortDescending = sortDescending
         };
@@ -165,12 +272,22 @@ else
         };
     }
 
+    private (TimeOnly? From, TimeOnly? To) GetTimeWindow()
+        => timeOfDay switch
+        {
+            "morning" => (new TimeOnly(0, 0), new TimeOnly(12, 0)),
+            "afternoon" => (new TimeOnly(12, 0), new TimeOnly(18, 0)),
+            "evening" => (new TimeOnly(18, 0), TimeOnly.MaxValue),
+            "custom" when customTimeFrom is not null || customTimeTo is not null => (customTimeFrom ?? TimeOnly.MinValue, customTimeTo ?? TimeOnly.MaxValue),
+            _ => (null, null)
+        };
+
     private string ToEmptyMessage()
     {
         if (showMine)
             return "Je bent nog niet ingeschreven voor een activiteit.";
 
-        bool hasFilters = !string.IsNullOrWhiteSpace(name) || period != string.Empty || time is not null;
+        bool hasFilters = !string.IsNullOrWhiteSpace(name) || FilterCount > 0;
         return hasFilters
             ? "Er zijn geen activiteiten gevonden die passen bij je zoekopdracht. Pas de filters aan."
             : "Er zijn op dit moment geen activiteiten.";

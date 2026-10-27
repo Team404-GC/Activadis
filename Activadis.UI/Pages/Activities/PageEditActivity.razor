@@ -3,143 +3,175 @@
 @attribute [Authorize(Roles = "Admin")]
 @page "/activiteit/bewerk/{Id}"
 
-<NavLink class="ad-back" href="@($"/activiteit/{activity?.Slug ?? Id}")" Match="NavLinkMatch.Prefix">
+<PageTitle>Bewerk activiteit</PageTitle>
+
+<NavLink class="af-back" href="@($"/activiteit/{activity?.Slug ?? Id}")" Match="NavLinkMatch.Prefix">
     <i class="bi bi-arrow-left"></i>
     <span>Terug naar de activiteit</span>
 </NavLink>
 
 @if (isLoading)
 {
-    <div class="ad-state">
+    <div class="af-state">
         <div class="spinner-border" role="status"></div>
     </div>
 }
 else if (activity is null)
 {
-    <p class="ad-state">Deze activiteit is niet gevonden.</p>
+    <p class="af-state">Deze activiteit is niet gevonden.</p>
 }
 else if (context is not null)
 {
-    <div class="form-container">
-        <h3>Bewerk activiteit: @request.Name</h3>
-        <EditForm EditContext="context" OnValidSubmit="EditAsync">
-            <DataAnnotationsValidator />
-            <section>
-                <label>Naam</label>
-                <InputText @bind-Value="request.Name" />
-                <ValidationMessage For="@(() => request.Name)" />
+    <h1 class="af-title">Bewerk activiteit: @request.Name</h1>
+    <EditForm EditContext="context" OnValidSubmit="EditAsync" class="af-layout">
+        <DataAnnotationsValidator />
+        <div class="af-main">
+            <section class="af-card">
+                <h2 class="af-card-title"><i class="bi bi-card-text"></i>Algemeen</h2>
+                <div class="af-grid">
+                    <div class="af-field af-wide">
+                        <label>Naam</label>
+                        <InputText @bind-Value="request.Name" />
+                        <ValidationMessage For="@(() => request.Name)" />
+                    </div>
+                    <div class="af-field af-wide">
+                        <label>Beschrijving</label>
+                        <InputTextArea rows="5" @bind-Value="request.Description" />
+                        <ValidationMessage For="@(() => request.Description)" />
+                    </div>
+                    <div class="af-field af-wide">
+                        <label>Benodigdheden <span class="af-optional">(optioneel)</span></label>
+                        <InputTextArea rows="3" @bind-Value="request.Requirements" />
+                        <ValidationMessage For="@(() => request.Requirements)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Locatie</label>
+                        <InputText @bind-Value="request.Location" />
+                        <ValidationMessage For="@(() => request.Location)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Kosten per persoon</label>
+                        <div class="af-affix">
+                            <span>€</span>
+                            <InputNumber step="0.01" min="0" @bind-Value="request.CostPerPerson" />
+                        </div>
+                        <ValidationMessage For="@(() => request.CostPerPerson)" />
+                    </div>
+                </div>
             </section>
-            <section>
-                <label>Beschrijving</label>
-                <InputTextArea @bind-Value="request.Description" />
-                <ValidationMessage For="@(() => request.Description)" />
-            </section>
-            <section>
-                <label>Benodigdheden (optioneel)</label>
-                <InputTextArea @bind-Value="request.Requirements" />
-                <ValidationMessage For="@(() => request.Requirements)" />
-            </section>
-            <section>
-                <label>Kosten per persoon</label>
-                <InputNumber step="0.01" @bind-Value="request.CostPerPerson" />
-                <ValidationMessage For="@(() => request.CostPerPerson)" />
-            </section>
-            <br />
-            <section>
-                <label>Locatie</label>
-                <InputText @bind-Value="request.Location" />
-                <ValidationMessage For="@(() => request.Location)" />
-            </section>
-            <br />
-            <section>
-                <label>Minimaal aantal deelnemers</label>
-                <InputNumber @bind-Value="request.MinParticipants" />
-                <ValidationMessage For="@(() => request.MinParticipants)" />
-            </section>
-            <section>
-                <label>Maximaal aantal deelnemers</label>
-                <InputNumber @bind-Value="request.MaxParticipants" />
-                <ValidationMessage For="@(() => request.MaxParticipants)" />
-            </section>
-            <br />
-            <section>
-                <label>Bevat eten & drinken?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="request.FoodIncluded" />
-                    <span class="slider round"></span>
-                </label>
-                <ValidationMessage For="@(() => request.FoodIncluded)" />
-            </section>
-            <br />
-            <section>
-                <label>Startdatum</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
-                <ValidationMessage For="@(() => request.StartDate)" />
-            </section>
-            <section>
-                <label>Einddatum</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
-                <ValidationMessage For="@(() => request.EndDate)" />
-            </section>
-            <br />
-            <section>
-                <label>Inschrijfdeadline</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
-                <ValidationMessage For="@(() => request.SignUpDeadline)" />
-            </section>
-            <section>
-                <label>Uitschrijfdeadline</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
-                <ValidationMessage For="@(() => request.SignOutDeadline)" />
-            </section>
-            <br />
-            <section>
-                <label>Is draft?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="request.IsDraft" />
-                    <span class="slider round"></span>
-                </label>
-                <ValidationMessage For="@(() => request.IsDraft)" />
-                <button type="submit" disabled="@isEditing">Bewerken</button>
-            </section>
-            @if (form?.FormError is not null)
-            {
-                <p class="validation-message">@form?.FormError</p>
-            }
-        </EditForm>
 
-        <div class="form-photo-manager">
-            <h4>
-                Foto's
-                <InfoBubbleComponent Text="@($"Wijzigingen aan foto's worden direct opgeslagen. De eerste foto staat op het kaartje. Maximaal {ApplicationConfiguration.MaxPhotos} foto's.")" />
-            </h4>
-            @if (photoIds.Count == 0)
-            {
-                <p>Deze activiteit heeft nog geen foto's.</p>
-            }
-            else
-            {
-                <ol class="form-photos">
-                    @for (int index = 0; index < photoIds.Count; index++)
-                    {
-                        int current = index;
-                        Guid photoId = photoIds[current];
-                        <li class="form-photo">
-                            <img class="form-photo-preview" src="@ActivityService.GetPhotoUrl(activity?.Id ?? Guid.Empty, photoId)" alt="Foto @(current + 1)" />
-                            <button type="button" title="Omhoog" disabled="@(current == 0 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, -1)"><i class="bi bi-arrow-up"></i></button>
-                            <button type="button" title="Omlaag" disabled="@(current == photoIds.Count - 1 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, 1)"><i class="bi bi-arrow-down"></i></button>
-                            <button type="button" title="Verwijderen" disabled="@isSavingPhotos" @onclick="() => RemovePhotoAsync(photoId)"><i class="bi bi-x-lg"></i></button>
-                        </li>
-                    }
-                </ol>
-            }
-            @if (photoIds.Count < ApplicationConfiguration.MaxPhotos)
-            {
-                <label>Foto's toevoegen</label>
-                <InputFile OnChange="OnPhotosChangeAsync" accept="image/png,image/jpeg,image/webp" multiple disabled="@isSavingPhotos" />
-            }
+            <section class="af-card">
+                <h2 class="af-card-title"><i class="bi bi-calendar-event"></i>Planning</h2>
+                <div class="af-grid">
+                    <div class="af-field">
+                        <label>Startdatum</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
+                        <ValidationMessage For="@(() => request.StartDate)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Einddatum</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
+                        <ValidationMessage For="@(() => request.EndDate)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Inschrijfdeadline</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
+                        <ValidationMessage For="@(() => request.SignUpDeadline)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Uitschrijfdeadline</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
+                        <ValidationMessage For="@(() => request.SignOutDeadline)" />
+                    </div>
+                </div>
+            </section>
+
+            <section class="af-card">
+                <h2 class="af-card-title"><i class="bi bi-people"></i>Deelnemers</h2>
+                <div class="af-grid">
+                    <div class="af-field">
+                        <label>Minimaal aantal deelnemers</label>
+                        <InputNumber @bind-Value="request.MinParticipants" />
+                        <ValidationMessage For="@(() => request.MinParticipants)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Maximaal aantal deelnemers</label>
+                        <InputNumber @bind-Value="request.MaxParticipants" />
+                        <ValidationMessage For="@(() => request.MaxParticipants)" />
+                    </div>
+                </div>
+                <div class="af-toggles">
+                    <div class="af-toggle">
+                        <span>Bevat eten & drinken?</span>
+                        <label class="switch">
+                            <InputCheckbox @bind-Value="request.FoodIncluded" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
         </div>
-    </div>
+
+        <aside class="af-side">
+            <section class="af-card af-publish">
+                <h2 class="af-card-title"><i class="bi bi-send"></i>Publiceren</h2>
+                <div class="af-toggle">
+                    <span>Opslaan als concept</span>
+                    <label class="switch">
+                        <InputCheckbox @bind-Value="request.IsDraft" />
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <ValidationMessage For="@(() => request.IsDraft)" />
+                @if (form?.FormError is not null)
+                {
+                    <p class="validation-message">@form?.FormError</p>
+                }
+                <button type="submit" class="af-submit" disabled="@isEditing">
+                    @(!isEditing ? "Wijzigingen opslaan" : "Aan het laden..")
+                </button>
+            </section>
+
+            <section class="af-card">
+                <h2 class="af-card-title">
+                    <i class="bi bi-images"></i>Foto's
+                    <InfoBubbleComponent Text="@($"Wijzigingen aan foto's worden direct opgeslagen. De eerste foto staat op het kaartje. Maximaal {ApplicationConfiguration.MaxPhotos} foto's.")" />
+                </h2>
+                @if (photoIds.Count == 0)
+                {
+                    <p class="af-empty">Deze activiteit heeft nog geen foto's.</p>
+                }
+                else
+                {
+                    <ol class="af-photos">
+                        @for (int index = 0; index < photoIds.Count; index++)
+                        {
+                            int current = index;
+                            Guid photoId = photoIds[current];
+                            <li class="af-photo">
+                                <img src="@ActivityService.GetPhotoUrl(activity?.Id ?? Guid.Empty, photoId)" alt="Foto @(current + 1)" />
+                                <span class="af-file-index">@(current + 1)</span>
+                                <div class="af-photo-actions">
+                                    <button type="button" class="af-icon-button" title="Eerder tonen" disabled="@(current == 0 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, -1)"><i class="bi bi-arrow-left"></i></button>
+                                    <button type="button" class="af-icon-button" title="Later tonen" disabled="@(current == photoIds.Count - 1 || isSavingPhotos)" @onclick="() => MovePhotoAsync(current, 1)"><i class="bi bi-arrow-right"></i></button>
+                                    <button type="button" class="af-icon-button af-icon-danger" title="Verwijderen" disabled="@isSavingPhotos" @onclick="() => RemovePhotoAsync(photoId)"><i class="bi bi-trash3"></i></button>
+                                </div>
+                            </li>
+                        }
+                    </ol>
+                }
+                @if (photoIds.Count < ApplicationConfiguration.MaxPhotos)
+                {
+                    <label class="af-dropzone">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <span>Foto's toevoegen</span>
+                        <small>PNG, JPG of WEBP</small>
+                        <InputFile OnChange="OnPhotosChangeAsync" accept="image/png,image/jpeg,image/webp" multiple disabled="@isSavingPhotos" />
+                    </label>
+                }
+            </section>
+        </aside>
+    </EditForm>
 
     <link rel="stylesheet" href="/css/signup-component.css" />
     <div class="signup-container @(showInformPrompt ? "container-visible" : "")">

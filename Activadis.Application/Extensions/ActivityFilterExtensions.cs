@@ -17,7 +17,8 @@ namespace Activadis.Application.Extensions
 				To = request.To,
 				IncludePast = isAdmin && request.IncludePast,
 				ExcludeInternal = request.ExcludeInternal,
-				Time = request.Time?.ToTimeSpan(),
+				TimeFrom = request.TimeFrom?.ToTimeSpan(),
+				TimeTo = request.TimeTo?.ToTimeSpan(),
 				UtcOffsetMinutes = request.UtcOffsetMinutes,
 				SortDescending = request.SortDescending
 			};

@@ -12,7 +12,8 @@ namespace Activadis.Shared.DTOs.Activity
 		public bool IncludePast { get; set; }
 		public bool ExcludeInternal { get; set; } = false;
 
-		public TimeOnly? Time { get; set; }
+		public TimeOnly? TimeFrom { get; set; }
+		public TimeOnly? TimeTo { get; set; }
 		public int UtcOffsetMinutes { get; set; }
 		public bool SortDescending { get; set; }
 	}
