@@ -118,6 +118,103 @@ else
                 }
             </div>
 
+            @if (IsAdmin)
+            {
+                <section class="ad-section">
+                    <h2>Deelnemers</h2>
+
+                    @if (signUps is null)
+                    {
+                        <p class="ad-empty">De deelnemers konden niet worden geladen.</p>
+                    }
+                    else
+                    {
+                        <p class="ad-participant-total">@ToParticipantTotal(signUps)</p>
+
+                        @if (!signUps.Participants.Any())
+                        {
+                            <p class="ad-empty">Er zijn nog geen deelnemers.</p>
+                        }
+                        else
+                        {
+                            <ul class="ad-participants">
+                                @foreach (ActivitySignUpResponse signUp in signUps.Participants)
+                                {
+                                    <li class="ad-participant">
+                                        <div class="ad-participant-header">
+                                            @if (signUp.IsExternal)
+                                            {
+                                                <span class="ad-participant-name">@signUp.FullName</span>
+                                                <span class="ad-participant-tag">Extern</span>
+                                            }
+                                            else
+                                            {
+                                                <NavLink class="ad-participant-name" href="@($"/speler/{signUp.UserSlug ?? signUp.UserId.ToString()}")">@signUp.FullName</NavLink>
+                                            }
+                                            @if (signUp.HasPlusOne)
+                                            {
+                                                <span class="ad-participant-tag ad-participant-tag-plus-one">+1</span>
+                                            }
+                                        </div>
+                                        @if (signUp.IsExternal)
+                                        {
+                                            <span class="ad-participant-email">@signUp.Email</span>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(signUp.Comment))
+                                        {
+                                            <p class="ad-participant-comment">@signUp.Comment</p>
+                                        }
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    }
+                </section>
+
+                <section class="ad-section">
+                    <h2>Wachtlijst</h2>
+
+                    @if (signUps is null)
+                    {
+                        <p class="ad-empty">De wachtlijst kon niet worden geladen.</p>
+                    }
+                    else if (!signUps.Waitlist.Any())
+                    {
+                        <p class="ad-empty">Er staat niemand op de wachtlijst.</p>
+                    }
+                    else
+                    {
+                        <ul class="ad-participants">
+                            @foreach (ActivitySignUpResponse signUp in signUps.Waitlist)
+                            {
+                                <li class="ad-participant">
+                                    <div class="ad-participant-header">
+                                        <span class="ad-participant-position">@signUp.WaitlistPosition</span>
+                                        <span class="ad-participant-name">@signUp.FullName</span>
+                                        @if (signUp.IsExternal)
+                                        {
+                                            <span class="ad-participant-tag">Extern</span>
+                                        }
+                                        @if (signUp.HasPlusOne)
+                                        {
+                                            <span class="ad-participant-tag ad-participant-tag-plus-one">+1</span>
+                                        }
+                                    </div>
+                                    @if (signUp.IsExternal)
+                                    {
+                                        <span class="ad-participant-email">@signUp.Email</span>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(signUp.Comment))
+                                    {
+                                        <p class="ad-participant-comment">@signUp.Comment</p>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                </section>
+            }
+
             @if (User?.Identity?.IsAuthenticated == true)
             {
                 <section class="ad-section">
@@ -263,6 +360,7 @@ else
     [Parameter] public string Id { get; set; } = string.Empty;
 
     private ActivityDetailResponse? activity;
+    private ActivitySignUpListResponse? signUps;
     private bool isLoading = true;
 
     private ComponentRequest<SignUpRequest> signUpRequest = new ComponentRequest<SignUpRequest>(new SignUpRequest());
@@ -337,7 +435,10 @@ else
         editSignUpRequest.Request.ActivityId = activity.Id;
 
         if (IsAdmin)
+        {
+            await LoadSignUpsAsync();
             await LoadAdminDataAsync();
+        }
 
         isLoading = false;
     }
@@ -366,6 +467,19 @@ else
         activeCategories = categoryResponse.Value ?? [];
 
         await LoadLinkableMatchesAsync();
+    }
+
+    private async Task LoadSignUpsAsync()
+    {
+        ApiResponse<ActivitySignUpListResponse> response = await ActivityService.GetSignUpsAsync(activity!.Id);
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            signUps = null;
+            return;
+        }
+
+        signUps = response.Value;
     }
 
     private async Task LoadLinkableMatchesAsync()
@@ -514,6 +628,10 @@ else
             activity.HasSignedUp = true;
             activity.IsFull = activity.HasParticipantLimit && activity.AvailableSpots <= 0;
             activity.IsOpenForSignUp = DateTime.UtcNow < activity.SignUpDeadline && !activity.IsFull;
+
+            if (IsAdmin)
+                await LoadSignUpsAsync();
+
             Notifications.AddNotification("Je bent succesvol ingeschreven bij deze activiteit.", false);
         }
         else
@@ -542,6 +660,9 @@ else
 
         if (User?.Identity?.IsAuthenticated == true)
         {
+            if (IsAdmin)
+                await LoadSignUpsAsync();
+
             Notifications.AddNotification("Je hebt je inschrijving succesvol bijgewerkt.", false);
         }
         else
@@ -575,6 +696,10 @@ else
             activity.HasSignedUp = false;
             activity.IsFull = activity.HasParticipantLimit && activity.AvailableSpots <= 0;
             activity.IsOpenForSignUp = DateTime.UtcNow < activity.SignUpDeadline && !activity.IsFull;
+
+            if (IsAdmin)
+                await LoadSignUpsAsync();
+
             Notifications.AddNotification("Je bent succesvol uitgeschreven bij deze activiteit.", false);
         }
         else
@@ -599,6 +724,9 @@ else
         => activity.HasParticipantLimit
             ? $"{activity.TotalSignUps} van {activity.MaxParticipants} plekken bezet, nog {activity.AvailableSpots} beschikbaar"
             : $"{activity.TotalSignUps} aanmeldingen";
+
+    private static string ToParticipantTotal(ActivitySignUpListResponse signUps)
+        => $"{signUps.TotalParticipants} deelnemers en {signUps.TotalPlusOnes} introducés";
 
     private static string ToAnswer(bool value)
         => value ? "Ja" : "Nee";

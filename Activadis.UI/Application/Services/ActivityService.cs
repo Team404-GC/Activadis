@@ -39,6 +39,9 @@ namespace Activadis.UI.Application.Services
 		public async Task<ApiResponse<IEnumerable<ActivityParticipantResponse>>> GetParticipantsAsync(Guid id)
 			=> await HttpService.GetAsync<IEnumerable<ActivityParticipantResponse>>($"/Activity/{id}/participants");
 
+		public async Task<ApiResponse<ActivitySignUpListResponse>> GetSignUpsAsync(Guid id)
+			=> await HttpService.GetAsync<ActivitySignUpListResponse>($"/Activity/{id}/signups");
+
 		public async Task<ApiResponse<InformParticipantsResponse>> InformParticipantsAsync(Guid id)
 			=> await HttpService.PostAsync<InformParticipantsResponse, object>($"/Activity/{id}/participants/inform", new object());
 

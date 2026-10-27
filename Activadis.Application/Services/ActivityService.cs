@@ -211,6 +211,15 @@ namespace Activadis.Application.Services
                 .OrderBy(x => x.FullName);
         }
 
+        public async Task<ActivitySignUpListResponse> GetSignUpsAsync(Guid id)
+        {
+            Activity activity = await ActivityRepository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            IEnumerable<SignUp> signUps = await SignUpRepository.GetByActivityIdAsync(activity.Id);
+            return signUps.ToSignUpListResponse();
+        }
+
         public async Task<InformParticipantsResponse> InformParticipantsAsync(Guid id)
         {
             Activity activity = await ActivityRepository.GetByIdAsync(id)

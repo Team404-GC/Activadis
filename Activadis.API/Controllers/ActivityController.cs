@@ -220,6 +220,21 @@ namespace Activadis.API.Controllers
 			}
 		}
 
+		[HttpGet("{id:guid}/signups")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> GetSignUpsAsync(Guid id)
+		{
+			try
+			{
+				ActivitySignUpListResponse signUps = await ActivityService.GetSignUpsAsync(id);
+				return Ok(ApiResponse<ActivitySignUpListResponse>.Ok(signUps));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<ActivitySignUpListResponse>.Fail(exception.Message));
+			}
+		}
+
 		[HttpPost("{id:guid}/participants/inform")]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> InformParticipantsAsync(Guid id)
