@@ -138,3 +138,53 @@
         display: none;
     }
 }
+
+.ca-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    overflow-y: auto;
+    background: rgba(4, 9, 20, 0.6);
+    backdrop-filter: blur(4px);
+    animation: ca-fade-in 160ms ease-out;
+}
+
+.ca-modal {
+    width: min(760px, 100%);
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+    animation: ca-modal-in 200ms ease-out;
+}
+
+    .ca-modal ::deep .cf-card {
+        margin-top: 0;
+    }
+
+@keyframes ca-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes ca-modal-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(8px);
+    }
+}
+
+@media (max-width: 700px) {
+    .ca-overlay {
+        padding: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ca-overlay,
+    .ca-modal {
+        animation: none;
+    }
+}

@@ -1,14 +1,15 @@
 ﻿.ao-toolbar {
     display: flex;
-    align-items: flex-end;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: space-between;
     gap: 16px;
+    margin-top: 16px;
 }
 
 .ao-tabs {
     display: flex;
     gap: 4px;
-    margin-top: 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
@@ -24,13 +25,11 @@
     font-family: inherit;
     font-size: 14px;
     font-weight: 500;
-    text-decoration: none;
     cursor: pointer;
 }
 
     .ao-tab:hover {
         color: #ffffff;
-        text-decoration: none;
     }
 
     .ao-tab.active {
@@ -38,70 +37,336 @@
         color: #ffffff;
     }
 
-.ao-filters {
+.ao-actions {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: 8px;
 }
 
-.ao-input {
-    height: 36px;
-    padding: 0 12px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 20px;
-    background: none;
-    color: #ffffff;
-    font-size: 14px;
+.ao-search {
+    position: relative;
 }
 
-    .ao-input::placeholder {
-        color: rgba(255, 255, 255, 0.6);
+    .ao-search i {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        transform: translateY(-50%);
+        pointer-events: none;
     }
 
-    .ao-input:focus {
-        border-color: var(--AccentColor);
-        outline: none;
+    .ao-search input {
+        width: 220px;
+        height: 40px;
+        padding: 0 14px 0 38px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 14px;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
     }
 
-    .ao-input:disabled {
-        opacity: 0.5;
-    }
+        .ao-search input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
 
-    .ao-input option {
-        color: var(--TextColor);
-    }
+        .ao-search input:focus {
+            border-color: var(--AccentColor);
+            box-shadow: 0 0 0 3px var(--AccentColorSoft);
+            outline: none;
+        }
 
-.ao-separator {
-    color: rgba(255, 255, 255, 0.65);
-    font-size: 14px;
-}
-
-.ao-filter {
+.ao-button {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    height: 36px;
+    height: 40px;
     padding: 0 16px;
-    margin-bottom: 8px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 20px;
-    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    background: transparent;
     color: #ffffff;
+    font-family: inherit;
     font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: border-color 150ms ease, background-color 150ms ease, transform 120ms ease-out;
+}
+
+    .ao-button:hover {
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .ao-button:active {
+        transform: scale(0.97);
+    }
+
+    .ao-button.active {
+        border-color: var(--AccentColor);
+        background: var(--AccentColorSoft);
+    }
+
+.ao-count {
+    display: grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--AccentColor);
+    color: var(--ButtonTextColor);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ao-filter {
+    position: relative;
+}
+
+.ao-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+}
+
+.ao-popup {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 1002;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 380px;
+    padding: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    background: #172a4f;
+    box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+    color: #ffffff;
+    color-scheme: dark;
+    transform-origin: top right;
+    animation: ao-popup-in 160ms ease-out;
+}
+
+.ao-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+    .ao-popup-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+.ao-close {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
     cursor: pointer;
 }
 
-    .ao-filter.active {
+    .ao-close:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+    }
+
+.ao-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+    .ao-group h3 {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+.ao-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ao-chip {
+    padding: 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: transparent;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+    .ao-chip:hover {
+        border-color: var(--AccentColor);
+    }
+
+    .ao-chip.active {
         border-color: var(--AccentColor);
         background: var(--AccentColor);
         color: var(--ButtonTextColor);
         font-weight: 600;
     }
 
+.ao-range {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+    .ao-range label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 12px;
+    }
+
+    .ao-range input {
+        height: 38px;
+        padding: 0 10px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 14px;
+    }
+
+        .ao-range input:focus {
+            border-color: var(--AccentColor);
+            outline: none;
+        }
+
+.ao-toggle {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+    .ao-toggle .switch {
+        margin: 0;
+    }
+
+.ao-popup-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ao-clear,
+.ao-done {
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ao-clear {
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+    .ao-clear:hover:not(:disabled) {
+        color: #ffffff;
+    }
+
+    .ao-clear:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+
+.ao-done {
+    border: none;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+}
+
+    .ao-done:hover {
+        background: var(--ButtonColorHover);
+    }
+
 .ao-state {
     display: flex;
     justify-content: center;
     margin-top: 48px;
-    color: var(--MutedText);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+@keyframes ao-popup-in {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(-4px);
+    }
+}
+
+@media (max-width: 900px) {
+    .ao-actions {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .ao-search {
+        flex: 1 1 100%;
+    }
+
+        .ao-search input {
+            width: 100%;
+        }
+}
+
+@media (max-width: 600px) {
+    .ao-backdrop {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .ao-popup {
+        position: fixed;
+        top: auto;
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+        width: auto;
+        max-height: 85vh;
+        overflow-y: auto;
+        transform-origin: bottom center;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ao-popup {
+        animation: none;
+    }
 }

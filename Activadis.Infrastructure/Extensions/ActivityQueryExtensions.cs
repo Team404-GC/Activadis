@@ -14,9 +14,9 @@ namespace Activadis.Infrastructure.Extensions
 				.Where(x => filter.To == null || x.StartDate <= filter.To)
 				.Where(x => filter.From == null || x.EndDate >= filter.From)
 				.Where(x => !filter.ExcludeInternal || x.ExternalAllowed)
-				.Where(x => filter.Time == null
+				.Where(x => filter.TimeFrom == null || filter.TimeTo == null
 					|| x.StartDate.AddMinutes(filter.UtcOffsetMinutes).Date != x.EndDate.AddMinutes(filter.UtcOffsetMinutes).Date
-					|| (x.StartDate.AddMinutes(filter.UtcOffsetMinutes).TimeOfDay <= filter.Time
-						&& x.EndDate.AddMinutes(filter.UtcOffsetMinutes).TimeOfDay >= filter.Time));
+					|| (x.StartDate.AddMinutes(filter.UtcOffsetMinutes).TimeOfDay < filter.TimeTo
+						&& x.EndDate.AddMinutes(filter.UtcOffsetMinutes).TimeOfDay > filter.TimeFrom));
 	}
 }
