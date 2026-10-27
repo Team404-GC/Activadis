@@ -17,6 +17,8 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                 byte[] bowling = ReadImage("bowling.webp");
                 byte[] gaming = ReadImage("gaming.jpg");
                 byte[] pizza = ReadImage("pizza.jpg");
+                byte[] darts = ReadImage("darts.jpg");
+                byte[] tafeltennis = ReadImage("tafeltennis.jpg");
 
                 IEnumerable<Activity> activities = [
                     new Activity()
@@ -141,7 +143,11 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         Description = "Het jaarlijkse kampioenschap op kantoor. Een hele middag en avond strijden in alle ELO-categorieën, van tafeltennis tot Mario Kart.",
                         CostPerPerson = 0.00m,
                         Location = "Kantoor Covadis",
-                        Photos = [new ActivityPhoto() { Image = gaming, ImageContentType = "image/jpeg", CreatedAt = DateTime.UtcNow }],
+                        Photos = [
+                            new ActivityPhoto() { Image = gaming, ImageContentType = "image/jpeg", SortOrder = 0, CreatedAt = DateTime.UtcNow },
+                            new ActivityPhoto() { Image = darts, ImageContentType = "image/jpeg", SortOrder = 1, CreatedAt = DateTime.UtcNow },
+                            new ActivityPhoto() { Image = tafeltennis, ImageContentType = "image/jpeg", SortOrder = 2, CreatedAt = DateTime.UtcNow }
+                        ],
                         MinParticipants = 4,
                         MaxParticipants = 40,
                         FoodIncluded = true,
@@ -160,6 +166,10 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         Description = "Toernooi in de zomer met tafeltennis, tafelvoetbal, pool en darts. Na afloop een barbecue op het terras.",
                         CostPerPerson = 10.00m,
                         Location = "Kantoor Covadis, kantine en terras",
+                        Photos = [
+                            new ActivityPhoto() { Image = tafeltennis, ImageContentType = "image/jpeg", SortOrder = 0, CreatedAt = DateTime.UtcNow },
+                            new ActivityPhoto() { Image = darts, ImageContentType = "image/jpeg", SortOrder = 1, CreatedAt = DateTime.UtcNow }
+                        ],
                         MinParticipants = 4,
                         MaxParticipants = 32,
                         FoodIncluded = true,
@@ -178,6 +188,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         Description = "Darttoernooi tijdens de vrijdagmiddagborrel. Iedereen speelt in poules, de beste spelers gaan door naar de finale.",
                         CostPerPerson = 0.00m,
                         Location = "Kantoor Covadis, kantine",
+                        Photos = [new ActivityPhoto() { Image = darts, ImageContentType = "image/jpeg", SortOrder = 0, CreatedAt = DateTime.UtcNow }],
                         MinParticipants = 4,
                         MaxParticipants = 24,
                         FoodIncluded = false,
@@ -196,7 +207,11 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         Description = "Een middag spelletjes op kantoor: tafeltennis, tafelvoetbal, pool, darts, schaken en Mario Kart. Alle uitslagen tellen mee voor de ranglijst.",
                         CostPerPerson = 0.00m,
                         Location = "Kantoor Covadis",
-                        Photos = [new ActivityPhoto() { Image = gaming, ImageContentType = "image/jpeg", CreatedAt = DateTime.UtcNow }],
+                        Photos = [
+                            new ActivityPhoto() { Image = gaming, ImageContentType = "image/jpeg", SortOrder = 0, CreatedAt = DateTime.UtcNow },
+                            new ActivityPhoto() { Image = tafeltennis, ImageContentType = "image/jpeg", SortOrder = 1, CreatedAt = DateTime.UtcNow },
+                            new ActivityPhoto() { Image = darts, ImageContentType = "image/jpeg", SortOrder = 2, CreatedAt = DateTime.UtcNow }
+                        ],
                         MinParticipants = 2,
                         MaxParticipants = 30,
                         FoodIncluded = false,
@@ -215,7 +230,10 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         Description = "Een middag tafeltennis en darts op kantoor. De uitslagen tellen mee voor de ranglijst.",
                         CostPerPerson = 0.00m,
                         Location = "Kantoor Covadis, kantine",
-                        Photos = [new ActivityPhoto() { Image = gaming, ImageContentType = "image/jpeg", CreatedAt = DateTime.UtcNow }],
+                        Photos = [
+                            new ActivityPhoto() { Image = tafeltennis, ImageContentType = "image/jpeg", SortOrder = 0, CreatedAt = DateTime.UtcNow },
+                            new ActivityPhoto() { Image = darts, ImageContentType = "image/jpeg", SortOrder = 1, CreatedAt = DateTime.UtcNow }
+                        ],
                         MinParticipants = 2,
                         MaxParticipants = 20,
                         FoodIncluded = false,
@@ -234,6 +252,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         Description = "Darts tijdens de borrel. De uitslagen worden als wedstrijd vastgelegd en tellen mee voor de ranglijst darts.",
                         CostPerPerson = 0.00m,
                         Location = "Kantoor Covadis, kantine",
+                        Photos = [new ActivityPhoto() { Image = darts, ImageContentType = "image/jpeg", SortOrder = 0, CreatedAt = DateTime.UtcNow }],
                         MinParticipants = 2,
                         MaxParticipants = 20,
                         FoodIncluded = true,
@@ -252,6 +271,7 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                         Description = "Toernooi tafeltennis en tafelvoetbal, enkel en dubbel. Schrijf je in en speel mee voor de ranglijst.",
                         CostPerPerson = 0.00m,
                         Location = "Kantoor Covadis, pauzeruimte",
+                        Photos = [new ActivityPhoto() { Image = tafeltennis, ImageContentType = "image/jpeg", SortOrder = 0, CreatedAt = DateTime.UtcNow }],
                         MinParticipants = 4,
                         MaxParticipants = 24,
                         FoodIncluded = false,

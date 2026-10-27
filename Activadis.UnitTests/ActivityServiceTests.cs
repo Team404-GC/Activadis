@@ -590,7 +590,7 @@ namespace Activadis.UnitTests
             Activity activity = TestData.CreateActivity(x => x.Categories = [darts]);
             Match match = new Match() { Id = Guid.NewGuid(), CategoryId = darts.Id, Category = darts, MatchDate = DateTime.UtcNow };
             _activityRepositoryMock.Setup(r => r.GetWithCategoriesAndMatchesAsync(activity.Id)).ReturnsAsync(activity);
-            _matchRepositoryMock.Setup(r => r.GetUnlinkedMatchesAsync(It.Is<IEnumerable<Guid>>(ids => ids.Single() == darts.Id), activity.StartDate.Date, activity.EndDate.Date.AddDays(1))).ReturnsAsync([match]);
+            _matchRepositoryMock.Setup(r => r.GetUnlinkedMatchesAsync(It.Is<IEnumerable<Guid>>(ids => ids.Single() == darts.Id), activity.StartDate.Date, activity.EndDate.Date.AddDays(3))).ReturnsAsync([match]);
 
             var result = Assert.Single(await _sut.GetLinkableMatchesAsync(activity.Id));
 

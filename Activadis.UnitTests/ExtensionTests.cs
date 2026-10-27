@@ -68,12 +68,13 @@ namespace Activadis.UnitTests
         [Fact]
         public void ToFilter_TrimsNameAndConvertsTime()
         {
-            ActivityFilterRequest request = new ActivityFilterRequest() { Name = "  bowlen ", Time = new TimeOnly(18, 30), UtcOffsetMinutes = 60, SortDescending = true };
+            ActivityFilterRequest request = new ActivityFilterRequest() { Name = "  bowlen ", TimeFrom = new TimeOnly(18, 30), TimeTo = new TimeOnly(21, 0), UtcOffsetMinutes = 60, SortDescending = true };
 
             ActivityFilter result = request.ToFilter(false);
 
             Assert.Equal("bowlen", result.Name);
-            Assert.Equal(new TimeSpan(18, 30, 0), result.Time);
+            Assert.Equal(new TimeSpan(18, 30, 0), result.TimeFrom);
+            Assert.Equal(new TimeSpan(21, 0, 0), result.TimeTo);
             Assert.Equal(60, result.UtcOffsetMinutes);
             Assert.True(result.SortDescending);
         }
