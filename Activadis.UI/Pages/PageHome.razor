@@ -5,6 +5,9 @@
 <PageTitle>Activadis</PageTitle>
 
 <section class="hm-hero">
+    <div class="hm-tv">
+        <SeasonTvComponent Season="@Season" />
+    </div>
     <div class="hm-logo">
         <LogoAnimation />
     </div>
@@ -26,6 +29,8 @@
 
 
 @code {
+    [SupplyParameterFromQuery(Name = "seizoen")]
+    public string? Season { get; set; }
 
     private IEnumerable<ActivityOverviewResponse> activities = [];
 
