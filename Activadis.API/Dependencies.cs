@@ -1,4 +1,5 @@
 ﻿using Activadis.API.Converters;
+using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -56,6 +57,16 @@ namespace Activadis.API
 
                 options.Events = new JwtBearerEvents()
                 {
+                    // A deactivated user keeps a valid token, so the status is checked on every request.
+                    OnTokenValidated = async (context) =>
+                    {
+                        IAuthService authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+
+                        string? nameIdentifier = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                        if (!Guid.TryParse(nameIdentifier, out Guid userId) || !await authService.IsActiveAsync(userId))
+                            context.Fail("Je account is niet actief.");
+                    },
+
                     OnForbidden = async (context) =>
                     {
                         context.Response.StatusCode = StatusCodes.Status403Forbidden;

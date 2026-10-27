@@ -30,7 +30,8 @@ namespace Activadis.Application.Extensions
                 FullName = user.FullName,
                 Email = user.Email,
                 JobTitle = user.JobTitle,
-                Role = user.Role.ToString()
+                Role = user.Role.ToString(),
+                IsActive = user.IsActive
             };
         }
 

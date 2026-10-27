@@ -7,6 +7,6 @@ namespace Activadis.Domain.Interfaces.Repositories
     {
         Task<User?> GetByEmailAsync(string email);
         Task<User?> GetByPasswordSetupTokenHashAsync(string tokenHash);
-        Task<int> CountByRoleAsync(UserRole role);
+        Task<int> CountActiveByRoleAsync(UserRole role);
     }
 }

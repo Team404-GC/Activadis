@@ -8,5 +8,6 @@ namespace Activadis.Application.Interfaces
         Task<IEnumerable<UserResponse>> GetAllAsync();
         Task<UserResponse> GetByIdentifierAsync(string identifier);
         Task UpdateAsync(UpdateUserRequest request);
+        Task UpdateStatusAsync(Guid id, Guid currentUserId, UpdateUserStatusRequest request);
     }
 }
