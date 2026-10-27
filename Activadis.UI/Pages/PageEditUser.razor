@@ -5,108 +5,111 @@
 
 <PageTitle>Gebruiker wijzigen</PageTitle>
 
-<NavLink class="eu-back" href="/gebruikers">
-    <i class="bi bi-arrow-left"></i>
-    <span>Terug naar de gebruikers</span>
-</NavLink>
+<div class="eu-page">
+    <NavLink class="eu-back" href="/gebruikers">
+        <i class="bi bi-arrow-left"></i>
+        <span>Terug naar de gebruikers</span>
+    </NavLink>
 
-<div class="eu-header">
-    <h1>Gebruiker wijzigen</h1>
-    @if (form is not null && !isActive)
+    <div class="eu-header">
+        <h1>Gebruiker wijzigen</h1>
+        @if (form is not null && !isActive)
+        {
+            <span class="eu-inactive">Inactief</span>
+        }
+    </div>
+
+    @if (isLoading)
     {
-        <span class="eu-inactive">Inactief</span>
+        <div class="eu-state">
+            <div class="spinner-border" role="status"></div>
+        </div>
+    }
+    else if (form is null)
+    {
+        <p class="eu-state">Deze gebruiker is niet gevonden.</p>
+    }
+    else
+    {
+        <div class="eu-card">
+            <EditForm EditContext="form.Context" OnValidSubmit="UpdateAsync">
+                <DataAnnotationsValidator />
+
+                <div class="eu-field">
+                    <label for="fullName">Naam</label>
+                    <InputText id="fullName" class="form-control" @bind-Value="request.FullName" />
+                    <ValidationMessage For="@(() => request.FullName)" />
+                </div>
+
+                <div class="eu-field">
+                    <label for="email">E-mail</label>
+                    <InputText id="email" class="form-control" @bind-Value="request.Email" inputmode="email" />
+                    <ValidationMessage For="@(() => request.Email)" />
+                </div>
+
+                <div class="eu-field">
+                    <label for="jobTitle">Functie</label>
+                    <InputSelect id="jobTitle" class="form-control" @bind-Value="request.JobTitle">
+                        <option value="">Kies een functie</option>
+                        @foreach (string jobTitle in JobTitles.All)
+                        {
+                            <option value="@jobTitle">@jobTitle</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => request.JobTitle)" />
+                </div>
+
+                <div class="eu-field">
+                    <label for="role">Rol</label>
+                    <InputSelect id="role" class="form-control" @bind-Value="request.Role">
+                        <option value="User">Medewerker</option>
+                        <option value="Admin">Beheerder</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => request.Role)" />
+                </div>
+
+                @if (form.FormError is not null)
+                {
+                    <p class="validation-message">@form.FormError</p>
+                }
+
+                <button type="submit" class="eu-button" disabled="@isSaving">
+                    @if (isSaving)
+                    {
+                        <span>Aan het laden...</span>
+                    }
+                    else
+                    {
+                        <span>Opslaan</span>
+                    }
+                </button>
+            </EditForm>
+        </div>
+
+        @if (request.Id != currentUserId)
+        {
+            <div class="eu-card">
+                <h2 class="eu-card-title">Account</h2>
+                <p class="eu-description">
+                    @(isActive
+                        ? "Een inactieve gebruiker kan niet meer inloggen en zich niet inschrijven voor activiteiten. Toekomstige inschrijvingen worden verwijderd."
+                        : "Dit account is inactief. Na het activeren kan de gebruiker weer inloggen en zich inschrijven voor activiteiten.")
+                </p>
+                <button type="button" class="@(isActive ? "eu-button-danger" : "eu-button")" @onclick="UpdateStatusAsync" disabled="@isUpdatingStatus">
+                    @if (isUpdatingStatus)
+                    {
+                        <span>Aan het laden...</span>
+                    }
+                    else
+                    {
+                        <span>@(isActive ? "Deactiveren" : "Activeren")</span>
+                    }
+                </button>
+            </div>
+        }
     }
 </div>
 
-@if (isLoading)
-{
-    <div class="eu-state">
-        <div class="spinner-border" role="status"></div>
-    </div>
-}
-else if (form is null)
-{
-    <p class="eu-state">Deze gebruiker is niet gevonden.</p>
-}
-else
-{
-    <div class="eu-card">
-        <EditForm EditContext="form.Context" OnValidSubmit="UpdateAsync">
-            <DataAnnotationsValidator />
-
-            <div class="eu-field">
-                <label for="fullName">Naam</label>
-                <InputText id="fullName" class="form-control" @bind-Value="request.FullName" />
-                <ValidationMessage For="@(() => request.FullName)" />
-            </div>
-
-            <div class="eu-field">
-                <label for="email">E-mail</label>
-                <InputText id="email" class="form-control" @bind-Value="request.Email" inputmode="email" />
-                <ValidationMessage For="@(() => request.Email)" />
-            </div>
-
-            <div class="eu-field">
-                <label for="jobTitle">Functie</label>
-                <InputSelect id="jobTitle" class="form-control" @bind-Value="request.JobTitle">
-                    <option value="">Kies een functie</option>
-                    @foreach (string jobTitle in JobTitles.All)
-                    {
-                        <option value="@jobTitle">@jobTitle</option>
-                    }
-                </InputSelect>
-                <ValidationMessage For="@(() => request.JobTitle)" />
-            </div>
-
-            <div class="eu-field">
-                <label for="role">Rol</label>
-                <InputSelect id="role" class="form-control" @bind-Value="request.Role">
-                    <option value="User">Medewerker</option>
-                    <option value="Admin">Beheerder</option>
-                </InputSelect>
-                <ValidationMessage For="@(() => request.Role)" />
-            </div>
-
-            @if (form.FormError is not null)
-            {
-                <p class="validation-message">@form.FormError</p>
-            }
-
-            <button type="submit" class="eu-button" disabled="@isSaving">
-                @if (isSaving)
-                {
-                    <span>Aan het laden...</span>
-                }
-                else
-                {
-                    <span>Opslaan</span>
-                }
-            </button>
-        </EditForm>
-    </div>
-
-    @if (request.Id != currentUserId)
-    {
-        <div class="eu-card">
-            <h2 class="eu-card-title">Account</h2>
-            <p class="eu-description">
-                @(isActive
-                    ? "Een inactieve gebruiker kan niet meer inloggen en zich niet inschrijven voor activiteiten. Toekomstige inschrijvingen worden verwijderd."
-                    : "Dit account is inactief. Na het activeren kan de gebruiker weer inloggen en zich inschrijven voor activiteiten.")
-            </p>
-            <button type="button" class="@(isActive ? "eu-button-danger" : "eu-button")" @onclick="UpdateStatusAsync" disabled="@isUpdatingStatus">
-                @if (isUpdatingStatus)
-                {
-                    <span>Aan het laden...</span>
-                }
-                else
-                {
-                    <span>@(isActive ? "Deactiveren" : "Activeren")</span>
-                }
-            </button>
-        </div>
-    }
-}
 
 @code {
     [Parameter]
