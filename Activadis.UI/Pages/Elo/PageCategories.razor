@@ -6,22 +6,23 @@
 
 <div class="ca-header">
     <h1>Categorieën</h1>
-    @if (!isFormOpen)
-    {
-        <button type="button" class="ca-button" @onclick="OpenCreate">
-            <i class="bi bi-plus-lg"></i>
-            <span>Nieuwe categorie</span>
-        </button>
-    }
+    <button type="button" class="ca-button" @onclick="OpenCreate">
+        <i class="bi bi-plus-lg"></i>
+        <span>Nieuwe categorie</span>
+    </button>
 </div>
 
 @if (isFormOpen)
 {
-    <CategoryFormComponent @key="formModel"
-                           Model="formModel"
-                           IsSaving="isSaving"
-                           OnSubmit="SubmitAsync"
-                           OnCancel="CloseForm" />
+    <div class="ca-overlay container-visible" @onmousedown="CloseForm">
+        <div class="ca-modal" role="dialog" aria-modal="true" @onmousedown:stopPropagation="true">
+            <CategoryFormComponent @key="formModel"
+                                   Model="formModel"
+                                   IsSaving="isSaving"
+                                   OnSubmit="SubmitAsync"
+                                   OnCancel="CloseForm" />
+        </div>
+    </div>
 }
 
 @if (isLoading)

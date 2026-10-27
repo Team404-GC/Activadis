@@ -4,152 +4,203 @@
 @attribute [Authorize(Roles = "Admin")]
 @page "/activiteit/nieuw"
 
+<PageTitle>Nieuwe activiteit</PageTitle>
+
+<NavLink class="af-back" href="/activiteiten">
+    <i class="bi bi-arrow-left"></i>
+    <span>Terug naar activiteiten</span>
+</NavLink>
+
 @if (isLoading)
 {
-    <div class="ad-state">
+    <div class="af-state">
         <div class="spinner-border" role="status"></div>
     </div>
 }
 else if (context is not null)
 {
-    <div class="form-container">
-        <h3>Creëer activiteit</h3>
-        <EditForm EditContext="context" OnValidSubmit="CreateAsync">
-            <DataAnnotationsValidator />
-            <section>
-                <label>Naam</label>
-                <InputText @bind-Value="request.Name" />
-                <ValidationMessage For="@(() => request.Name)" />
+    <h1 class="af-title">Creëer activiteit</h1>
+    <EditForm EditContext="context" OnValidSubmit="CreateAsync" class="af-layout">
+        <DataAnnotationsValidator />
+        <div class="af-main">
+            <section class="af-card">
+                <h2 class="af-card-title"><i class="bi bi-card-text"></i>Algemeen</h2>
+                <div class="af-grid">
+                    <div class="af-field af-wide">
+                        <label>Naam</label>
+                        <InputText @bind-Value="request.Name" />
+                        <ValidationMessage For="@(() => request.Name)" />
+                    </div>
+                    <div class="af-field af-wide">
+                        <label>Beschrijving</label>
+                        <InputTextArea rows="5" @bind-Value="request.Description" />
+                        <ValidationMessage For="@(() => request.Description)" />
+                    </div>
+                    <div class="af-field af-wide">
+                        <label>Benodigdheden <span class="af-optional">(optioneel)</span></label>
+                        <InputTextArea rows="3" @bind-Value="request.Requirements" />
+                        <ValidationMessage For="@(() => request.Requirements)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Locatie</label>
+                        <InputText @bind-Value="request.Location" />
+                        <ValidationMessage For="@(() => request.Location)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Kosten per persoon</label>
+                        <div class="af-affix">
+                            <span>€</span>
+                            <InputNumber step="0.01" min="0" @bind-Value="request.CostPerPerson" />
+                        </div>
+                        <ValidationMessage For="@(() => request.CostPerPerson)" />
+                    </div>
+                </div>
             </section>
-            <section>
-                <label>Beschrijving</label>
-                <InputTextArea @bind-Value="request.Description" />
-                <ValidationMessage For="@(() => request.Description)" />
+
+            <section class="af-card">
+                <h2 class="af-card-title"><i class="bi bi-calendar-event"></i>Planning</h2>
+                <div class="af-grid">
+                    <div class="af-field">
+                        <label>Startdatum</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
+                        <ValidationMessage For="@(() => request.StartDate)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Einddatum</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
+                        <ValidationMessage For="@(() => request.EndDate)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Inschrijfdeadline</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
+                        <ValidationMessage For="@(() => request.SignUpDeadline)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Uitschrijfdeadline</label>
+                        <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
+                        <ValidationMessage For="@(() => request.SignOutDeadline)" />
+                    </div>
+                </div>
             </section>
-            <section>
-                <label>Benodigdheden (optioneel)</label>
-                <InputTextArea @bind-Value="request.Requirements" />
-                <ValidationMessage For="@(() => request.Requirements)" />
+
+            <section class="af-card">
+                <h2 class="af-card-title"><i class="bi bi-people"></i>Deelnemers</h2>
+                <div class="af-grid">
+                    <div class="af-field">
+                        <label>Minimaal aantal deelnemers</label>
+                        <InputNumber @bind-Value="request.MinParticipants" />
+                        <ValidationMessage For="@(() => request.MinParticipants)" />
+                    </div>
+                    <div class="af-field">
+                        <label>Maximaal aantal deelnemers</label>
+                        <InputNumber @bind-Value="request.MaxParticipants" />
+                        <ValidationMessage For="@(() => request.MaxParticipants)" />
+                    </div>
+                </div>
+                <div class="af-toggles">
+                    <div class="af-toggle">
+                        <span>Bevat eten & drinken?</span>
+                        <label class="switch">
+                            <InputCheckbox @bind-Value="request.FoodIncluded" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="af-toggle">
+                        <span>Is een externe activiteit?</span>
+                        <label class="switch">
+                            <InputCheckbox @bind-Value="request.ExternalAllowed" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="af-toggle">
+                        <span>Mag +1 meenemen?</span>
+                        <label class="switch">
+                            <InputCheckbox @bind-Value="request.PlusOneAllowed" />
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
             </section>
-            <section>
-                <label>Kosten per persoon</label>
-                <InputNumber step="0.01" @bind-Value="request.CostPerPerson" />
-                <ValidationMessage For="@(() => request.CostPerPerson)" />
-            </section>
-            <br />
-            <section>
-                <label>Locatie</label>
-                <InputText @bind-Value="request.Location" />
-                <ValidationMessage For="@(() => request.Location)" />
-            </section>
-            <section>
-                <label>Foto's</label>
-                <InputFile OnChange="OnFilesChange" accept="image/png,image/jpeg,image/webp" multiple />
-                <InfoBubbleComponent Text="@($"Optioneel. Kies alle foto's in één keer, maximaal {ApplicationConfiguration.MaxPhotos}. De eerste foto komt op het kaartje.")" />
-            </section>
-            @if (request.Photos.Count > 0)
-            {
-                <ol class="form-photos">
-                    @for (int index = 0; index < request.Photos.Count; index++)
-                    {
-                        int current = index;
-                        <li class="form-photo">
-                            <span>@request.Photos[current].Name</span>
-                            <button type="button" title="Omhoog" disabled="@(current == 0)" @onclick="() => MovePhoto(current, -1)"><i class="bi bi-arrow-up"></i></button>
-                            <button type="button" title="Omlaag" disabled="@(current == request.Photos.Count - 1)" @onclick="() => MovePhoto(current, 1)"><i class="bi bi-arrow-down"></i></button>
-                            <button type="button" title="Verwijderen" @onclick="() => RemovePhoto(current)"><i class="bi bi-x-lg"></i></button>
-                        </li>
-                    }
-                </ol>
-            }
-            <br />
-            <section>
-                <label>Minimaal aantal deelnemers</label>
-                <InputNumber @bind-Value="request.MinParticipants" />
-                <ValidationMessage For="@(() => request.MinParticipants)" />
-            </section>
-            <section>
-                <label>Maximaal aantal deelnemers</label>
-                <InputNumber @bind-Value="request.MaxParticipants" />
-                <ValidationMessage For="@(() => request.MaxParticipants)" />
-            </section>
-            <br />
-            <section>
-                <label>Bevat eten & drinken?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="request.FoodIncluded" />
-                    <span class="slider round"></span>
-                </label>
-                <ValidationMessage For="@(() => request.FoodIncluded)" />
-            </section>
-            <section>
-                <label>Is een externe activiteit?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="request.ExternalAllowed" />
-                    <span class="slider round"></span>
-                </label>
-                <ValidationMessage For="@(() => request.ExternalAllowed)" />
-            </section>
-            <section>
-                <label>Mag +1 meenemen?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="request.PlusOneAllowed" />
-                    <span class="slider round"></span>
-                </label>
-                <ValidationMessage For="@(() => request.PlusOneAllowed)" />
-            </section>
-            <br />
-            <section>
-                <label>Startdatum</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.StartDate))" value="@(GetDateValue(x => x.StartDate))" />
-                <ValidationMessage For="@(() => request.StartDate)" />
-            </section>
-            <section>
-                <label>Einddatum</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.EndDate))" value="@(GetDateValue(x => x.EndDate))" />
-                <ValidationMessage For="@(() => request.EndDate)" />
-            </section>
-            <br />
-            <section>
-                <label>Inschrijfdeadline</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignUpDeadline))" value="@(GetDateValue(x => x.SignUpDeadline))" />
-                <ValidationMessage For="@(() => request.SignUpDeadline)" />
-            </section>
-            <section>
-                <label>Uitschrijfdeadline</label>
-                <input type="text" placeholder="bijv. 12-10-2026 19:30" @onchange="@(args => OnDateChange(args, x => x.SignOutDeadline))" value="@(GetDateValue(x => x.SignOutDeadline))" />
-                <ValidationMessage For="@(() => request.SignOutDeadline)" />
-            </section>
-            <br />
-            <section>
-                <label>ELO-categorieën</label>
-                @foreach (CategoryDto category in categories)
-                {
-                    <label>
-                        <input type="checkbox" checked="@request.CategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
-                        @category.Name
+        </div>
+
+        <aside class="af-side">
+            <section class="af-card af-publish">
+                <h2 class="af-card-title"><i class="bi bi-send"></i>Publiceren</h2>
+                <div class="af-toggle">
+                    <span>Opslaan als concept</span>
+                    <label class="switch">
+                        <InputCheckbox @bind-Value="request.IsDraft" />
+                        <span class="slider round"></span>
                     </label>
+                </div>
+                <ValidationMessage For="@(() => request.IsDraft)" />
+                @if (form?.FormError is not null)
+                {
+                    <p class="validation-message">@form?.FormError</p>
                 }
-                <InfoBubbleComponent Text="Optioneel. Kies de ELO-categorieën waarvoor wedstrijden op deze activiteit meetellen." />
+                <button type="submit" class="af-submit" disabled="@isCreating">
+                    @(!isCreating ? "Aanmaken" : "Aan het laden..")
+                </button>
+            </section>
+
+            <section class="af-card">
+                <h2 class="af-card-title">
+                    <i class="bi bi-images"></i>Foto's
+                    <InfoBubbleComponent Text="@($"Optioneel. Kies alle foto's in één keer, maximaal {ApplicationConfiguration.MaxPhotos}. De eerste foto komt op het kaartje.")" />
+                </h2>
+                <label class="af-dropzone">
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span>Kies foto's</span>
+                    <small>PNG, JPG of WEBP</small>
+                    <InputFile OnChange="OnFilesChange" accept="image/png,image/jpeg,image/webp" multiple />
+                </label>
+                @if (request.Photos.Count > 0)
+                {
+                    <ol class="af-files">
+                        @for (int index = 0; index < request.Photos.Count; index++)
+                        {
+                            int current = index;
+                            <li class="af-file">
+                                <span class="af-file-index">@(current + 1)</span>
+                                <span class="af-file-name">@request.Photos[current].Name</span>
+                                <div class="af-file-actions">
+                                    <button type="button" class="af-icon-button" title="Omhoog" disabled="@(current == 0)" @onclick="() => MovePhoto(current, -1)"><i class="bi bi-arrow-up"></i></button>
+                                    <button type="button" class="af-icon-button" title="Omlaag" disabled="@(current == request.Photos.Count - 1)" @onclick="() => MovePhoto(current, 1)"><i class="bi bi-arrow-down"></i></button>
+                                    <button type="button" class="af-icon-button af-icon-danger" title="Verwijderen" @onclick="() => RemovePhoto(current)"><i class="bi bi-x-lg"></i></button>
+                                </div>
+                            </li>
+                        }
+                    </ol>
+                }
+            </section>
+
+            <section class="af-card">
+                <h2 class="af-card-title">
+                    <i class="bi bi-trophy"></i>ELO-categorieën
+                    <InfoBubbleComponent Text="Optioneel. Kies de ELO-categorieën waarvoor wedstrijden op deze activiteit meetellen." />
+                </h2>
+                @if (categories.Count == 0)
+                {
+                    <p class="af-empty">Er zijn nog geen ELO-categorieën.</p>
+                }
+                else
+                {
+                    <div class="af-chips">
+                        @foreach (CategoryDto category in categories)
+                        {
+                            <label class="af-chip @(request.CategoryIds.Contains(category.Id) ? "selected" : "")">
+                                <input type="checkbox" checked="@request.CategoryIds.Contains(category.Id)" @onchange="@(args => OnCategoryChange(args, category.Id))" />
+                                <span>@category.Name</span>
+                            </label>
+                        }
+                    </div>
+                }
                 <ValidationMessage For="@(() => request.CategoryIds)" />
             </section>
-            <br />
-            <section>
-                <label>Is draft?</label>
-                <label class="switch">
-                    <InputCheckbox @bind-Value="request.IsDraft" />
-                    <span class="slider round"></span>
-                </label>
-                <ValidationMessage For="@(() => request.IsDraft)" />
-                <button type="submit" disabled="@isCreating">Aanmaken</button>
-            </section>
-            @if (form?.FormError is not null)
-            {
-                <p class="validation-message">@form?.FormError</p>
-            }
-        </EditForm>
-    </div>
+        </aside>
+    </EditForm>
 }
+
 
 @code {
     CreateActivityRequest request = new CreateActivityRequest();
