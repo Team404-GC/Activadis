@@ -10,7 +10,13 @@
     <span>Terug naar de gebruikers</span>
 </NavLink>
 
-<h1>Gebruiker wijzigen</h1>
+<div class="eu-header">
+    <h1>Gebruiker wijzigen</h1>
+    @if (form is not null && !isActive)
+    {
+        <span class="eu-inactive">Inactief</span>
+    }
+</div>
 
 @if (isLoading)
 {
@@ -78,20 +84,55 @@ else
             </button>
         </EditForm>
     </div>
+
+    @if (request.Id != currentUserId)
+    {
+        <div class="eu-card">
+            <h2 class="eu-card-title">Account</h2>
+            <p class="eu-description">
+                @(isActive
+                    ? "Een inactieve gebruiker kan niet meer inloggen en zich niet inschrijven voor activiteiten. Toekomstige inschrijvingen worden verwijderd."
+                    : "Dit account is inactief. Na het activeren kan de gebruiker weer inloggen en zich inschrijven voor activiteiten.")
+            </p>
+            <button type="button" class="@(isActive ? "eu-button-danger" : "eu-button")" @onclick="UpdateStatusAsync" disabled="@isUpdatingStatus">
+                @if (isUpdatingStatus)
+                {
+                    <span>Aan het laden...</span>
+                }
+                else
+                {
+                    <span>@(isActive ? "Deactiveren" : "Activeren")</span>
+                }
+            </button>
+        </div>
+    }
 }
 
 @code {
     [Parameter]
     public string Id { get; set; } = string.Empty;
 
+    [CascadingParameter]
+    public Task<AuthenticationState>? AuthenticationState { get; set; }
+
     private UpdateUserRequest request = new UpdateUserRequest();
     private ComponentRequest<UpdateUserRequest>? form = null;
+    private Guid currentUserId = Guid.Empty;
+    private bool isActive = true;
     private bool isLoading = true;
     private bool isSaving = false;
+    private bool isUpdatingStatus = false;
 
     protected override async Task OnParametersSetAsync()
     {
         isLoading = true;
+
+        if (AuthenticationState is not null)
+        {
+            AuthenticationState state = await AuthenticationState;
+            if (!Guid.TryParse(state.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out currentUserId))
+                currentUserId = Guid.Empty;
+        }
 
         ApiResponse<UserResponse> response = await UserService.GetByIdentifierAsync(Id);
         if (!response.Succeeded || response.Value is null)
@@ -110,6 +151,7 @@ else
             Role = response.Value.Role
         };
         form = new ComponentRequest<UpdateUserRequest>(request);
+        isActive = response.Value.IsActive;
         isLoading = false;
     }
 
@@ -128,5 +170,22 @@ else
         Notifications.AddNotification("De gebruiker is met succes bijgewerkt.", false);
         NavigationManager.NavigateTo("/gebruikers");
         isSaving = false;
+    }
+
+    private async Task UpdateStatusAsync()
+    {
+        isUpdatingStatus = true;
+
+        ApiResponse<object> response = await UserService.UpdateStatusAsync(request.Id, new UpdateUserStatusRequest() { IsActive = !isActive });
+        if (!response.Succeeded)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isUpdatingStatus = false;
+            return;
+        }
+
+        isActive = !isActive;
+        Notifications.AddNotification(isActive ? "De gebruiker is met succes geactiveerd." : "De gebruiker is met succes gedeactiveerd.", false);
+        isUpdatingStatus = false;
     }
 }

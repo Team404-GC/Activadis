@@ -5,8 +5,11 @@ namespace Activadis.Application.Validations.SignUp
 {
     public static class SignUpRequestValidation
     {
-        public static void Validate(this SignUpRequest request, Entities.Activity? activity, Guid userId, int totalSignUps)
+        public static void Validate(this SignUpRequest request, Entities.Activity? activity, Guid userId, int totalSignUps, Entities.User? user)
         {
+            if (user is not null && !user.IsActive)
+                throw new ArgumentException("Je kan je niet inschrijven, omdat je account niet actief is.");
+
             if (userId == Guid.Empty)
             {
                 if (string.IsNullOrWhiteSpace(request.FullName))

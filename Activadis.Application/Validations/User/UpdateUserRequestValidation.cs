@@ -6,13 +6,13 @@ namespace Activadis.Application.Validations.User
 {
     public static class UpdateUserRequestValidation
     {
-        public static void Validate(this UpdateUserRequest request, Entities.User user, Entities.User? existingUser, int adminCount)
+        public static void Validate(this UpdateUserRequest request, Entities.User user, Entities.User? existingUser, int activeAdminCount)
         {
             // The user keeping its own email address is not a duplicate.
             request.Validate(existingUser?.Id == user.Id ? null : existingUser);
 
-            if (user.Role == UserRole.Admin && Enum.Parse<UserRole>(request.Role) != UserRole.Admin && adminCount <= 1)
-                throw new ArgumentException("De rol beheerder kan niet worden weggehaald bij de laatste beheerder.");
+            if (user.Role == UserRole.Admin && user.IsActive && Enum.Parse<UserRole>(request.Role) != UserRole.Admin && activeAdminCount <= 1)
+                throw new ArgumentException("De rol beheerder kan niet worden weggehaald bij de laatste actieve beheerder.");
         }
     }
 }

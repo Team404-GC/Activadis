@@ -24,5 +24,8 @@ namespace Activadis.UI.Application.Services
 
         public async Task<ApiResponse<object>> UpdateAsync(UpdateUserRequest request)
             => await HttpService.PutAsync<object, UpdateUserRequest>("/User", request);
+
+        public async Task<ApiResponse<object>> UpdateStatusAsync(Guid id, UpdateUserStatusRequest request)
+            => await HttpService.PutAsync<object, UpdateUserStatusRequest>($"/User/{id}/status", request);
     }
 }
