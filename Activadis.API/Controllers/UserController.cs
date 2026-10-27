@@ -25,6 +25,21 @@ namespace Activadis.API.Controllers
             return Ok(ApiResponse<IEnumerable<UserResponse>>.Ok(users));
         }
 
+        [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetByIdentifierAsync(string id)
+        {
+            try
+            {
+                UserResponse user = await UserService.GetByIdentifierAsync(id);
+                return Ok(ApiResponse<UserResponse>.Ok(user));
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(ApiResponse<UserResponse>.Fail(exception.Message));
+            }
+        }
+
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateAsync(CreateUserRequest request)
@@ -37,6 +52,25 @@ namespace Activadis.API.Controllers
             catch (ArgumentException exception)
             {
                 return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpPut]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateAsync([FromBody] UpdateUserRequest request)
+        {
+            try
+            {
+                await UserService.UpdateAsync(request);
+                return Ok(ApiResponse<object>.Ok(message: "De gebruiker is met succes bijgewerkt."));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(ApiResponse<object>.Fail(exception.Message));
             }
         }
     }
