@@ -275,7 +275,7 @@ namespace Activadis.Application.Services
             Activity activity = await ActivityRepository.GetWithCategoriesAndMatchesAsync(id)
                 ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
 
-            IEnumerable<Match> matches = await MatchRepository.GetUnlinkedMatchesAsync(activity.Categories.Select(x => x.Id).ToList());
+            IEnumerable<Match> matches = await MatchRepository.GetUnlinkedMatchesAsync(activity.Categories.Select(x => x.Id).ToList(), activity.StartDate.Date, activity.EndDate.Date.AddDays(3));
             return matches.Select(x => x.ToRecentMatchDto());
         }
 

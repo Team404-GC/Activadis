@@ -55,10 +55,10 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                 var ratings = new List<Rating>
                 {
                     // Tafeltennis
-                    new Rating { UserId = daan, CategoryId = tafeltennis, CurrentRating = 1149.4, PeakRating = 1155.0, MatchCount = 253, CreatedAt = DateTime.UtcNow },
-                    new Rating { UserId = milan, CategoryId = tafeltennis, CurrentRating = 1201.1, PeakRating = 1230.3, MatchCount = 165, CreatedAt = DateTime.UtcNow },
-                    new Rating { UserId = thijs, CategoryId = tafeltennis, CurrentRating = 948.2, PeakRating = 1070.5, MatchCount = 209, CreatedAt = DateTime.UtcNow },
-                    new Rating { UserId = sanne, CategoryId = tafeltennis, CurrentRating = 845.4, PeakRating = 995.6, MatchCount = 209, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = daan, CategoryId = tafeltennis, CurrentRating = 1134.5, PeakRating = 1155.0, MatchCount = 254, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = milan, CategoryId = tafeltennis, CurrentRating = 1216.0, PeakRating = 1230.3, MatchCount = 166, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = thijs, CategoryId = tafeltennis, CurrentRating = 960.7, PeakRating = 1070.5, MatchCount = 210, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = sanne, CategoryId = tafeltennis, CurrentRating = 832.9, PeakRating = 995.6, MatchCount = 210, CreatedAt = DateTime.UtcNow },
                     new Rating { UserId = emma, CategoryId = tafeltennis, CurrentRating = 657.2, PeakRating = 879.0, MatchCount = 119, CreatedAt = DateTime.UtcNow },
                     new Rating { UserId = peter, CategoryId = tafeltennis, CurrentRating = 600.2, PeakRating = 837.9, MatchCount = 141, CreatedAt = DateTime.UtcNow },
                     new Rating { UserId = lotte, CategoryId = tafeltennis, CurrentRating = 623.0, PeakRating = 850.0, MatchCount = 96, CreatedAt = DateTime.UtcNow },
@@ -77,11 +77,11 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                     new Rating { UserId = ruben, CategoryId = tafelvoetbal, CurrentRating = 382.2, PeakRating = 800.0, MatchCount = 52, CreatedAt = DateTime.UtcNow },
 
                     // Darts
-                    new Rating { UserId = daan, CategoryId = darts, CurrentRating = 1133.8, PeakRating = 1141.7, MatchCount = 315, CreatedAt = DateTime.UtcNow },
-                    new Rating { UserId = milan, CategoryId = darts, CurrentRating = 1037.8, PeakRating = 1156.2, MatchCount = 147, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = daan, CategoryId = darts, CurrentRating = 1107.7, PeakRating = 1141.7, MatchCount = 316, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = milan, CategoryId = darts, CurrentRating = 1043.2, PeakRating = 1156.2, MatchCount = 148, CreatedAt = DateTime.UtcNow },
                     new Rating { UserId = thijs, CategoryId = darts, CurrentRating = 859.5, PeakRating = 1075.0, MatchCount = 145, CreatedAt = DateTime.UtcNow },
-                    new Rating { UserId = sanne, CategoryId = darts, CurrentRating = 946.3, PeakRating = 1005.2, MatchCount = 233, CreatedAt = DateTime.UtcNow },
-                    new Rating { UserId = emma, CategoryId = darts, CurrentRating = 744.3, PeakRating = 882.9, MatchCount = 140, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = sanne, CategoryId = darts, CurrentRating = 972.4, PeakRating = 1005.2, MatchCount = 234, CreatedAt = DateTime.UtcNow },
+                    new Rating { UserId = emma, CategoryId = darts, CurrentRating = 738.8, PeakRating = 882.9, MatchCount = 141, CreatedAt = DateTime.UtcNow },
                     new Rating { UserId = peter, CategoryId = darts, CurrentRating = 651.0, PeakRating = 845.6, MatchCount = 139, CreatedAt = DateTime.UtcNow },
                     new Rating { UserId = lotte, CategoryId = darts, CurrentRating = 580.6, PeakRating = 800.0, MatchCount = 81, CreatedAt = DateTime.UtcNow },
                     new Rating { UserId = fleur, CategoryId = darts, CurrentRating = 462.0, PeakRating = 800.0, MatchCount = 52, CreatedAt = DateTime.UtcNow },

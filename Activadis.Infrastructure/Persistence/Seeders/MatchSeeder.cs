@@ -4134,8 +4134,36 @@ namespace Activadis.Infrastructure.Persistence.Seeders
                     CreateMatch(darts, 1, (peter, 2, 0.0, 0.4080, -14.28), (emma, 1, 1.0, 0.5920, 14.28))
                 ];
 
+                LinkToActivities(context, matches);
+
+                // The matches of today stay unlinked, so linking a match to "Tafeltennis- en dartsmiddag" can be tested by hand.
+                IEnumerable<Match> todaysMatches = [
+                    CreateMatch(tafeltennis, 0, (milan, 1, 1.0, 0.5739, 14.91), (daan, 2, 0.0, 0.4261, -14.91)),
+                    CreateMatch(tafeltennis, 0, (thijs, 1, 1.0, 0.6438, 12.47), (sanne, 2, 0.0, 0.3562, -12.47)),
+                    CreateMatch(darts, 0, (sanne, 1, 1.0, 0.2536, 26.12), (daan, 2, 0.0, 0.7464, -26.12)),
+                    CreateMatch(darts, 0, (milan, 1, 1.0, 0.8442, 5.45), (emma, 2, 0.0, 0.1558, -5.45))
+                ];
+
                 set.AddRange(matches);
+                set.AddRange(todaysMatches);
                 context.SaveChanges();
+            }
+        }
+
+        // A match is linked to the activity that was held on the same day and has the match's category.
+        private static void LinkToActivities(DbContext context, IEnumerable<Match> matches)
+        {
+            List<Activity> activities = context.Set<Activity>()
+                .Include(x => x.Categories)
+                .ToList();
+
+            foreach (Match match in matches)
+            {
+                match.ActivityId = activities
+                    .FirstOrDefault(activity => activity.StartDate.Date <= match.MatchDate.Date
+                        && activity.EndDate.Date >= match.MatchDate.Date
+                        && activity.Categories.Any(category => category.Id == match.CategoryId))?
+                    .Id;
             }
         }
 

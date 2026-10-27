@@ -50,13 +50,16 @@ namespace Activadis.Infrastructure.Repositories
                 .Take(limit)
                 .ToListAsync();
 
-        public async Task<IEnumerable<Match>> GetUnlinkedMatchesAsync(IEnumerable<Guid> categoryIds)
+        public async Task<IEnumerable<Match>> GetUnlinkedMatchesAsync(IEnumerable<Guid> categoryIds, DateTime from, DateTime to)
             => await _context.Matches
+                .AsNoTracking()
                 .Include(m => m.Participants)
                     .ThenInclude(p => p.User)
                 .Include(m => m.Category)
                 .Where(m => categoryIds.Contains(m.CategoryId) && m.ActivityId == null && m.IsFinalized && m.DeletedAt == null)
+                .Where(m => m.MatchDate >= from && m.MatchDate < to)
                 .OrderByDescending(m => m.MatchDate)
+                .AsSplitQuery()
                 .ToListAsync();
     }
 }
