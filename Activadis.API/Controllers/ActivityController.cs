@@ -250,6 +250,21 @@ namespace Activadis.API.Controllers
 			}
 		}
 
+		[HttpDelete("{id:guid}")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> CancelAsync(Guid id)
+		{
+			try
+			{
+				InformParticipantsResponse response = await ActivityService.CancelAsync(id);
+				return Ok(ApiResponse<InformParticipantsResponse>.Ok(response));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<InformParticipantsResponse>.Fail(exception.Message));
+			}
+		}
+
 		[HttpGet("{id:guid}/matches/linkable")]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> GetLinkableMatchesAsync(Guid id)

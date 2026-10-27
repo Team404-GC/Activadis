@@ -1,0 +1,9 @@
+Hallo {{FullName}},
+
+Helaas gaat de activiteit {{ActivityName}} waarvoor je bent ingeschreven niet door. De activiteit is geannuleerd.
+
+Datum en tijd: {{Period}}
+
+Je inschrijving is vervallen, je hoeft zelf niets te doen.
+
+Bekijk andere activiteiten op {{BaseUrl}}

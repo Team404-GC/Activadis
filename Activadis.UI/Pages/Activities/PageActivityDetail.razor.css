@@ -19,6 +19,29 @@
     font-weight: 600;
 }
 
+.ad-admin-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ad-cancel {
+    background-color: var(--DangerBg);
+    color: var(--DangerText);
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 1 / 1;
+    border-radius: 10px;
+    display: flex;
+    height: 40px;
+    border: none;
+    cursor: pointer;
+}
+
+    .ad-cancel:hover {
+        background-color: var(--DangerText);
+        color: #ffffff;
+    }
+
 .ad-header ::deep .ad-edit {
     background-color: var(--AccentColor);
     color: var(--TextColor);
