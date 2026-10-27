@@ -79,6 +79,50 @@ namespace Activadis.UnitTests
         }
 
         [Fact]
+        public async System.Threading.Tasks.Task RecordMatchAsync_ActivityNotFound_ThrowsInvalidOperationException()
+        {
+            var category = new Category { Id = Guid.NewGuid(), Name = "Chess" };
+            var request = new RecordMatchRequest
+            {
+                CategoryId = category.Id,
+                ActivityId = Guid.NewGuid(),
+                MatchType = "Individual",
+                MatchDate = DateTime.UtcNow,
+                Participants = new List<MatchParticipantInput>(),
+            };
+
+            _categoryRepositoryMock.Setup(repo => repo.GetByIdAsync(category.Id)).ReturnsAsync(category);
+            _activityRepositoryMock.Setup(repo => repo.GetWithCategoriesAndMatchesAsync(request.ActivityId.Value))
+                .ReturnsAsync((Activity?)null);
+
+            await Assert.ThrowsAsync<InvalidOperationException>(() => _eloServiceMock.RecordMatchAsync(request));
+
+            _matchRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Domain.Entities.Match>()), Times.Never);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task RecordMatchAsync_CategoryNotOnActivity_ThrowsArgumentException()
+        {
+            var category = new Category { Id = Guid.NewGuid(), Name = "Chess" };
+            var activity = new Activity { Id = Guid.NewGuid(), Name = "Toernooi" };
+            var request = new RecordMatchRequest
+            {
+                CategoryId = category.Id,
+                ActivityId = activity.Id,
+                MatchType = "Individual",
+                MatchDate = DateTime.UtcNow,
+                Participants = new List<MatchParticipantInput>(),
+            };
+
+            _categoryRepositoryMock.Setup(repo => repo.GetByIdAsync(category.Id)).ReturnsAsync(category);
+            _activityRepositoryMock.Setup(repo => repo.GetWithCategoriesAndMatchesAsync(activity.Id)).ReturnsAsync(activity);
+
+            await Assert.ThrowsAsync<ArgumentException>(() => _eloServiceMock.RecordMatchAsync(request));
+
+            _matchRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Domain.Entities.Match>()), Times.Never);
+        }
+
+        [Fact]
         public async System.Threading.Tasks.Task RecordMatchAsync_IndividualMatch_UpdatesBothPlayersAndReturnsResults()
         {
             var category = new Category { Id = Guid.NewGuid(), Name = "Chess" };

@@ -229,7 +229,7 @@ An activity without categories can still be saved.
 | `/Activity/{id}` | GET | anyone | Activity detail; for logged-in users it includes `Categories` and the attached `Matches` (date, category, participants with placement and rating change) |
 | `/Activity/{id}/categories` | PUT | **Admin** | Replace the activity's ELO categories |
 | `/Activity/{id}/participants` | GET | **Admin** | Signed-up employees (external sign-ups have no account and are left out), used to pick players |
-| `/Activity/{id}/matches/linkable` | GET | **Admin** | Finalized matches in one of the activity's categories that are not attached to any activity |
+| `/Activity/{id}/matches/linkable` | GET | **Admin** | Finalized matches in one of the activity's categories, played from the start day of the activity until two days after it ended, that are not attached to any activity |
 | `/Activity/{id}/matches` | POST | **Admin** | Attach an existing match (`MatchId`) |
 | `/Activity/{id}/matches/{matchId}` | DELETE | **Admin** | Detach a match; the match and its ratings stay unchanged |
 
@@ -336,5 +336,15 @@ The `RatingSeeder` calculates realistic seed ratings by simulating all seeded ma
 - Peak ratings reflect the highest rating achieved after the match sequence
 
 Match seeding is defined in `MatchSeeder.cs` and applied in order to generate realistic rating progressions.
+
+Activities and ELO categories are connected in the seeders:
+- `ActivitySeeder` adds tournament activities (Kantoorkampioenschap, Zomertoernooi, Darttoernooi, Spelletjesmiddag, Tafeltennis- en dartsmiddag, Darts op de vrijdagmiddagborrel, Tafeltennis- en tafelvoetbaltoernooi). Their dates are counted from today, so past ones stay past and upcoming ones stay upcoming. They use the seeder images in `Seeders/Images` (gaming, darts and tafeltennis).
+- `CategorySeeder` links each category to the activities where it is played (Mario Kart also to the LAN-party and Game-avond). Activities that are not in the database are skipped.
+- `MatchSeeder` links a match to the activity that was held on the match day and has the match's category. Matches on other days stay unlinked, so most matches are not connected to an activity.
+- `MatchSeeder` also adds four matches of today (tafeltennis and darts) that stay unlinked, so linking a match to the activity "Tafeltennis- en dartsmiddag" (held today) can be tested by hand. `RatingSeeder` includes their rating changes.
+
+## Unit tests
+
+`Activadis.UnitTests` covers the Application layer: every service (activities, auth, users, sign-ups, waitlist, tokens, email, the four confirmation services, ELO and leaderboards), the validation classes and the extension methods. Repositories and other dependencies are mocked with Moq, shared test objects are built in `TestData.cs`. Run them with `dotnet test`.
 
 The separation keeps `EloCalculationService` trivially testable (no mocking needed), while `EloService` owns all the "what data do I need and where does it get saved" logic, and `LeaderboardService` isolates the caching concern from both.
