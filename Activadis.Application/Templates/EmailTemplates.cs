@@ -1,4 +1,6 @@
-﻿using Activadis.Shared.DTOs;
+﻿using Activadis.Application.Extensions;
+using Activadis.Domain.Entities;
+using Activadis.Shared.DTOs;
 using Activadis.Domain.Models;
 using System.Net;
 
@@ -101,6 +103,23 @@ namespace Activadis.Application.Templates
                        ["FullName"] = fullName,
                        ["Email"] = email,
                        ["Token"] = $"{ApplicationConfiguration.RedirectLinks.SetupPassword}/{token}"
+                   }
+               );
+
+        public static EmailMessage ActivityChanged(string email, string fullName, Activity activity)
+            => CreateEmailMessage(
+                   email, fullName,
+                   "ActivityChanged",
+                   $"De activiteit {activity.Name} is gewijzigd",
+                   "De activiteit is gewijzigd",
+                   new Dictionary<string, string>()
+                   {
+                       ["FullName"] = fullName,
+                       ["Email"] = email,
+                       ["ActivityName"] = activity.Name,
+                       ["Period"] = DateExtensions.ToDisplayPeriod(activity.StartDate, activity.EndDate),
+                       ["Location"] = activity.Location,
+                       ["Link"] = $"{ApplicationConfiguration.RedirectLinks.Activity}/{activity.Slug ?? activity.Id.ToString()}"
                    }
                );
 

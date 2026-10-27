@@ -1,0 +1,11 @@
+Hallo {{FullName}},
+
+De activiteit {{ActivityName}} waarvoor je bent ingeschreven is gewijzigd. Dit zijn de actuele gegevens:
+
+Datum en tijd: {{Period}}
+Locatie: {{Location}}
+
+Bekijk de activiteit via de link hieronder:
+{{BaseUrl}}{{Link}}
+
+Kun je niet meer? Dan kun je je uitschrijven op de pagina van de activiteit.

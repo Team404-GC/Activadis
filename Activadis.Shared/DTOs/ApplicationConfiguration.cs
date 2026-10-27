@@ -13,6 +13,7 @@
             public readonly static string ConfirmSignOut = "/confirm-signout";
             public readonly static string ConfirmResignUp = "/confirm-resignup";
             public readonly static string SetupPassword = "/wachtwoord-instellen";
+            public readonly static string Activity = "/activiteit";
         }
 
         private static long SizeInMB(int size)
