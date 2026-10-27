@@ -18,5 +18,6 @@ namespace Activadis.Domain.Interfaces.Repositories
         Task<SignUp?> GetByEmailAndActivityIdFromWaitlistAsync(string email, Guid activityId);
         Task AdvanceWaitlistAsync(int positionToRemove, Guid activityId);
         Task<IEnumerable<SignUp>> GetParticipantsByActivityIdAsync(Guid activityId);
+        Task DeleteByActivityIdAsync(Guid activityId);
     }
 }
