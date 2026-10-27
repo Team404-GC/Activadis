@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Collections;
 using System.Reflection;
+using System.Security.Authentication;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.RateLimiting;
@@ -64,7 +65,7 @@ namespace Activadis.API
 
                         string? nameIdentifier = context.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
                         if (!Guid.TryParse(nameIdentifier, out Guid userId) || !await authService.IsActiveAsync(userId))
-                            context.Fail("Je account is niet actief.");
+                            context.Fail(new AuthenticationException("Je account is niet actief."));
                     },
 
                     OnForbidden = async (context) =>
@@ -83,7 +84,12 @@ namespace Activadis.API
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         context.Response.ContentType = "application/json";
 
-                        ApiResponse<object> response = ApiResponse<object>.Fail("Je bent niet ingelogd.");
+                        // An inactive account is rejected in OnTokenValidated, its message is shown instead of the default one.
+                        string message = context.AuthenticateFailure is AuthenticationException exception
+                            ? exception.Message
+                            : "Je bent niet ingelogd.";
+
+                        ApiResponse<object> response = ApiResponse<object>.Fail(message);
                         await context.Response.WriteAsJsonAsync(response);
                     }
                 };
