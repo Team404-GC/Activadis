@@ -34,12 +34,14 @@
 .hm-logo {
     flex: none;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
 }
 
     .hm-logo ::deep .logo-animation {
-        width: 260px;
-        height: 260px;
+        width: 200px;
+        height: 200px;
     }
 
 .hm-blocks {
@@ -48,41 +50,6 @@
     gap: 24px;
     padding-bottom: 48px;
 }
-
-.hm-block {
-    display: block;
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-    overflow: hidden;
-    background: #000000;
-    line-height: 0;
-}
-
-    .hm-block:hover {
-        opacity: 0.9;
-        text-decoration: none;
-    }
-
-    .hm-block video {
-        display: block;
-        width: 100%;
-        height: 500px;
-        object-fit: cover;
-    }
-
-    .hm-block h2 {
-        margin: 0 0 8px 0;
-        font-size: 20px;
-        font-weight: 600;
-        color: #ffffff;
-    }
-
-    .hm-block p {
-        margin: 0;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-    }
 
 @media (max-width: 900px) {
     .hm-hero {
@@ -97,46 +64,21 @@
         margin-right: auto;
     }
 
-    .hm-logo ::deep .logo-animation {
-        width: 180px;
-        height: 180px;
+    .hm-logo {
+        flex-direction: row;
+        gap: 20px;
     }
+
+        .hm-logo ::deep .logo-animation {
+            width: 120px;
+            height: 120px;
+        }
 
     .hm-blocks {
         grid-template-columns: 1fr;
-    }
-
-    .hm-block video {
-        height: 220px;
     }
 
     .hm-intro h1 {
         font-size: 36px;
     }
 }
-
-.hm-placeholder {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 220px;
-    margin-top: 24px;
-    padding: 32px;
-    border: 2px dashed rgba(255, 255, 255, 0.25);
-    border-radius: 24px;
-    text-align: center;
-}
-
-    .hm-placeholder h2 {
-        margin: 0 0 8px 0;
-        font-size: 20px;
-        font-weight: 600;
-        color: #ffffff;
-    }
-
-    .hm-placeholder p {
-        margin: 0;
-        font-size: 14px;
-        color: rgba(255, 255, 255, 0.6);
-    }

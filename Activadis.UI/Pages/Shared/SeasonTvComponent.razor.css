@@ -1,0 +1,362 @@
+.tv {
+    position: relative;
+    width: 240px;
+    margin: 0;
+    padding-top: 30px;
+}
+
+.tv-antenna {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 64px;
+    height: 34px;
+    transform: translateX(-50%);
+}
+
+    .tv-antenna::before,
+    .tv-antenna::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        height: 38px;
+        border-radius: 2px;
+        background: linear-gradient(#9fb3d1, #5b6f92);
+        transform-origin: bottom center;
+    }
+
+    .tv-antenna::before {
+        transform: translateX(-50%) rotate(-32deg);
+    }
+
+    .tv-antenna::after {
+        transform: translateX(-50%) rotate(28deg);
+    }
+
+.tv-cabinet {
+    position: relative;
+    padding: 12px 12px 0 12px;
+    border-radius: 26px;
+    background: linear-gradient(160deg, #2b4a7d 0%, #1a3462 55%, #13284d 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -2px 0 rgba(0, 0, 0, 0.25), 0 18px 40px -10px rgba(0, 0, 0, 0.65);
+}
+
+    .tv-cabinet::before {
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        width: 34px;
+        height: 10px;
+        border-radius: 10px 10px 0 0;
+        background: #1a3462;
+        transform: translateX(-50%);
+    }
+
+.tv-screen {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: 18px / 22px;
+    background: #000000;
+    box-shadow: 0 0 0 3px #0a1730, 0 0 0 4px rgba(255, 255, 255, 0.06);
+}
+
+.tv-glass {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.04) 28%, rgba(255, 255, 255, 0) 45%), repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.07) 0 1px, transparent 1px 3px);
+    box-shadow: inset 0 0 36px rgba(0, 0, 0, 0.55);
+    pointer-events: none;
+}
+
+.tv-panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 38px;
+    padding: 0 6px;
+}
+
+.tv-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.tv-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tv-knob {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #4d6a9b, #0d1f40);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.tv-led {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--AccentColor);
+    box-shadow: 0 0 8px 2px rgba(250, 162, 27, 0.7);
+}
+
+.tv-feet {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 34px;
+}
+
+    .tv-feet::before,
+    .tv-feet::after {
+        content: "";
+        width: 18px;
+        height: 12px;
+        border-radius: 0 0 6px 6px;
+        background: #13284d;
+    }
+
+    .tv-feet::before {
+        transform: skewX(18deg);
+    }
+
+    .tv-feet::after {
+        transform: skewX(-18deg);
+    }
+
+.tv-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tv-scene {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
+
+.tv-sun,
+.tv-hill {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.tv-particle {
+    position: absolute;
+    top: -8%;
+    width: var(--size);
+    height: var(--size);
+    animation: tv-fall var(--duration) linear var(--delay) infinite, tv-sway 2.6s ease-in-out var(--delay) infinite alternate;
+}
+
+.tv-waves {
+    position: absolute;
+    top: 55.5%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.35) 0 16px, transparent 16px 44px);
+    mask-image: repeating-linear-gradient(0deg, #000000 0 2px, transparent 2px 9px);
+    opacity: 0.6;
+    animation: tv-shimmer 6s linear infinite;
+}
+
+.tv-glare {
+    position: absolute;
+    top: 55.5%;
+    left: 50%;
+    width: 26%;
+    height: 44.5%;
+    background: linear-gradient(rgba(255, 226, 150, 0.85), rgba(255, 226, 150, 0));
+    mask-image: repeating-linear-gradient(0deg, #000000 0 3px, transparent 3px 7px);
+    transform: translateX(-50%);
+    animation: tv-sparkle 2.4s ease-in-out infinite;
+}
+
+.tv-winter .tv-cabinet {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -2px 0 rgba(0, 0, 0, 0.25), 0 18px 40px -10px rgba(0, 0, 0, 0.65), 0 0 70px -6px rgba(255, 128, 32, 0.45);
+    animation: tv-glow 3.2s ease-in-out infinite;
+}
+
+.tv-spring .tv-scene {
+    background: linear-gradient(#9ddcff 0%, #cdeeff 45%, #ffe4f1 100%);
+}
+
+.tv-spring .tv-sun {
+    top: 14%;
+    right: 14%;
+    width: 22%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, #fff6c2 0 45%, rgba(255, 244, 180, 0) 70%);
+}
+
+.tv-spring .tv-hill-back {
+    left: -20%;
+    bottom: -38%;
+    width: 90%;
+    height: 70%;
+    background: #8fd18a;
+}
+
+.tv-spring .tv-hill-front {
+    right: -25%;
+    bottom: -45%;
+    width: 100%;
+    height: 75%;
+    background: #6cbf6a;
+}
+
+.tv-spring .tv-particle {
+    border-radius: 100% 0 100% 0;
+    background: #ffb3d4;
+    box-shadow: inset -1px -1px 0 #ff8fbf;
+}
+
+.tv-summer .tv-scene {
+    background: linear-gradient(#ff8a5b 0%, #ffb067 38%, #ffd88f 55%, #1d8fc9 55.5%, #0b5c8f 100%);
+}
+
+.tv-summer .tv-sun {
+    top: 32%;
+    left: 50%;
+    width: 34%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, #fff1b8 0 38%, #ffd36b 39% 46%, rgba(255, 211, 107, 0) 70%);
+    clip-path: inset(0 0 22% 0);
+    transform: translateX(-50%);
+}
+
+.tv-autumn .tv-scene {
+    background: linear-gradient(#ffcb8e 0%, #ffa66b 55%, #e9784b 100%);
+}
+
+.tv-autumn .tv-sun {
+    top: 18%;
+    left: 16%;
+    width: 20%;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, #fff0c9 0 45%, rgba(255, 240, 200, 0) 70%);
+}
+
+.tv-autumn .tv-hill-back {
+    left: -25%;
+    bottom: -40%;
+    width: 95%;
+    height: 72%;
+    background: #c8642a;
+}
+
+.tv-autumn .tv-hill-front {
+    right: -20%;
+    bottom: -48%;
+    width: 100%;
+    height: 78%;
+    background: #9c4a1d;
+}
+
+.tv-autumn .tv-particle {
+    border-radius: 0 100% 0 100%;
+}
+
+    .tv-autumn .tv-particle:nth-child(3n) {
+        background: #e8590c;
+    }
+
+    .tv-autumn .tv-particle:nth-child(3n + 1) {
+        background: #f59f00;
+    }
+
+    .tv-autumn .tv-particle:nth-child(3n + 2) {
+        background: #c92a2a;
+    }
+
+@keyframes tv-fall {
+    to {
+        top: 108%;
+    }
+}
+
+@keyframes tv-sway {
+    from {
+        transform: translateX(-7px) rotate(-35deg);
+    }
+
+    to {
+        transform: translateX(7px) rotate(45deg);
+    }
+}
+
+@keyframes tv-shimmer {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 88px 0;
+    }
+}
+
+@keyframes tv-sparkle {
+    0%, 100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@keyframes tv-glow {
+    0%, 100% {
+        filter: none;
+    }
+
+    50% {
+        filter: brightness(1.06);
+    }
+}
+
+@media (max-width: 900px) {
+    .tv {
+        width: 170px;
+        padding-top: 22px;
+    }
+
+    .tv-cabinet {
+        padding: 8px 8px 0 8px;
+        border-radius: 20px;
+    }
+
+    .tv-panel {
+        height: 28px;
+    }
+
+    .tv-label {
+        font-size: 9px;
+    }
+
+    .tv-feet {
+        padding: 0 24px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tv-particle,
+    .tv-waves,
+    .tv-glare,
+    .tv-winter .tv-cabinet {
+        animation: none;
+    }
+}

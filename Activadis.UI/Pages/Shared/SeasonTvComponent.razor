@@ -1,0 +1,108 @@
+﻿<figure class="tv @SeasonClass" role="img" aria-label="@Description">
+    <div class="tv-antenna"></div>
+    <div class="tv-cabinet">
+        <div class="tv-screen">
+            @switch (currentSeason)
+            {
+                case TvSeason.Winter:
+                    <video class="tv-video" src="videos/OPEN_HAARD.mp4" autoplay muted loop playsinline></video>
+                    break;
+                case TvSeason.Summer:
+                    <div class="tv-scene">
+                        <span class="tv-sun"></span>
+                        <span class="tv-waves"></span>
+                        <span class="tv-glare"></span>
+                    </div>
+                    break;
+                case TvSeason.Spring:
+                case TvSeason.Autumn:
+                    <div class="tv-scene">
+                        <span class="tv-sun"></span>
+                        <span class="tv-hill tv-hill-back"></span>
+                        <span class="tv-hill tv-hill-front"></span>
+                        @foreach ((int left, int delay, int duration, int size) in Particles)
+                        {
+                            <span class="tv-particle" style="left: @(left)%; --delay: -@(delay)ms; --duration: @(duration)ms; --size: @(size)px"></span>
+                        }
+                    </div>
+                    break;
+            }
+            <div class="tv-glass"></div>
+        </div>
+        <div class="tv-panel">
+            <span class="tv-label">@Label</span>
+            <span class="tv-controls">
+                <span class="tv-knob"></span>
+                <span class="tv-knob"></span>
+                <span class="tv-led"></span>
+            </span>
+        </div>
+    </div>
+    <div class="tv-feet"></div>
+</figure>
+
+@code {
+    [Parameter]
+    public string? Season { get; set; }
+
+    private enum TvSeason
+    {
+        Winter,
+        Spring,
+        Summer,
+        Autumn
+    }
+
+    private static readonly (int Left, int Delay, int Duration, int Size)[] Particles =
+    [
+        (6, 0, 7000, 9), (18, 2400, 9000, 7), (29, 5100, 8000, 10), (41, 1200, 10000, 8), (53, 3600, 7500, 9),
+        (64, 600, 9500, 7), (74, 4200, 8500, 10), (85, 1800, 7000, 8), (94, 3000, 9000, 9), (36, 6000, 8000, 7)
+    ];
+
+    private TvSeason currentSeason;
+
+    private string SeasonClass => currentSeason switch
+    {
+        TvSeason.Spring => "tv-spring",
+        TvSeason.Summer => "tv-summer",
+        TvSeason.Autumn => "tv-autumn",
+        _ => "tv-winter"
+    };
+
+    private string Label => currentSeason switch
+    {
+        TvSeason.Spring => "Lente",
+        TvSeason.Summer => "Zomer",
+        TvSeason.Autumn => "Herfst",
+        _ => "Winter"
+    };
+
+    private string Description => currentSeason switch
+    {
+        TvSeason.Spring => "Seizoens-tv: een lentelandschap met vallende bloesem",
+        TvSeason.Summer => "Seizoens-tv: een zonsondergang boven zee",
+        TvSeason.Autumn => "Seizoens-tv: een herfstlandschap met vallende bladeren",
+        _ => "Seizoens-tv: een knapperend haardvuur"
+    };
+
+    protected override void OnParametersSet()
+    {
+        currentSeason = Season?.ToLowerInvariant() switch
+        {
+            "winter" => TvSeason.Winter,
+            "lente" => TvSeason.Spring,
+            "zomer" => TvSeason.Summer,
+            "herfst" => TvSeason.Autumn,
+            _ => GetSeason(DateTime.Today)
+        };
+    }
+
+    private static TvSeason GetSeason(DateTime date)
+        => date.Month switch
+        {
+            3 or 4 or 5 => TvSeason.Spring,
+            6 or 7 or 8 => TvSeason.Summer,
+            9 or 10 or 11 => TvSeason.Autumn,
+            _ => TvSeason.Winter
+        };
+}
