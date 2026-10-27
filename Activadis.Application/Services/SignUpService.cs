@@ -14,12 +14,14 @@ namespace Activadis.Application.Services
         private readonly IConfirmationService<SignUpRequest> SignUpConfirmationService;
         private readonly IActivityRepository ActivityRepository;
         private readonly ISignUpRepository SignUpRepository;
+        private readonly IUserRepository UserRepository;
         private readonly IWaitlistService WaitlistService;
 
-        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService, IWaitlistService waitlistService, IConfirmationService<EditSignUpRequest> editSignOutConfirmationService)
+        public SignUpService(IActivityRepository activityRepository, ISignUpRepository signUpRepository, IUserRepository userRepository, IConfirmationService<SignOutRequest> signOutConfirmationService, IConfirmationService<SignUpRequest> signUpConfirmationService, IWaitlistService waitlistService, IConfirmationService<EditSignUpRequest> editSignOutConfirmationService)
         {
             ActivityRepository = activityRepository;
             SignUpRepository = signUpRepository;
+            UserRepository = userRepository;
             SignOutConfirmationService = signOutConfirmationService;
             SignUpConfirmationService = signUpConfirmationService;
             WaitlistService = waitlistService;
@@ -42,7 +44,8 @@ namespace Activadis.Application.Services
         {
             Activity? activity = await ActivityRepository.GetByIdAsync(request.ActivityId);
             int totalSignUps = await SignUpRepository.CountByActivityIdAsync(request.ActivityId);
-            request.Validate(activity, userId, totalSignUps);
+            User? user = string.IsNullOrWhiteSpace(request.Email) ? null : await UserRepository.GetByEmailAsync(request.Email.Trim());
+            request.Validate(activity, userId, totalSignUps, user);
 
             if (userId == Guid.Empty)
             {

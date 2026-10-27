@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Activadis.Application.Interfaces;
 using Activadis.Shared.DTOs.User;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Activadis.Shared.DTOs;
 
 namespace Activadis.API.Controllers
@@ -63,6 +65,29 @@ namespace Activadis.API.Controllers
             {
                 await UserService.UpdateAsync(request);
                 return Ok(ApiResponse<object>.Ok(message: "De gebruiker is met succes bijgewerkt."));
+            }
+            catch (ArgumentException exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail(exception.Message));
+            }
+            catch (KeyNotFoundException exception)
+            {
+                return NotFound(ApiResponse<object>.Fail(exception.Message));
+            }
+        }
+
+        [HttpPut("{id:guid}/status")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UpdateStatusAsync(Guid id, [FromBody] UpdateUserStatusRequest request)
+        {
+            string? nameIdentifier = Request.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!Guid.TryParse(nameIdentifier, out Guid currentUserId))
+                return Challenge(JwtBearerDefaults.AuthenticationScheme);
+
+            try
+            {
+                await UserService.UpdateStatusAsync(id, currentUserId, request);
+                return Ok(ApiResponse<object>.Ok());
             }
             catch (ArgumentException exception)
             {
