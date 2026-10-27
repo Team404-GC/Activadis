@@ -34,6 +34,10 @@ namespace Activadis.Infrastructure.Helpers
         {
             string slug = Generate(text);
 
+            // The entity already has this slug, counting it would give itself a new number.
+            if (entity.Slug == slug)
+                return slug;
+
             int count = await context.CountAsync<IHasSlug>(entity.GetType(), x => x.Slug != null && EF.Functions.Like(x.Slug, $"{slug}%"));
             if (count <= 0)
                 return slug;
