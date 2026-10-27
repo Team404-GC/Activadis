@@ -1,5 +1,6 @@
 ﻿.signup-container {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(4, 9, 20, 0.6);
+    backdrop-filter: blur(4px);
     place-items: center;
     position: fixed;
     height: 100vh;
@@ -7,15 +8,21 @@
     width: 100%;
     left: 0;
     top: 0;
+    z-index: 1100;
 
     &.container-visible {
         display: grid;
     }
 
     .form {
-        background-color: white;
-        border-radius: 15px;
-        padding: 20px;
+        background-color: var(--PopoverColor);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+        color: #ffffff;
+        color-scheme: dark;
+        max-width: min(440px, calc(100vw - 32px));
+        padding: 24px;
         display: flex;
         flex-direction: column;
         gap: 20px;
@@ -23,30 +30,71 @@
         section {
             display: flex;
             flex-direction: column;
-            color: var(--DashboardColor);
-            gap: 2px;
+            color: #ffffff;
+            gap: 6px;
 
             label {
                 justify-content: space-between;
                 display: flex;
                 margin: 0;
+                color: rgba(255, 255, 255, 0.8);
+                font-size: 14px;
+                font-weight: 500;
 
                 .length-meter {
                     font-size: 0.8rem;
-                    color: grey;
+                    color: rgba(255, 255, 255, 0.5);
 
                     &.length-invalid {
-                        color: red;
+                        color: #ff6b6b;
                     }
+                }
+            }
+
+            p {
+                margin: 0;
+                color: rgba(255, 255, 255, 0.75);
+                font-size: 14px;
+                line-height: 160%;
+            }
+
+            input:not([type="checkbox"]),
+            textarea {
+                min-height: 44px;
+                padding: 10px 14px;
+                border: 1px solid rgba(255, 255, 255, 0.14);
+                border-radius: 10px;
+                background: rgba(255, 255, 255, 0.06);
+                color: #ffffff;
+                font-family: inherit;
+                font-size: 15px;
+
+                &:focus {
+                    border-color: var(--AccentColor);
+                    box-shadow: 0 0 0 3px var(--AccentColorSoft);
+                    outline: none;
+                }
+
+                &.invalid {
+                    border-color: #ff6b6b;
                 }
             }
 
             textarea {
                 min-width: 257.11px;
-                min-height: 32px;
-                height: 32px;
                 resize: both;
             }
+
+            .switch {
+                --TaskbarColor: #ffffff;
+                --TextColor: #0e1e3b;
+            }
+        }
+
+        .validation-message {
+            margin: 0;
+            color: #ff6b6b;
+            font-size: 13px;
         }
 
         button {
@@ -55,7 +103,7 @@
             display: inline-block;
             text-decoration: none;
             padding: 13px 32px;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             font-size: 16px;
             cursor: pointer;
@@ -64,6 +112,11 @@
 
             &:hover {
                 background: var(--ButtonColorHover);
+            }
+
+            &:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
             }
         }
     }

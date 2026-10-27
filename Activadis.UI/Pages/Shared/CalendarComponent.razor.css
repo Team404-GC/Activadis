@@ -91,8 +91,9 @@
 
 .cal-calendar {
     padding: 16px;
+    border: 1px solid var(--BorderColor);
     border-radius: 16px;
-    background: #ffffff;
+    background: var(--TaskbarColor);
     color: var(--TextColor);
     overflow-x: auto;
 }
@@ -112,15 +113,16 @@
     }
 
 .cal-week {
+    border: 1px solid var(--BorderColor);
     border-radius: 16px;
-    background: #ffffff;
+    background: var(--TaskbarColor);
     color: var(--TextColor);
     overflow: hidden;
 }
 
 .cal-week-head {
     grid-template-columns: 56px repeat(var(--cal-days), 1fr);
-    border-bottom: 1px solid #e3e6ea;
+    border-bottom: 1px solid var(--BorderColor);
     scrollbar-gutter: stable;
     overflow-y: auto;
     display: grid;
@@ -132,7 +134,7 @@
     align-items: center;
     gap: 2px;
     padding: 10px 0;
-    border-left: 1px solid #e3e6ea;
+    border-left: 1px solid var(--BorderColor);
 }
 
 .cal-day-number {
@@ -142,7 +144,7 @@
 
 .cal-day-name {
     font-size: 12px;
-    color: #6b7280;
+    color: var(--MutedText);
     text-transform: capitalize;
 }
 
@@ -168,7 +170,7 @@
 
 .cal-hour {
     position: relative;
-    border-top: 1px solid #eef0f3;
+    border-top: 1px solid var(--BorderColor);
 }
 
     .cal-hour span {
@@ -177,7 +179,7 @@
         right: 8px;
         font-size: 12px;
         line-height: 1;
-        color: #6b7280;
+        color: var(--MutedText);
     }
 
 .cal-week-grid {
@@ -196,7 +198,7 @@
         grid-template-columns: 0 1fr;
         grid-template-rows: repeat(24, 48px);
         border: none;
-        border-left: 1px solid #e3e6ea;
+        border-left: 1px solid var(--BorderColor);
     }
 
     .cal-week-grid ::deep .weekly-calendar {
@@ -209,7 +211,7 @@
     }
 
     .cal-week-grid ::deep .hour-dropzone {
-        border-top: 1px solid #eef0f3;
+        border-top: 1px solid var(--BorderColor);
     }
 
 .cal-workweek ::deep .day-column[style*="grid-column-start: 6"],
@@ -249,6 +251,16 @@
 }
 
 .cal-calendar ::deep .header-name {
+    background: transparent;
     font-weight: 600;
-    color: var(--TextColor);
+    color: var(--MutedText);
 }
+
+.cal-calendar ::deep .monthly-day,
+.cal-week-grid ::deep .hour-dropzone {
+    border-color: var(--BorderColor);
+}
+
+    .cal-calendar ::deep .monthly-day[style*="background-image"] {
+        background-image: repeating-linear-gradient(-45deg, rgba(255, 255, 255, 0.04) 0 6px, transparent 6px 12px) !important;
+    }

@@ -19,6 +19,7 @@
     --GoldColor: #f5c518;
     --SilverColor: #c3c8d1;
     --BronzeColor: #d08a4c;
+    --PopoverColor: #172a4f;
 }
 
 html:has(.container-visible) {
@@ -83,10 +84,39 @@ body {
 }
 
 .ml-content {
+    --TaskbarColor: rgba(255, 255, 255, 0.04);
+    --SurfaceColor: rgba(255, 255, 255, 0.06);
+    --BorderColor: rgba(255, 255, 255, 0.08);
+    --TextColor: #ffffff;
+    --MutedText: rgba(255, 255, 255, 0.6);
+    --DangerBg: rgba(255, 107, 107, 0.12);
+    --DangerText: #ff8a8a;
+    --SuccessBg: rgba(74, 222, 128, 0.12);
+    --SuccessText: #4ade80;
     max-width: 1200px;
     margin: 0 auto;
     padding: 32px 0;
+    color-scheme: dark;
 }
+
+    .ml-content .ao-card,
+    .ml-content .pc,
+    .ml-content .pc-lightbox,
+    .ml-content .switch {
+        --TaskbarColor: #ffffff;
+        --SurfaceColor: #ebf5f7;
+        --BorderColor: rgba(14, 30, 59, 0.1);
+        --TextColor: #0e1e3b;
+        --MutedText: #6b7280;
+        --DangerBg: #fdecec;
+        --DangerText: #b91c1c;
+        color-scheme: light;
+    }
+
+    .ml-content option {
+        background: var(--DashboardColor);
+        color: #ffffff;
+    }
 
 
 
