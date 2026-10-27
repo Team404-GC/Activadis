@@ -34,9 +34,14 @@ else
         </div>
         @if (User?.IsInRole("Admin") ?? false)
         {
-            <NavLink class="ad-edit" href="@($"/activiteit/bewerk/{activity.Slug ?? activity.Id.ToString() ?? Id}")">
-                <i class="bi bi-pencil-fill"></i>
-            </NavLink>
+            <div class="ad-admin-actions">
+                <button type="button" class="ad-cancel" title="Activiteit annuleren" @onclick="@(() => showCancelPrompt = true)">
+                    <i class="bi bi-calendar-x"></i>
+                </button>
+                <NavLink class="ad-edit" href="@($"/activiteit/bewerk/{activity.Slug ?? activity.Id.ToString() ?? Id}")">
+                    <i class="bi bi-pencil-fill"></i>
+                </NavLink>
+            </div>
         }
     </div>
     <div class="ad-layout">
@@ -351,6 +356,26 @@ else
     <SignUpComponent PlusOneAllowed="activity.PlusOneAllowed"  @bind-Request="signUpRequest" OnSubmit="@(() => SubmitComponentAsync(signUpRequest, SignUpAsync))" />
     <EditSignUpComponent PlusOneAllowed="activity.PlusOneAllowed" @bind-Request="editSignUpRequest" OnSubmit="@(() => SubmitComponentAsync(editSignUpRequest, EditSignUpAsync))" />
     <SignOutComponent @bind-Request="signOutRequest" OnSubmit="@(() => SubmitComponentAsync(signOutRequest, SignOutAsync))" />
+
+    @if (IsAdmin)
+    {
+        <div class="signup-container @(showCancelPrompt ? "container-visible" : "")" @onmousedown="@(() => showCancelPrompt = isCancelling)">
+            <div class="form" @onmousedown:stopPropagation="true">
+                <section>
+                    <label>Activiteit annuleren</label>
+                    <p>Weet je zeker dat je <strong>@activity.Name</strong> wilt annuleren? Alle ingeschreven deelnemers en mensen op de wachtlijst krijgen automatisch een e-mail. Dit kan niet ongedaan worden gemaakt.</p>
+                </section>
+                <section>
+                    <button type="button" @onclick="CancelActivityAsync" disabled="@isCancelling">
+                        @(!isCancelling ? "Activiteit annuleren" : "Aan het laden..")
+                    </button>
+                </section>
+                <section>
+                    <button type="button" @onclick="@(() => showCancelPrompt = false)" disabled="@isCancelling">Terug</button>
+                </section>
+            </div>
+        </div>
+    }
 }
 
 @code {
@@ -362,6 +387,8 @@ else
     private ActivityDetailResponse? activity;
     private ActivitySignUpListResponse? signUps;
     private bool isLoading = true;
+    private bool showCancelPrompt = false;
+    private bool isCancelling = false;
 
     private ComponentRequest<SignUpRequest> signUpRequest = new ComponentRequest<SignUpRequest>(new SignUpRequest());
     private ComponentRequest<SignOutRequest> signOutRequest = new ComponentRequest<SignOutRequest>(new SignOutRequest());
@@ -710,6 +737,34 @@ else
         editSignUpRequest.Request = new EditSignUpRequest() { ActivityId = activity.Id };
         signOutRequest.Request = new SignOutRequest() { ActivityId = activity.Id };
         signOutRequest.IsLoading = false;
+    }
+
+    public async Task CancelActivityAsync()
+    {
+        if (activity is null)
+            return;
+
+        isCancelling = true;
+
+        ApiResponse<InformParticipantsResponse> response = await ActivityService.CancelAsync(activity.Id);
+        if (!response.Succeeded || response.Value is null)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isCancelling = false;
+            return;
+        }
+
+        InformParticipantsResponse result = response.Value;
+        if (result.FailedParticipants > 0)
+            Notifications.AddNotification($"De activiteit is geannuleerd. {result.InformedParticipants} van de {result.TotalParticipants} deelnemers zijn geïnformeerd. Bij {result.FailedParticipants} deelnemers kon de e-mail niet worden verstuurd.", true, 6000);
+        else if (result.TotalParticipants == 0)
+            Notifications.AddNotification("De activiteit is geannuleerd.", false);
+        else
+            Notifications.AddNotification($"De activiteit is geannuleerd. {result.InformedParticipants} deelnemers zijn geïnformeerd.", false);
+
+        isCancelling = false;
+        showCancelPrompt = false;
+        NavigationManager.NavigateTo("/activiteiten");
     }
 
     private static string ToPeriod(ActivityDetailResponse activity)

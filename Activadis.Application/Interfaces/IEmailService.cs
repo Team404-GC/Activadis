@@ -12,6 +12,7 @@ namespace Activadis.Application.Interfaces
         Task<bool> SendSignOutConfirmationAsync(string email, string fullName, string token);
         Task<bool> SendPasswordSetupAsync(string email, string fullName, string link);
         Task<bool> SendActivityChangedAsync(string email, string fullName, Activity activity);
+        Task<bool> SendActivityCancelledAsync(string email, string fullName, Activity activity);
         Task<bool> SendTestAsync(string email, string fullName);
     }
 }

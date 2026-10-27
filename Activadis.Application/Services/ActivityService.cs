@@ -243,6 +243,33 @@ namespace Activadis.Application.Services
             };
         }
 
+        public async Task<InformParticipantsResponse> CancelAsync(Guid id)
+        {
+            Activity activity = await ActivityRepository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            await ActivityRepository.DeleteAsync(activity);
+
+            // Registrations are soft-deleted, so the list of who was informed still exists afterwards.
+            IEnumerable<SignUp> signUps = await SignUpRepository.GetByActivityIdAsync(activity.Id);
+            await SignUpRepository.DeleteByActivityIdAsync(activity.Id);
+
+            // The emails are sent after cancelling, so a failing email cannot stop the cancellation.
+            int informed = 0;
+            foreach (SignUp signUp in signUps)
+            {
+                if (await EmailService.SendActivityCancelledAsync(signUp.User?.Email ?? signUp.Email, signUp.User?.FullName ?? signUp.FullName, activity))
+                    informed++;
+            }
+
+            return new InformParticipantsResponse()
+            {
+                TotalParticipants = signUps.Count(),
+                InformedParticipants = informed,
+                FailedParticipants = signUps.Count() - informed
+            };
+        }
+
         public async Task<IEnumerable<RecentMatchDto>> GetLinkableMatchesAsync(Guid id)
         {
             Activity activity = await ActivityRepository.GetWithCategoriesAndMatchesAsync(id)

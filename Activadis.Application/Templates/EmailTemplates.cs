@@ -123,6 +123,21 @@ namespace Activadis.Application.Templates
                    }
                );
 
+        public static EmailMessage ActivityCancelled(string email, string fullName, Activity activity)
+            => CreateEmailMessage(
+                   email, fullName,
+                   "ActivityCancelled",
+                   $"De activiteit {activity.Name} is geannuleerd",
+                   "De activiteit is geannuleerd",
+                   new Dictionary<string, string>()
+                   {
+                       ["FullName"] = fullName,
+                       ["Email"] = email,
+                       ["ActivityName"] = activity.Name,
+                       ["Period"] = DateExtensions.ToDisplayPeriod(activity.StartDate, activity.EndDate)
+                   }
+               );
+
         private static EmailMessage CreateEmailMessage(string email, string fullName, string fileName, string subject, string title, Dictionary<string, string> values)
         {
             values["BaseUrl"] = ApplicationConfiguration.BaseUrl;

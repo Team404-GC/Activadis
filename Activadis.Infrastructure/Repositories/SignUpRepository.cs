@@ -75,5 +75,10 @@ namespace Activadis.Infrastructure.Repositories
                 .Where(x => x.ActivityId == activityId && x.WaitlistPosition == null && x.DeletedAt == null)
                 .Include(x => x.User)
                 .ToListAsync();
+
+        public async Task DeleteByActivityIdAsync(Guid activityId)
+            => await Context.SignUps
+                .Where(x => x.ActivityId == activityId && x.DeletedAt == null)
+                .ExecuteUpdateAsync(property => property.SetProperty(x => x.DeletedAt, DateTime.UtcNow));
     }
 }
