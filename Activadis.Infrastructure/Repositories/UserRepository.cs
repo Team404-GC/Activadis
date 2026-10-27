@@ -2,6 +2,7 @@
 using Activadis.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Activadis.Domain.Entities;
+using Activadis.Domain.Enums;
 
 namespace Activadis.Infrastructure.Repositories
 {
@@ -20,5 +21,8 @@ namespace Activadis.Infrastructure.Repositories
 
         public async Task<User?> GetByPasswordSetupTokenHashAsync(string tokenHash)
             => await Context.Users.FirstOrDefaultAsync(x => x.PasswordSetupTokenHash == tokenHash && x.DeletedAt == null);
+
+        public async Task<int> CountByRoleAsync(UserRole role)
+            => await Context.Users.CountAsync(x => x.Role == role && x.DeletedAt == null);
     }
 }

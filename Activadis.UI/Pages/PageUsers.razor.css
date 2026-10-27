@@ -1,0 +1,157 @@
+﻿.gu-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+::deep .gu-button,
+::deep .gu-button-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+::deep .gu-button {
+    padding: 10px 24px;
+    border: none;
+    background: var(--ButtonColor);
+    color: var(--ButtonTextColor);
+    font-size: 16px;
+}
+
+    ::deep .gu-button:hover {
+        background: var(--ButtonColorHover);
+        color: var(--ButtonTextColor);
+    }
+
+::deep .gu-button-secondary {
+    padding: 6px 14px;
+    border: 1px solid var(--BorderColor);
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+    font-size: 14px;
+}
+
+    ::deep .gu-button-secondary:hover {
+        border-color: var(--AccentColor);
+        background: var(--AccentColorSoft);
+        color: var(--TextColor);
+    }
+
+.gu-search {
+    width: 100%;
+    max-width: 360px;
+    height: 36px;
+    margin-top: 16px;
+    padding: 0 12px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    background: none;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+    .gu-search::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .gu-search:focus {
+        border-color: var(--AccentColor);
+        outline: none;
+    }
+
+.gu-state {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+    color: var(--MutedText);
+}
+
+.gu-card {
+    margin-top: 24px;
+    padding: 8px 16px;
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    background: var(--TaskbarColor);
+    color: var(--TextColor);
+}
+
+.gu-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+    .gu-table th {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+        color: var(--MutedText);
+        font-size: 13px;
+        font-weight: 500;
+        text-align: left;
+    }
+
+    .gu-table td {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--BorderColor);
+        vertical-align: middle;
+    }
+
+    .gu-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+.gu-name {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.gu-muted {
+    color: var(--MutedText);
+    overflow-wrap: anywhere;
+}
+
+.gu-role {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--SurfaceColor);
+    color: var(--MutedText);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.gu-role-admin {
+    background: var(--AccentColorSoft);
+    color: var(--TextColor);
+}
+
+.gu-actions {
+    text-align: right;
+}
+
+@media (max-width: 700px) {
+    .gu-card {
+        padding: 4px 8px;
+    }
+
+    .gu-table .gu-hide-small {
+        display: none;
+    }
+
+    .gu-table th,
+    .gu-table td {
+        padding: 10px 4px;
+    }
+
+    ::deep .gu-button-secondary span {
+        display: none;
+    }
+}

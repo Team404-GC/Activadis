@@ -1,0 +1,132 @@
+﻿@inject NavigationManager NavigationManager
+@inject IUserService UserService
+@attribute [Authorize(Roles = "Admin")]
+@page "/gebruiker/{Id}/wijzigen"
+
+<PageTitle>Gebruiker wijzigen</PageTitle>
+
+<NavLink class="eu-back" href="/gebruikers">
+    <i class="bi bi-arrow-left"></i>
+    <span>Terug naar de gebruikers</span>
+</NavLink>
+
+<h1>Gebruiker wijzigen</h1>
+
+@if (isLoading)
+{
+    <div class="eu-state">
+        <div class="spinner-border" role="status"></div>
+    </div>
+}
+else if (form is null)
+{
+    <p class="eu-state">Deze gebruiker is niet gevonden.</p>
+}
+else
+{
+    <div class="eu-card">
+        <EditForm EditContext="form.Context" OnValidSubmit="UpdateAsync">
+            <DataAnnotationsValidator />
+
+            <div class="eu-field">
+                <label for="fullName">Naam</label>
+                <InputText id="fullName" class="form-control" @bind-Value="request.FullName" />
+                <ValidationMessage For="@(() => request.FullName)" />
+            </div>
+
+            <div class="eu-field">
+                <label for="email">E-mail</label>
+                <InputText id="email" class="form-control" @bind-Value="request.Email" inputmode="email" />
+                <ValidationMessage For="@(() => request.Email)" />
+            </div>
+
+            <div class="eu-field">
+                <label for="jobTitle">Functie</label>
+                <InputSelect id="jobTitle" class="form-control" @bind-Value="request.JobTitle">
+                    <option value="">Kies een functie</option>
+                    @foreach (string jobTitle in JobTitles.All)
+                    {
+                        <option value="@jobTitle">@jobTitle</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="@(() => request.JobTitle)" />
+            </div>
+
+            <div class="eu-field">
+                <label for="role">Rol</label>
+                <InputSelect id="role" class="form-control" @bind-Value="request.Role">
+                    <option value="User">Medewerker</option>
+                    <option value="Admin">Beheerder</option>
+                </InputSelect>
+                <ValidationMessage For="@(() => request.Role)" />
+            </div>
+
+            @if (form.FormError is not null)
+            {
+                <p class="validation-message">@form.FormError</p>
+            }
+
+            <button type="submit" class="eu-button" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <span>Aan het laden...</span>
+                }
+                else
+                {
+                    <span>Opslaan</span>
+                }
+            </button>
+        </EditForm>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; } = string.Empty;
+
+    private UpdateUserRequest request = new UpdateUserRequest();
+    private ComponentRequest<UpdateUserRequest>? form = null;
+    private bool isLoading = true;
+    private bool isSaving = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        isLoading = true;
+
+        ApiResponse<UserResponse> response = await UserService.GetByIdentifierAsync(Id);
+        if (!response.Succeeded || response.Value is null)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isLoading = false;
+            return;
+        }
+
+        request = new UpdateUserRequest()
+        {
+            Id = response.Value.Id,
+            FullName = response.Value.FullName,
+            Email = response.Value.Email,
+            JobTitle = response.Value.JobTitle,
+            Role = response.Value.Role
+        };
+        form = new ComponentRequest<UpdateUserRequest>(request);
+        isLoading = false;
+    }
+
+    private async Task UpdateAsync()
+    {
+        isSaving = true;
+
+        ApiResponse<object> response = await UserService.UpdateAsync(request);
+        if (!response.Succeeded)
+        {
+            form?.ShowErrors(response);
+            isSaving = false;
+            return;
+        }
+
+        Notifications.AddNotification("De gebruiker is met succes bijgewerkt.", false);
+        NavigationManager.NavigateTo("/gebruikers");
+        isSaving = false;
+    }
+}

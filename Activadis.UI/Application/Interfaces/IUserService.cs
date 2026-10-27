@@ -7,5 +7,7 @@ namespace Activadis.UI.Application.Interfaces
     {
         Task<ApiResponse<object>> CreateAsync(CreateUserRequest request);
         Task<ApiResponse<IEnumerable<UserResponse>>> GetAllAsync();
+        Task<ApiResponse<UserResponse>> GetByIdentifierAsync(string identifier);
+        Task<ApiResponse<object>> UpdateAsync(UpdateUserRequest request);
     }
 }
