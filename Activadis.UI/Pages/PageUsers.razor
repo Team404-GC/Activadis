@@ -52,7 +52,7 @@ else
                             <span class="gu-role @(user.Role == "Admin" ? "gu-role-admin" : "")">@ToRoleName(user.Role)</span>
                         </td>
                         <td class="gu-actions">
-                            <NavLink class="gu-button-secondary" href="@($"/gebruiker/{user.Id}/wijzigen")">
+                            <NavLink class="gu-button-secondary" href="@($"/gebruiker/{user.Slug ?? user.Id.ToString()}/wijzigen")">
                                 <i class="bi bi-pencil"></i>
                                 <span>Wijzigen</span>
                             </NavLink>

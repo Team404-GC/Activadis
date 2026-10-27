@@ -52,9 +52,9 @@ namespace Activadis.Application.Services
                 .Select(x => x.ToResponse());
         }
 
-        public async Task<UserResponse> GetByIdAsync(Guid id)
+        public async Task<UserResponse> GetByIdentifierAsync(string identifier)
         {
-            User user = await UserRepository.GetByIdAsync(id)
+            User user = await UserRepository.GetByIdentifierAsync(identifier)
                 ?? throw new KeyNotFoundException("De gebruiker is niet gevonden.");
 
             return user.ToResponse();

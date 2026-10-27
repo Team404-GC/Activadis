@@ -25,13 +25,13 @@ namespace Activadis.API.Controllers
             return Ok(ApiResponse<IEnumerable<UserResponse>>.Ok(users));
         }
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> GetByIdAsync(Guid id)
+        public async Task<IActionResult> GetByIdentifierAsync(string id)
         {
             try
             {
-                UserResponse user = await UserService.GetByIdAsync(id);
+                UserResponse user = await UserService.GetByIdentifierAsync(id);
                 return Ok(ApiResponse<UserResponse>.Ok(user));
             }
             catch (KeyNotFoundException exception)

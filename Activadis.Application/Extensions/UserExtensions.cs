@@ -26,6 +26,7 @@ namespace Activadis.Application.Extensions
             return new UserResponse()
             {
                 Id = user.Id,
+                Slug = user.Slug,
                 FullName = user.FullName,
                 Email = user.Email,
                 JobTitle = user.JobTitle,

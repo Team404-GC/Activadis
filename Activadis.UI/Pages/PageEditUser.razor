@@ -1,7 +1,7 @@
 ﻿@inject NavigationManager NavigationManager
 @inject IUserService UserService
 @attribute [Authorize(Roles = "Admin")]
-@page "/gebruiker/{Id:guid}/wijzigen"
+@page "/gebruiker/{Id}/wijzigen"
 
 <PageTitle>Gebruiker wijzigen</PageTitle>
 
@@ -82,7 +82,7 @@ else
 
 @code {
     [Parameter]
-    public Guid Id { get; set; }
+    public string Id { get; set; } = string.Empty;
 
     private UpdateUserRequest request = new UpdateUserRequest();
     private ComponentRequest<UpdateUserRequest>? form = null;
@@ -93,7 +93,7 @@ else
     {
         isLoading = true;
 
-        ApiResponse<UserResponse> response = await UserService.GetByIdAsync(Id);
+        ApiResponse<UserResponse> response = await UserService.GetByIdentifierAsync(Id);
         if (!response.Succeeded || response.Value is null)
         {
             Notifications.AddNotification(response.Message, true);
