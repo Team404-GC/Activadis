@@ -48,8 +48,13 @@ namespace Activadis.Infrastructure.Persistence.Interceptors
             if (property is null)
                 return null;
 
-            if (entry is not null && entry.State != EntityState.Added && !entry.Property(property.Name).IsModified)
-                return null;
+            // Update() marks every property as modified, so the value itself has to be compared.
+            if (entry is not null && entry.State != EntityState.Added)
+            {
+                PropertyEntry source = entry.Property(property.Name);
+                if (!source.IsModified || Equals(source.OriginalValue, source.CurrentValue))
+                    return null;
+            }
 
             string? value = property.GetValue(entity)?.ToString();
             if (string.IsNullOrWhiteSpace(value))
