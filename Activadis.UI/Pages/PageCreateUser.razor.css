@@ -5,10 +5,12 @@
 
 .cu-card {
     max-width: 560px;
-    padding: 32px;
-    border-radius: 12px;
-    background: var(--TaskbarColor);
-    color: var(--TextColor);
+    padding: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+    color-scheme: dark;
 }
 
 .cu-field {
@@ -18,29 +20,70 @@
     .cu-field label {
         display: block;
         margin-bottom: 6px;
+        color: rgba(255, 255, 255, 0.8);
         font-size: 14px;
         font-weight: 500;
     }
 
-    .cu-field ::deep .validation-message {
-        margin-top: 4px;
-        font-size: 13px;
-        color: var(--DangerText);
+    .cu-field ::deep .form-control {
+        height: 44px;
+        padding: 0 14px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 15px;
+        transition: border-color 150ms ease, box-shadow 150ms ease;
     }
 
+        .cu-field ::deep .form-control:focus {
+            border-color: var(--AccentColor);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px var(--AccentColorSoft);
+            color: #ffffff;
+        }
+
+        .cu-field ::deep .form-control.invalid {
+            border-color: #ff6b6b;
+        }
+
+        .cu-field ::deep .form-control option {
+            background: var(--DashboardColor);
+            color: #ffffff;
+        }
+
+    .cu-field ::deep .validation-message {
+        margin-top: 6px;
+        color: #ff6b6b;
+        font-size: 13px;
+    }
+
+.cu-card .validation-message {
+    color: #ff6b6b;
+    font-size: 13px;
+}
+
 .cu-button {
-    padding: 10px 28px;
+    height: 48px;
+    padding: 0 32px;
     border: none;
-    border-radius: 20px;
+    border-radius: 12px;
     background: var(--ButtonColor);
     color: var(--ButtonTextColor);
+    font-family: inherit;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
+    transition: background-color 150ms ease, transform 120ms ease-out;
 }
 
-    .cu-button:hover {
+    .cu-button:hover:not(:disabled) {
         background: var(--ButtonColorHover);
+    }
+
+    .cu-button:active:not(:disabled) {
+        transform: scale(0.98);
     }
 
     .cu-button:disabled {
@@ -50,6 +93,10 @@
 
 @media (max-width: 700px) {
     .cu-card {
-        padding: 24px 16px;
+        padding: 20px 16px;
+    }
+
+    .cu-button {
+        width: 100%;
     }
 }

@@ -11,59 +11,74 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    border-radius: 8px;
     font-family: inherit;
     font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
     cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease, transform 120ms ease-out;
 }
 
+    ::deep .gu-button:active,
+    ::deep .gu-button-secondary:active {
+        transform: scale(0.97);
+    }
+
 ::deep .gu-button {
-    padding: 10px 24px;
+    height: 44px;
+    padding: 0 20px;
     border: none;
+    border-radius: 12px;
     background: var(--ButtonColor);
     color: var(--ButtonTextColor);
-    font-size: 16px;
+    font-size: 15px;
 }
 
     ::deep .gu-button:hover {
         background: var(--ButtonColorHover);
         color: var(--ButtonTextColor);
+        text-decoration: none;
     }
 
 ::deep .gu-button-secondary {
-    padding: 6px 14px;
-    border: 1px solid var(--BorderColor);
-    background: var(--TaskbarColor);
-    color: var(--TextColor);
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    background: transparent;
+    color: #ffffff;
     font-size: 14px;
 }
 
     ::deep .gu-button-secondary:hover {
         border-color: var(--AccentColor);
         background: var(--AccentColorSoft);
-        color: var(--TextColor);
+        color: #ffffff;
+        text-decoration: none;
     }
 
 .gu-search {
     width: 100%;
     max-width: 360px;
-    height: 36px;
+    height: 40px;
     margin-top: 16px;
-    padding: 0 12px;
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 20px;
-    background: none;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
     color: #ffffff;
+    font-family: inherit;
     font-size: 14px;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
     .gu-search::placeholder {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.5);
     }
 
     .gu-search:focus {
         border-color: var(--AccentColor);
+        box-shadow: 0 0 0 3px var(--AccentColorSoft);
         outline: none;
     }
 
@@ -71,16 +86,16 @@
     display: flex;
     justify-content: center;
     margin-top: 48px;
-    color: var(--MutedText);
+    color: rgba(255, 255, 255, 0.7);
 }
 
 .gu-card {
     margin-top: 24px;
-    padding: 8px 16px;
-    border: 1px solid var(--BorderColor);
-    border-radius: 12px;
-    background: var(--TaskbarColor);
-    color: var(--TextColor);
+    padding: 8px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
 }
 
 .gu-table {
@@ -90,23 +105,33 @@
 }
 
     .gu-table th {
-        padding: 12px 8px;
-        border-bottom: 1px solid var(--BorderColor);
-        color: var(--MutedText);
-        font-size: 13px;
-        font-weight: 500;
+        padding: 14px 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
         text-align: left;
+        text-transform: uppercase;
     }
 
     .gu-table td {
-        padding: 12px 8px;
-        border-bottom: 1px solid var(--BorderColor);
+        padding: 14px 8px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         vertical-align: middle;
     }
 
-    .gu-table tbody tr:last-child td {
-        border-bottom: none;
+    .gu-table tbody tr {
+        transition: background-color 150ms ease;
     }
+
+        .gu-table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .gu-table tbody tr:last-child td {
+            border-bottom: none;
+        }
 
 .gu-name {
     font-weight: 600;
@@ -114,32 +139,32 @@
 }
 
 .gu-muted {
-    color: var(--MutedText);
+    color: rgba(255, 255, 255, 0.65);
     overflow-wrap: anywhere;
 }
 
 .gu-role {
     display: inline-block;
-    padding: 2px 10px;
+    padding: 3px 10px;
     border-radius: 999px;
-    background: var(--SurfaceColor);
-    color: var(--MutedText);
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 12px;
     font-weight: 600;
 }
 
 .gu-role-admin {
     background: var(--AccentColorSoft);
-    color: var(--TextColor);
+    color: var(--AccentColor);
 }
 
 .gu-inactive {
     display: inline-block;
     margin-left: 8px;
-    padding: 2px 10px;
+    padding: 3px 10px;
     border-radius: 999px;
-    background: var(--DangerBg);
-    color: var(--DangerText);
+    background: rgba(255, 107, 107, 0.12);
+    color: #ff8a8a;
     font-size: 12px;
     font-weight: 600;
 }
@@ -150,7 +175,7 @@
 
 @media (max-width: 700px) {
     .gu-card {
-        padding: 4px 8px;
+        padding: 4px 12px;
     }
 
     .gu-table .gu-hide-small {
@@ -159,7 +184,7 @@
 
     .gu-table th,
     .gu-table td {
-        padding: 10px 4px;
+        padding: 12px 4px;
     }
 
     ::deep .gu-button-secondary span {
