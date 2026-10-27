@@ -1,6 +1,7 @@
 ﻿using Activadis.Domain.Interfaces.Helpers;
 using Activadis.Application.Interfaces;
 using Activadis.Application.Templates;
+using Activadis.Domain.Entities;
 
 namespace Activadis.Application.Services
 {
@@ -35,6 +36,9 @@ namespace Activadis.Application.Services
 
         public async Task<bool> SendPasswordSetupAsync(string email, string fullName, string token)
             => await EmailSender.SendAsync(EmailTemplates.PasswordSetup(email, fullName, token));
+
+        public async Task<bool> SendActivityChangedAsync(string email, string fullName, Activity activity)
+            => await EmailSender.SendAsync(EmailTemplates.ActivityChanged(email, fullName, activity));
 
         public async Task<bool> SendTestAsync(string email, string fullName)
             => await SendPasswordSetupAsync(email, fullName, ExampleLink);
