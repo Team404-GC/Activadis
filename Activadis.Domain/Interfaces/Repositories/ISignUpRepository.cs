@@ -9,6 +9,7 @@ namespace Activadis.Domain.Interfaces.Repositories
         Task<SignUp?> GetByUserIdAndActivityIdAsync(Guid userId, Guid activityId);
         Task<SignUp?> GetByEmailAndActivityIdAsync(string email, Guid activityId);
         Task<IEnumerable<SignUp>> GetByActivityIdAsync(Guid activityId);
+        Task<IEnumerable<SignUp>> GetUpcomingByUserIdAsync(Guid userId);
         Task<bool> HasSignedUpAsync(Guid userId, Guid activityId);
         Task<string?> GetFullNameByEmailAndActivityIdAsync(string email, Guid activityId);
         Task<int> CountByActivityIdAsync(Guid activityId);
@@ -16,5 +17,6 @@ namespace Activadis.Domain.Interfaces.Repositories
         Task<SignUp?> GetFirstPositionAsync(Guid activityId);
         Task<SignUp?> GetByEmailAndActivityIdFromWaitlistAsync(string email, Guid activityId);
         Task AdvanceWaitlistAsync(int positionToRemove, Guid activityId);
+        Task<IEnumerable<SignUp>> GetParticipantsByActivityIdAsync(Guid activityId);
     }
 }

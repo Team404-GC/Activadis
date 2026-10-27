@@ -17,14 +17,16 @@ namespace Activadis.Application.Services
         private readonly ISignUpRepository SignUpRepository;
         private readonly ICategoryRepository CategoryRepository;
         private readonly IMatchRepository MatchRepository;
+        private readonly IEmailService EmailService;
 
-        public ActivityService(IActivityRepository activityRepository, IActivityPhotoRepository activityPhotoRepository, ISignUpRepository signUpRepository, ICategoryRepository categoryRepository, IMatchRepository matchRepository)
+        public ActivityService(IActivityRepository activityRepository, IActivityPhotoRepository activityPhotoRepository, ISignUpRepository signUpRepository, ICategoryRepository categoryRepository, IMatchRepository matchRepository, IEmailService emailService)
         {
             ActivityRepository = activityRepository;
             ActivityPhotoRepository = activityPhotoRepository;
             SignUpRepository = signUpRepository;
             CategoryRepository = categoryRepository;
             MatchRepository = matchRepository;
+            EmailService = emailService;
         }
 
         public async Task CreateAsync(CreateActivityRequest request)
@@ -216,6 +218,29 @@ namespace Activadis.Application.Services
 
             IEnumerable<SignUp> signUps = await SignUpRepository.GetByActivityIdAsync(activity.Id);
             return signUps.ToSignUpListResponse();
+        }
+
+        public async Task<InformParticipantsResponse> InformParticipantsAsync(Guid id)
+        {
+            Activity activity = await ActivityRepository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("De activiteit is niet gevonden.");
+
+            IEnumerable<SignUp> signUps = await SignUpRepository.GetParticipantsByActivityIdAsync(activity.Id);
+
+            // Failed emails are logged by the email sender, here they are only counted.
+            int informed = 0;
+            foreach (SignUp signUp in signUps)
+            {
+                if (await EmailService.SendActivityChangedAsync(signUp.User?.Email ?? signUp.Email, signUp.User?.FullName ?? signUp.FullName, activity))
+                    informed++;
+            }
+
+            return new InformParticipantsResponse()
+            {
+                TotalParticipants = signUps.Count(),
+                InformedParticipants = informed,
+                FailedParticipants = signUps.Count() - informed
+            };
         }
 
         public async Task<IEnumerable<RecentMatchDto>> GetLinkableMatchesAsync(Guid id)

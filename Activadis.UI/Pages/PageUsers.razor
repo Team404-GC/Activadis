@@ -45,7 +45,13 @@ else
                 @foreach (UserResponse user in FilteredUsers)
                 {
                     <tr>
-                        <td class="gu-name">@user.FullName</td>
+                        <td class="gu-name">
+                            <span>@user.FullName</span>
+                            @if (!user.IsActive)
+                            {
+                                <span class="gu-inactive">Inactief</span>
+                            }
+                        </td>
                         <td class="gu-hide-small gu-muted">@user.Email</td>
                         <td class="gu-hide-small gu-muted">@user.JobTitle</td>
                         <td>

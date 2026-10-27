@@ -23,6 +23,7 @@ namespace Activadis.Application.Interfaces
 		Task UpdateCategoriesAsync(Guid id, UpdateActivityCategoriesRequest request);
 		Task<IEnumerable<ActivityParticipantResponse>> GetParticipantsAsync(Guid id);
 		Task<ActivitySignUpListResponse> GetSignUpsAsync(Guid id);
+		Task<InformParticipantsResponse> InformParticipantsAsync(Guid id);
 		Task<IEnumerable<RecentMatchDto>> GetLinkableMatchesAsync(Guid id);
 		Task LinkMatchAsync(Guid id, LinkMatchRequest request);
 		Task UnlinkMatchAsync(Guid id, Guid matchId);

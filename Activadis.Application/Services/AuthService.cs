@@ -26,10 +26,16 @@ namespace Activadis.Application.Services
         {
             User? user = await UserRepository.GetByEmailAsync(request.Email);
 
-            if (user is null || !user.HasPassword() || !Password.Validate(user.HashedPassword, request.Password))
+            if (user is null || !user.IsActive || !user.HasPassword() || !Password.Validate(user.HashedPassword, request.Password))
 				throw new AuthenticationException("Het e-mailadres of wachtwoord is onjuist.");
 
 			return TokenService.GenerateToken(user);
+        }
+
+        public async Task<bool> IsActiveAsync(Guid userId)
+        {
+            User? user = await UserRepository.GetByIdAsync(userId);
+            return user is not null && user.IsActive;
         }
 
         public async Task CheckPasswordSetupAsync(string token)

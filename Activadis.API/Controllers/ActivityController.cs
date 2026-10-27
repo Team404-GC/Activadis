@@ -235,6 +235,21 @@ namespace Activadis.API.Controllers
 			}
 		}
 
+		[HttpPost("{id:guid}/participants/inform")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> InformParticipantsAsync(Guid id)
+		{
+			try
+			{
+				InformParticipantsResponse response = await ActivityService.InformParticipantsAsync(id);
+				return Ok(ApiResponse<InformParticipantsResponse>.Ok(response));
+			}
+			catch (KeyNotFoundException exception)
+			{
+				return NotFound(ApiResponse<InformParticipantsResponse>.Fail(exception.Message));
+			}
+		}
+
 		[HttpGet("{id:guid}/matches/linkable")]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> GetLinkableMatchesAsync(Guid id)

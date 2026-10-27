@@ -14,13 +14,17 @@ namespace Activadis.Application.Services
         private const int PasswordSetupValidMinutes = 15;
 
         private readonly IUserRepository UserRepository;
+        private readonly ISignUpRepository SignUpRepository;
+        private readonly IWaitlistService WaitlistService;
         private readonly ITokenService TokenService;
         private readonly IEmailService EmailService;
         private readonly IConfiguration Configuration;
 
-        public UserService(IUserRepository userRepository, ITokenService tokenService, IEmailService emailService, IConfiguration configuration)
+        public UserService(IUserRepository userRepository, ISignUpRepository signUpRepository, IWaitlistService waitlistService, ITokenService tokenService, IEmailService emailService, IConfiguration configuration)
         {
             UserRepository = userRepository;
+            SignUpRepository = signUpRepository;
+            WaitlistService = waitlistService;
             TokenService = tokenService;
             EmailService = emailService;
             Configuration = configuration;
@@ -66,8 +70,8 @@ namespace Activadis.Application.Services
                 ?? throw new KeyNotFoundException("De gebruiker is niet gevonden.");
 
             User? existingUser = await UserRepository.GetByEmailAsync(request.Email.Trim());
-            int adminCount = await UserRepository.CountByRoleAsync(UserRole.Admin);
-            request.Validate(user, existingUser, adminCount);
+            int activeAdminCount = await UserRepository.CountActiveByRoleAsync(UserRole.Admin);
+            request.Validate(user, existingUser, activeAdminCount);
 
             user.FullName = request.FullName.Trim();
             user.Email = request.Email.Trim();
@@ -75,6 +79,29 @@ namespace Activadis.Application.Services
             user.Role = Enum.Parse<UserRole>(request.Role);
 
             await UserRepository.UpdateAsync(user);
+        }
+
+        public async Task UpdateStatusAsync(Guid id, Guid currentUserId, UpdateUserStatusRequest request)
+        {
+            User user = await UserRepository.GetByIdAsync(id)
+                ?? throw new KeyNotFoundException("De gebruiker is niet gevonden.");
+
+            int activeAdminCount = await UserRepository.CountActiveByRoleAsync(UserRole.Admin);
+            request.Validate(user, currentUserId, activeAdminCount);
+
+            user.IsActive = request.IsActive;
+            await UserRepository.UpdateAsync(user);
+
+            if (user.IsActive)
+                return;
+
+            // Upcoming registrations are removed, past registrations stay as history.
+            IEnumerable<SignUp> signUps = await SignUpRepository.GetUpcomingByUserIdAsync(user.Id);
+            foreach (SignUp signUp in signUps)
+            {
+                await SignUpRepository.DeleteAsync(signUp);
+                await WaitlistService.NotifyWaitlistAsync(signUp.ActivityId);
+            }
         }
     }
 }

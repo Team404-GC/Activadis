@@ -140,6 +140,24 @@ else if (context is not null)
             }
         </div>
     </div>
+
+    <link rel="stylesheet" href="/css/signup-component.css" />
+    <div class="signup-container @(showInformPrompt ? "container-visible" : "")">
+        <div class="form">
+            <section>
+                <label>Deelnemers informeren</label>
+                <p>De activiteit is opgeslagen. Wil je alle deelnemers een e-mail sturen met de actuele datum, tijd en locatie?</p>
+            </section>
+            <section>
+                <button type="button" @onclick="InformParticipantsAsync" disabled="@isInforming">
+                    @(!isInforming ? "Deelnemers informeren" : "Aan het laden..")
+                </button>
+            </section>
+            <section>
+                <button type="button" @onclick="SkipInformParticipants" disabled="@isInforming">Overslaan</button>
+            </section>
+        </div>
+    </div>
 }
 
 @code {
@@ -159,6 +177,8 @@ else if (context is not null)
     Dictionary<string, string> typedDates = [];
     bool isEditing = false;
     bool isLoading = true;
+    bool showInformPrompt = false;
+    bool isInforming = false;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -251,8 +271,39 @@ else if (context is not null)
         }
 
         Notifications.AddNotification("De activiteit is met succes bijgewerkt.", false);
-        NavigationManager.NavigateTo($"/activiteit/{Id}");
         isEditing = false;
+        showInformPrompt = true;
+    }
+
+    public async Task InformParticipantsAsync()
+    {
+        isInforming = true;
+
+        ApiResponse<InformParticipantsResponse> response = await ActivityService.InformParticipantsAsync(activity?.Id ?? Guid.Empty);
+        if (!response.Succeeded || response.Value is null)
+        {
+            Notifications.AddNotification(response.Message, true);
+            isInforming = false;
+            return;
+        }
+
+        InformParticipantsResponse result = response.Value;
+        if (result.FailedParticipants > 0)
+            Notifications.AddNotification($"{result.InformedParticipants} van de {result.TotalParticipants} deelnemers zijn geïnformeerd. Bij {result.FailedParticipants} deelnemers kon de e-mail niet worden verstuurd.", true, 6000);
+        else if (result.TotalParticipants == 0)
+            Notifications.AddNotification("Er zijn geen deelnemers om te informeren.", false);
+        else
+            Notifications.AddNotification($"{result.InformedParticipants} deelnemers zijn geïnformeerd.", false);
+
+        isInforming = false;
+        showInformPrompt = false;
+        NavigationManager.NavigateTo($"/activiteit/{Id}");
+    }
+
+    public void SkipInformParticipants()
+    {
+        showInformPrompt = false;
+        NavigationManager.NavigateTo($"/activiteit/{Id}");
     }
 
     public async Task OnPhotosChangeAsync(InputFileChangeEventArgs args)
