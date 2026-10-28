@@ -22,7 +22,7 @@
         </div>
     }
 </div>
-<ResignUpComponent OnSubmit="OnSubmitAsync" @bind-Request="request" />
+<ResignUpComponent OnSubmit="OnSubmitAsync" @bind-Request="request" PlusOneAllowed="activity.PlusOneAllowed" />
 
 @code {
     [Parameter] public string Token { get; set; } = string.Empty;
@@ -56,19 +56,19 @@
         }
 
         activity = activityResponse.Value;
-        if (activity.PlusOneAllowed)
+        request.ShouldOpenComponent = true;
+    }
+
+    public async Task OnSubmitAsync()
+    {
+        request.ShouldOpenComponent = false;
+        response = await SignUpService.ResignUpRequestAsync(Token, request.Request);
+        if (!response.Succeeded)
         {
             request.ShouldOpenComponent = true;
             return;
         }
 
-        await OnSubmitAsync();
-    }
-
-    public async Task OnSubmitAsync()
-    {
-        request.ShouldOpenComponent = true;
-        response = await SignUpService.ResignUpRequestAsync(Token, request.Request);
         isLoading = false;
     }
 }

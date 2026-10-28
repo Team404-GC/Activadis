@@ -38,6 +38,7 @@ namespace Activadis.Application.Services
             {
                 FullName = signUp.FullName,
                 Email = signUp.Email,
+                Comment = signUp.Comment,
                 HasPlusOne = signUp.HasPlusOne,
                 ActivityId = activityId
             });
