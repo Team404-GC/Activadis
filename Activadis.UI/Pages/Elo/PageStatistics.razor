@@ -249,9 +249,22 @@ else
         </section>
 
         <section class="st-card st-card-wide">
-            <h2>Laatste wedstrijden</h2>
+            <div class="st-card-header">
+                <h2>Laatste wedstrijden</h2>
 
-            @if (!recentMatches.Any())
+                <div class="st-filter st-filter-small">
+                    <label for="aantal-wedstrijden">Aantal wedstrijden</label>
+                    <select id="aantal-wedstrijden" class="st-select" value="@latestMatchCount" @onchange="OnLatestMatchCountChanged">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+
+            @if (!latestMatches.Any())
             {
                 <p class="st-empty">Er zijn geen wedstrijden gevonden.</p>
             }
@@ -267,7 +280,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (RecentMatchDto match in recentMatches)
+                        @foreach (RecentMatchDto match in latestMatches)
                         {
                             <tr>
                                 <td class="st-nowrap">@match.MatchDate.ToDisplayDateTime()</td>
@@ -287,11 +300,13 @@ else
     private List<CategoryDto> categories = [];
     private Guid? selectedCategoryId;
     private int topPlayers = 5;
+    private int latestMatchCount = 10;
 
     private EloSummaryDto? summary;
     private List<LeaderboardEntryDto> leaderboard = [];
     private List<ActivityPointDto> activity = [];
     private List<RecentMatchDto> recentMatches = [];
+    private List<RecentMatchDto> latestMatches = [];
     private List<PlayerRatingHistoryDto> ratingHistory = [];
 
     private List<RatingBucket> ratingBuckets = [];
@@ -352,6 +367,18 @@ else
         chartKey = Guid.NewGuid();
     }
 
+    private async Task OnLatestMatchCountChanged(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out int count))
+            return;
+
+        latestMatchCount = count;
+
+        ApiResponse<List<RecentMatchDto>> response = await EloService.GetRecentMatchesAsync(selectedCategoryId, latestMatchCount);
+        if (IsSucceeded(response))
+            latestMatches = response.Value ?? [];
+    }
+
     private async Task LoadAsync()
     {
         isLoading = true;
@@ -362,11 +389,12 @@ else
             : EloService.GetOverallLeaderboardAsync();
         Task<ApiResponse<List<ActivityPointDto>>> activityTask = EloService.GetActivityAsync(selectedCategoryId, 12);
         Task<ApiResponse<List<RecentMatchDto>>> recentTask = EloService.GetRecentMatchesAsync(selectedCategoryId, 20);
+        Task<ApiResponse<List<RecentMatchDto>>> latestTask = EloService.GetRecentMatchesAsync(selectedCategoryId, latestMatchCount);
         Task<ApiResponse<List<PlayerRatingHistoryDto>>>? historyTask = selectedCategoryId.HasValue
             ? EloService.GetRatingHistoryAsync(selectedCategoryId.Value, topPlayers)
             : null;
 
-        List<Task> tasks = [summaryTask, leaderboardTask, activityTask, recentTask];
+        List<Task> tasks = [summaryTask, leaderboardTask, activityTask, recentTask, latestTask];
         if (historyTask is not null)
             tasks.Add(historyTask);
 
@@ -376,6 +404,7 @@ else
         leaderboard = GetValue(await leaderboardTask) ?? [];
         activity = GetValue(await activityTask) ?? [];
         recentMatches = GetValue(await recentTask) ?? [];
+        latestMatches = GetValue(await latestTask) ?? [];
         ratingHistory = historyTask is null ? [] : GetValue(await historyTask) ?? [];
 
         BuildDerivedData();

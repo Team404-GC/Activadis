@@ -104,7 +104,7 @@ Read-only queries that feed the charts on the statistics page. All of them go th
   - This way the line always ends on the real current rating. Because `RatingChange` is stored as the actual difference (`new - old`, after clamping to the floor/ceiling), the reconstruction stays exact even where a rating was clamped
 - **`GetSummaryAsync(categoryId?)`** — total matches, matches this month, and number of active players (distinct users with at least one participation)
 - **`GetActivityAsync(categoryId?, months)`** — matches per month for the last N months (`months` is clamped to 1–60). Months without matches are included with a count of 0, so a chart has no gaps
-- **`GetRecentMatchesAsync(categoryId?, take)`** — latest matches first (`take` is clamped to 1–100), each with its category, date, notes and participants ordered by placement with their rating change. Also usable for "biggest gains and losses"
+- **`GetRecentMatchesAsync(categoryId?, take)`** — latest matches first (`take` is clamped to 1–100 and only that many matches are read from the database through `IMatchRepository.GetRecentMatchesAsync`), each with its category, date, notes and participants ordered by placement with their rating change. Also usable for "biggest gains and losses"
 
 Some visuals need no extra endpoint and are calculated in the UI from the leaderboard data: rating distribution (100-point buckets), scatter plot of match count against rating, rank title spread, and the KPI values for average rating and highest peak rating.
 
@@ -255,7 +255,7 @@ The ELO pages live in `Activadis.UI/Pages/Elo` and follow the `Page*.razor` nami
 | `PagePlayer` | `/speler/{id}` | Stat tiles for the overall numbers, one card per category with rating, rank title, peak rating and match count, and the latest matches. |
 | `PageCategories` | `/categorieen` | Category table with status pill; `CategoryFormComponent` and `RankTitlesComponent` open as a form card above it. |
 | `PageRecordMatch` | `/wedstrijd/nieuw` | Form cards for the match data and participants (`UserSelectComponent` per player), result table after saving. |
-| `PageStatistics` | `/statistieken` | KPI tiles and the charts/tables in cards. |
+| `PageStatistics` | `/statistieken` | KPI tiles and the charts/tables in cards. The "Laatste wedstrijden" table has a dropdown for the number of matches (5, 10, 20, 50 or 100, default 10). |
 
 - Each page and component has its own scoped `.razor.css` with a short class prefix (`lb-`, `pl-`, `ca-`, `cf-`, `rt-`, `rm-`, `st-`, `ib-`, `us-`). There are no inline styles.
 - Colours come from the variables in `wwwroot/css/app.css`. The ELO pages added `--AccentColorSoft` (also used by the activity pages, where it was missing), `--SuccessBg`, `--SuccessText`, `--GoldColor`, `--SilverColor` and `--BronzeColor`.

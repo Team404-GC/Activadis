@@ -122,6 +122,46 @@ namespace Activadis.UnitTests
             _matchRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Domain.Entities.Match>()), Times.Never);
         }
 
+        [Theory]
+        [InlineData(10, 10)]
+        [InlineData(0, 1)]
+        [InlineData(500, 100)]
+        public async System.Threading.Tasks.Task GetRecentMatchesAsync_AsksRepositoryForClampedAmount(int take, int expected)
+        {
+            _matchRepositoryMock.Setup(repo => repo.GetRecentMatchesAsync(null, expected))
+                .ReturnsAsync(new List<Domain.Entities.Match>());
+
+            await _eloServiceMock.GetRecentMatchesAsync(null, take);
+
+            _matchRepositoryMock.Verify(repo => repo.GetRecentMatchesAsync(null, expected), Times.Once);
+        }
+
+        [Fact]
+        public async System.Threading.Tasks.Task GetRecentMatchesAsync_ReturnsMatchesWithParticipantsByPlacement()
+        {
+            var category = new Category { Id = Guid.NewGuid(), Name = "Darts" };
+            var match = new Domain.Entities.Match
+            {
+                Id = Guid.NewGuid(),
+                CategoryId = category.Id,
+                Category = category,
+                MatchDate = DateTime.UtcNow,
+                Participants = new List<MatchParticipant>
+                {
+                    new MatchParticipant { UserId = Guid.NewGuid(), Placement = 2, User = new User { FullName = "Bob" } },
+                    new MatchParticipant { UserId = Guid.NewGuid(), Placement = 1, User = new User { FullName = "Alice" } },
+                },
+            };
+            _matchRepositoryMock.Setup(repo => repo.GetRecentMatchesAsync(category.Id, 10))
+                .ReturnsAsync(new List<Domain.Entities.Match> { match });
+
+            var result = await _eloServiceMock.GetRecentMatchesAsync(category.Id, 10);
+
+            var dto = Assert.Single(result);
+            Assert.Equal("Darts", dto.CategoryName);
+            Assert.Equal(new[] { "Alice", "Bob" }, dto.Participants.Select(p => p.FullName));
+        }
+
         [Fact]
         public async System.Threading.Tasks.Task RecordMatchAsync_IndividualMatch_UpdatesBothPlayersAndReturnsResults()
         {
