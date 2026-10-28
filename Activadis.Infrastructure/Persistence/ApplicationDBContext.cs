@@ -53,6 +53,8 @@ namespace Activadis.Infrastructure.Persistence
 
                 context.UseMatchSeeder();
                 context.UseRatingSeeder();
+
+                context.UseSignUpSeeder();
             });
 
             base.OnConfiguring(builder);

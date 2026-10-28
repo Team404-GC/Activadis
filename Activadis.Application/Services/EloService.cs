@@ -1,3 +1,4 @@
+using Activadis.Application.Extensions;
 using Activadis.Application.Interfaces;
 using Activadis.Application.Validations.Activity;
 using Activadis.Domain.Entities;
@@ -613,31 +614,8 @@ namespace Activadis.Application.Services
         {
             take = Math.Clamp(take, 1, 100);
 
-            var participations = await GetFinalizedParticipationsAsync(categoryId);
-
-            return participations
-                .GroupBy(p => p.MatchId)
-                .Select(g => new { Match = g.First().Match!, Participants = g.ToList() })
-                .OrderByDescending(x => x.Match.MatchDate)
-                .ThenByDescending(x => x.Match.CreatedAt)
-                .Take(take)
-                .Select(x => new RecentMatchDto
-                {
-                    MatchId = x.Match.Id,
-                    CategoryId = x.Match.CategoryId,
-                    CategoryName = x.Match.Category?.Name ?? "Onbekend",
-                    MatchDate = x.Match.MatchDate,
-                    Notes = x.Match.Notes,
-                    Participants = x.Participants
-                        .OrderBy(p => p.Placement)
-                        .Select(p => new RecentMatchParticipantDto
-                        {
-                            UserId = p.UserId,
-                            FullName = p.User?.FullName ?? "Onbekend",
-                            Placement = p.Placement,
-                            RatingChange = p.RatingChange
-                        }).ToList()
-                }).ToList();
+            var matches = await _matchRepository.GetRecentMatchesAsync(categoryId, take);
+            return matches.Select(m => m.ToRecentMatchDto()).ToList();
         }
 
         private async Task<List<MatchParticipant>> GetFinalizedParticipationsAsync(Guid? categoryId)
