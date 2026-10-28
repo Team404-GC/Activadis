@@ -45,10 +45,9 @@ namespace Activadis.Application.Services
 
         public async Task EditAsync(EditActivityRequest request)
         {
-            request.Validate();
-
             Activity activity = await ActivityRepository.GetDetailAsync(request.ActivityId.ToString())
                 ?? throw new ArgumentException("De activiteit is niet gevonden.");
+            request.Validate(activity);
 
             activity.Name = request.Name;
             activity.Description = request.Description;

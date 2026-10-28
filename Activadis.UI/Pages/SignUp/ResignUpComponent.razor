@@ -1,13 +1,16 @@
 ﻿<link rel="stylesheet" href="/css/signup-component.css" />
 <div class="signup-container @(Request.ShouldOpenComponent ? "container-visible" : "")">
     <EditForm EditContext="Request.Context" OnValidSubmit="OnSubmitAsync" class="form">
-        <section>
-            <label>Zou je een +1 willen meenemen?</label>
-            <label class="switch">
-                <InputCheckbox @bind-Value="Request.Request.HasPlusOne" />
-                <span class="slider round"></span>
-            </label>
-        </section>
+        @if (PlusOneAllowed)
+        {
+            <section>
+                <label>Zou je een +1 willen meenemen?</label>
+                <label class="switch">
+                    <InputCheckbox @bind-Value="Request.Request.HasPlusOne" />
+                    <span class="slider round"></span>
+                </label>
+            </section>
+        }
         <section>
             <label>
                 Opmerking (optioneel)
@@ -26,6 +29,7 @@
     [Parameter] public required EventCallback<ComponentRequest<ResignUpRequest>> RequestChanged { get; set; }
     [Parameter] public required ComponentRequest<ResignUpRequest> Request { get; set; }
     [Parameter] public required EventCallback OnSubmit { get; set; }
+    [Parameter] public required bool PlusOneAllowed { get; set; }
 
     public async Task OnSubmitAsync()
     {

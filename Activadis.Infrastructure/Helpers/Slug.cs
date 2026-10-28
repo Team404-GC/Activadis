@@ -11,14 +11,20 @@ namespace Activadis.Infrastructure.Helpers
         [GeneratedRegex(@"[^a-z0-9\s-]")]
         private static partial Regex NoLettersAndNumbers();
 
-        [GeneratedRegex(@"\s+")]
+        [GeneratedRegex(@"\s{2,}")]
         private static partial Regex NoDoubleSpaces();
+
+        [GeneratedRegex(@"-{2,}")]
+        private static partial Regex NoDoubleDashes();
 
         private static string RemoveAllNonLettersAndNumbers(this string text)
             => NoLettersAndNumbers().Replace(text, string.Empty);
 
         private static string RemoveAllDoubleSpaces(this string text)
             => NoDoubleSpaces().Replace(text, " ").Trim();
+
+        private static string RemoveAllDoubleDashes(this string text)
+            => NoDoubleDashes().Replace(text, "-").Trim();
 
         private static string Generate(string text)
         {
@@ -27,14 +33,13 @@ namespace Activadis.Infrastructure.Helpers
             text.RemoveAllNonLettersAndNumbers();
             text.RemoveAllDoubleSpaces();
 
-            return text.Replace(" ", "-");
+            text = text.Replace(" ", "-");
+            return text.RemoveAllDoubleDashes();
         }
 
         public static async Task<string> GenerateUniqueAsync(DbContext context, IHasSlug entity, string text)
         {
             string slug = Generate(text);
-
-            // The entity already has this slug, counting it would give itself a new number.
             if (entity.Slug == slug)
                 return slug;
 
