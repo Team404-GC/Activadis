@@ -82,6 +82,7 @@
 
             textarea {
                 min-width: 257.11px;
+                max-width: 100%;
                 resize: both;
             }
 

@@ -659,7 +659,6 @@
             return;
 
         request.FormError = null;
-
         if (typeof(TRequest) != typeof(SignOutRequest) || action is null || User?.Identity?.IsAuthenticated == false)
         {
             request.ShouldOpenComponent = true;
